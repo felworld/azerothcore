@@ -228,12 +228,14 @@ RUN apt-get update && \
     apt-get install -y curl unzip && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --chown=$DOCKER_USER:$DOCKER_USER apps apps
+COPY apps apps
 
 VOLUME /azerothcore/env/dist/data
 
-USER $DOCKER_USER
-
+# NOTE: this stage is `FROM skeleton`, which never declares ARG DOCKER_USER nor
+# creates the acore user (that happens in the `runtime` stage), so $DOCKER_USER
+# is empty here. Run as root rather than chown/USER to an empty user — buildah
+# strictly parses `--chown=:` and an empty USER and fails where BuildKit tolerates them.
 CMD ["bash",  "-c", "source /azerothcore/apps/installer/includes/functions.sh && inst_download_client_data" ]
 
 ##################
