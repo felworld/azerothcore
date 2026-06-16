@@ -4,3 +4,6 @@
 [submodule "modules/mod-ollama-chat"]
 	path = modules/mod-ollama-chat
 	url = https://github.com/felworld/mod-ollama-chat
+[submodule "env/dist/etc"]
+	path = env/dist/etc
+	url = https://github.com/felworld/configs
