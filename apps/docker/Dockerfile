@@ -182,6 +182,14 @@ ENV AC_UPDATES_ENABLE_DATABASES=0
 ENV AC_DISABLE_INTERACTIVE=1
 ENV AC_CLOSE_IDLE_CONNECTIONS=0
 
+# Module-owned databases (e.g. mod-playerbots' acore_playerbots) are not handled
+# by db-import: dbimport only loads the three core pools and never runs module
+# script hooks. Such modules manage their own DB from a DatabaseScript hook that
+# fires only inside worldserver, so worldserver needs the module SQL files to
+# populate/update those databases on startup.
+COPY --chown=$DOCKER_USER:$DOCKER_USER \
+     modules modules
+
 COPY --chown=$DOCKER_USER:$DOCKER_USER \
      --from=build \
      /azerothcore/env/dist/bin/worldserver /azerothcore/env/dist/bin/worldserver
