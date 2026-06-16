@@ -133,6 +133,44 @@ services:
       ac-db-import:
         condition: service_completed_successfully
 
+  # Ollama LLM server used by mod-ollama-chat. Runs on the NVIDIA GPU (requires
+  # the NVIDIA Container Toolkit on the host) and auto-pulls the model on first
+  # start. worldserver reaches it over ac-network at http://ac-ollama:11434 —
+  # see OllamaChat.Url in env/dist/etc/modules/mod_ollama_chat.conf. There is
+  # intentionally no depends_on from worldserver: the module calls Ollama
+  # lazily, so a missing GPU / failed pull won't block the game server.
+  ac-ollama:
+    container_name: ac-ollama
+    image: ollama/ollama
+    networks:
+      - ac-network
+    ports:
+      - ${DOCKER_OLLAMA_EXTERNAL_PORT:-11434}:11434
+    environment:
+      # Bind all interfaces so other containers can reach it by service name
+      # (the image otherwise listens on 127.0.0.1 only).
+      OLLAMA_HOST: "0.0.0.0:11434"
+    volumes:
+      - ${DOCKER_VOL_OLLAMA:-ac-ollama}:/root/.ollama
+      # Starts the server, then pulls the model on first run (see the script).
+      - ./apps/docker/ollama-entrypoint.sh:/usr/local/bin/ollama-entrypoint.sh:ro
+    restart: unless-stopped
+    entrypoint: ["bash", "/usr/local/bin/ollama-entrypoint.sh"]
+    healthcheck:
+      # Healthy only once the model has finished downloading.
+      test: ["CMD-SHELL", "ollama list | grep -q gemma4 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 120
+      start_period: 20s
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
   ac-client-data-init:
     container_name: ac-client-data-init
     image: acore/ac-wotlk-client-data:${DOCKER_IMAGE_TAG:-master}
@@ -216,6 +254,7 @@ services:
 volumes:
   ac-database:
   ac-client-data:
+  ac-ollama:
   # Used for dev server
   ac-build-dev:
   ac-ccache-dev:
