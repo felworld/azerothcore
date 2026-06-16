@@ -85,6 +85,13 @@ services:
       - ${DOCKER_VOL_LOGS:-./env/dist/logs}:/azerothcore/env/dist/logs:delegated
       # client data
       - ${DOCKER_VOL_DATA:-ac-client-data}:/azerothcore/env/dist/data/:ro
+      # Module SQL needed at runtime. Module-owned databases (e.g.
+      # mod-playerbots' acore_playerbots) aren't handled by db-import: it only
+      # loads the three core pools. Such modules create/migrate their own DB from
+      # a DatabaseScript hook that runs only inside worldserver, reading SQL from
+      # /azerothcore/modules/<mod>/data/sql. Mounting (vs. baking into the image)
+      # keeps the SQL in sync with the submodules without rebuilding.
+      - ${DOCKER_VOL_MODULES:-./modules}:/azerothcore/modules:ro
     depends_on:
       ac-database:
         condition: service_healthy
