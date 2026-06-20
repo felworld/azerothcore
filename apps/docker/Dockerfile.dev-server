@@ -94,10 +94,13 @@ RUN chown -R $DOCKER_USER:$DOCKER_USER /home/acore /run /opt /azerothcore
 USER $DOCKER_USER
 
 # copy only necessary files for the acore dashboard
+# NOTE: data/ is intentionally not copied — it's excluded from the build context
+# (.dockerignore) and the dev container bind-mounts the whole repo over
+# /azerothcore at runtime (see ac-dev-server volumes), so a baked copy would be
+# shadowed anyway.
 COPY --chown=$DOCKER_USER:$DOCKER_USER apps /azerothcore/apps
 COPY --chown=$DOCKER_USER:$DOCKER_USER bin /azerothcore/bin
 COPY --chown=$DOCKER_USER:$DOCKER_USER conf /azerothcore/conf
-COPY --chown=$DOCKER_USER:$DOCKER_USER data /azerothcore/data
 COPY --chown=$DOCKER_USER:$DOCKER_USER deps /azerothcore/deps
 COPY --chown=$DOCKER_USER:$DOCKER_USER acore.json /azerothcore/acore.json
 COPY --chown=$DOCKER_USER:$DOCKER_USER acore.sh /azerothcore/acore.sh

@@ -199,9 +199,11 @@ USER $DOCKER_USER
 
 ENV ACORE_COMPONENT=dbimport
 
-COPY --chown=$DOCKER_USER:$DOCKER_USER \
-    data data
-
+# NOTE: data/ (the ~800MB SQL tree) is NOT baked into the image. It's excluded
+# from the build context (.dockerignore) and bind-mounted at runtime instead
+# (see the ac-db-import volumes in docker-compose.yml). dbimport reads SQL from
+# SourceDirectory, which defaults to the compiled-in /azerothcore, so the mount
+# lands at /azerothcore/data.
 COPY --chown=$DOCKER_USER:$DOCKER_USER \
     modules modules
 

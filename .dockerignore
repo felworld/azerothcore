@@ -16,5 +16,10 @@
 .git
 **/.git
 
+# SQL source tree (~800MB) is no longer baked into the db-import image; it's
+# bind-mounted at runtime instead (see ac-db-import in docker-compose.yml).
+# Anchored to the repo root so module SQL (modules/*/data/sql) is unaffected.
+/data
+
 # do not ignore the ccache folder (used by the ci)
 !/var/docker/ccache
