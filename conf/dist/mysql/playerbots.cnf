@@ -1,0 +1,45 @@
+#
+# MySQL tuning for an AzerothCore + mod-playerbots realm, mounted into the
+# ac-database container at /etc/mysql/conf.d/zz-playerbots.cnf (see
+# docker-compose.yml). The "zz-" prefix makes it load last so these win over
+# the image defaults.
+#
+# Based on the mod-playerbots recommendations
+# (https://github.com/mod-playerbots/mod-playerbots/wiki/Playerbot-Configuration),
+# but scaled for a single host (~32G RAM) shared with worldserver, not a
+# dedicated 64G database box. The playerbot write load is the reason these
+# matter: lots of bots => lots of character/playerbots DB writes.
+#
+# NOTE: the biggest disk-I/O win on a btrfs host is putting the datadir on a
+# nodatacow (chattr +C) location, which is a filesystem concern outside this
+# file. Copy-on-write turns InnoDB's in-place writes into fragmentation + write
+# amplification underneath all of the tuning below.
+#
+[mysqld]
+# --- Memory -----------------------------------------------------------------
+# Shared host, not a dedicated DB box: leave RAM for worldserver. ~10G caches
+# the world DB plus hot character/playerbots pages with room to spare.
+innodb_buffer_pool_size        = 10G
+innodb_log_buffer_size         = 32M
+# 8.4's replacement for innodb_log_file_size; larger redo = fewer checkpoint
+# flushes = less write I/O.
+innodb_redo_log_capacity       = 2G
+
+# --- SSD I/O pacing ---------------------------------------------------------
+# Tuned for SSD/NVMe. Drop to ~200 / 2000 and re-enable flush_neighbors if this
+# ever runs on a spinning disk.
+innodb_io_capacity             = 2000
+innodb_io_capacity_max         = 6000
+innodb_flush_neighbors         = 0
+
+# --- Durability (relaxed for a private realm) -------------------------------
+# Biggest write-I/O reduction. Trade: up to ~1s of transactions lost on a hard
+# crash, and skip-log-bin gives up replication / point-in-time recovery. Fine
+# for a single private realm; revisit if you ever need either.
+innodb_flush_log_at_trx_commit = 2
+innodb_use_fdatasync           = ON
+skip-log-bin
+
+# --- Concurrency ------------------------------------------------------------
+# Cuts deadlocks under concurrent bot writes (per the playerbots guide).
+transaction_isolation          = READ-COMMITTED
