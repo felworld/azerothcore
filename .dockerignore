@@ -10,5 +10,11 @@
 .idea
 !.gitkeep
 
+# Git history (~1GB) is not needed in the build context. The build no longer
+# bind-mounts .git; the version string is stamped via -DWITHOUT_GIT in
+# apps/docker/Dockerfile. Excludes the root repo and any submodule .git dirs.
+.git
+**/.git
+
 # do not ignore the ccache folder (used by the ci)
 !/var/docker/ccache
