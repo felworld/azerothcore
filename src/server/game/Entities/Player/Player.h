@@ -1006,7 +1006,8 @@ enum PlayerXPSource
     XPSOURCE_QUEST = 1,
     XPSOURCE_QUEST_DF = 2,
     XPSOURCE_EXPLORE = 3,
-    XPSOURCE_BATTLEGROUND = 4
+    XPSOURCE_BATTLEGROUND = 4,
+    XPSOURCE_PROFESSION = 5
 };
 
 enum InstantFlightGossipAction

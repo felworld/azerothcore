@@ -2458,6 +2458,20 @@ Rate.XP.Explore   = 1
 Rate.XP.Pet       = 1
 
 #
+#    Rate.XP.Profession.SkillUp
+#        Description: Multiplier for the experience awarded when a player gains a
+#                     profession skill point (primary and secondary professions,
+#                     e.g. Mining, Tailoring, Cooking, Fishing, First Aid).
+#                     The base reward is sized to roughly match killing a single
+#                     green-difficulty mob at the player's level and is also
+#                     scaled by Rate.XP.Kill. Set to 0 to disable profession
+#                     skill-up experience entirely.
+#        Default:     1
+#        Minimum:     0
+
+Rate.XP.Profession.SkillUp = 1
+
+#
 #    Rate.XP.BattlegroundKill...
 #        Description: Experience rate for honorable kills in battlegrounds. Not affected by Rate.XP.Kill. Defined for each battleground.
 #                     Only works if Battleground.GiveXPForKills = 1

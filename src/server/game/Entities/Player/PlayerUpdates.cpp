@@ -20,6 +20,7 @@
 #include "CellImpl.h"
 #include "Channel.h"
 #include "ChannelMgr.h"
+#include "DBCStores.h"
 #include "Formulas.h"
 #include "GameTime.h"
 #include "GridNotifiers.h"
@@ -909,6 +910,39 @@ static uint32       bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
 static const std::size_t bonusSkillLevelsSize =
     sizeof(bonusSkillLevels) / sizeof(uint32);
 
+// Experience granted per profession skill point, sized to roughly match killing
+// a single green-difficulty mob at the player's level. The reward tracks the
+// server's kill XP rate (Rate.XP.Kill) and the dedicated profession multiplier
+// (Rate.XP.Profession.SkillUp). Returns 0 when no green band exists (very low
+// level) or the feature is disabled.
+static uint32 ProfessionSkillUpXP(Player const* player)
+{
+    uint8 const level = player->GetLevel();
+
+    // Below level 4 there is no green-difficulty band to mimic.
+    if (level <= 3)
+        return 0;
+
+    // Top of the green band: yellow begins at (level - 2), so (level - 3) is the
+    // highest still-green mob level. Acore::XP::BaseGain returns 0 on its own if
+    // this lands at or below the gray threshold.
+    uint8 const mobLevel = level - 3;
+
+    ContentLevels content;
+    if (level <= 60)
+        content = CONTENT_1_60;
+    else if (level <= 70)
+        content = CONTENT_61_70;
+    else
+        content = CONTENT_71_80;
+
+    float xp = float(Acore::XP::BaseGain(level, mobLevel, content));
+    xp *= sWorld->getRate(RATE_XP_KILL);
+    xp *= sWorld->getRate(RATE_XP_PROFESSION_SKILLUP);
+
+    return uint32(xp);
+}
+
 bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 {
     LOG_DEBUG("entities.player.skills",
@@ -969,6 +1003,23 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
                   Chance / 10.0f);
 
         sScriptMgr->OnPlayerUpdateSkill(this, SkillId, SkillValue, MaxValue, step, new_value);
+
+        // Reward a small amount of experience for advancing a profession (primary
+        // or secondary). Combat skills (weapon/defense/class) are excluded.
+        if (uint32 pointsGained = new_value - SkillValue)
+        {
+            SkillLineEntry const* skillLine = sSkillLineStore.LookupEntry(SkillId);
+            if (skillLine && (skillLine->categoryId == SKILL_CATEGORY_PROFESSION ||
+                              skillLine->categoryId == SKILL_CATEGORY_SECONDARY))
+            {
+                if (uint32 xp = ProfessionSkillUpXP(this) * pointsGained)
+                {
+                    sScriptMgr->OnPlayerGiveXP(this, xp, nullptr, PlayerXPSource::XPSOURCE_PROFESSION);
+                    GiveXP(xp, nullptr);
+                }
+            }
+        }
+
         return true;
     }
 
