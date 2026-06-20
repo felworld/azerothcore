@@ -910,23 +910,13 @@ static uint32       bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
 static const std::size_t bonusSkillLevelsSize =
     sizeof(bonusSkillLevels) / sizeof(uint32);
 
-// Experience granted per profession skill point, sized to roughly match killing
-// a single green-difficulty mob at the player's level. The reward tracks the
-// server's kill XP rate (Rate.XP.Kill) and the dedicated profession multiplier
-// (Rate.XP.Profession.SkillUp). Returns 0 when no green band exists (very low
-// level) or the feature is disabled.
+// Experience granted per profession skill point. The baseline is the base XP
+// from killing a same-level mob; Rate.XP.Profession.SkillUp scales that to the
+// intended reward (0.25 by default). Independent of the kill XP rate. Returns 0
+// when the feature is disabled.
 static uint32 ProfessionSkillUpXP(Player const* player)
 {
     uint8 const level = player->GetLevel();
-
-    // Below level 4 there is no green-difficulty band to mimic.
-    if (level <= 3)
-        return 0;
-
-    // Top of the green band: yellow begins at (level - 2), so (level - 3) is the
-    // highest still-green mob level. Acore::XP::BaseGain returns 0 on its own if
-    // this lands at or below the gray threshold.
-    uint8 const mobLevel = level - 3;
 
     ContentLevels content;
     if (level <= 60)
@@ -936,8 +926,8 @@ static uint32 ProfessionSkillUpXP(Player const* player)
     else
         content = CONTENT_71_80;
 
-    float xp = float(Acore::XP::BaseGain(level, mobLevel, content));
-    xp *= sWorld->getRate(RATE_XP_KILL);
+    // Baseline: the base XP for killing a same-level mob.
+    float xp = float(Acore::XP::BaseGain(level, level, content));
     xp *= sWorld->getRate(RATE_XP_PROFESSION_SKILLUP);
 
     return uint32(xp);

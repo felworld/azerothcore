@@ -62,7 +62,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<float>(RATE_XP_QUEST, "Rate.XP.Quest", 1.0f);
     SetConfigValue<float>(RATE_XP_QUEST_DF, "Rate.XP.Quest.DF", 1.0f);
     SetConfigValue<float>(RATE_XP_EXPLORE, "Rate.XP.Explore", 1.0f);
-    SetConfigValue<float>(RATE_XP_PROFESSION_SKILLUP, "Rate.XP.Profession.SkillUp", 1.0f, ConfigValueCache::Reloadable::Yes, [](float const& value) { return value >= 0.0f; }, ">= 0");
+    SetConfigValue<float>(RATE_XP_PROFESSION_SKILLUP, "Rate.XP.Profession.SkillUp", 0.25f, ConfigValueCache::Reloadable::Yes, [](float const& value) { return value >= 0.0f; }, ">= 0");
     SetConfigValue<float>(RATE_XP_PET, "Rate.XP.Pet", 1.0f);
     SetConfigValue<float>(RATE_XP_PET_NEXT_LEVEL, "Rate.Pet.LevelXP", 0.05f);
     SetConfigValue<float>(RATE_XP_BATTLEGROUND_BONUS, "Rate.XP.BattlegroundBonus", 1.0f);
