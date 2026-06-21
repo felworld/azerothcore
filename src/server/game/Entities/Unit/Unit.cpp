@@ -16904,7 +16904,8 @@ void Unit::PatchValuesUpdate(ByteBuffer& valuesUpdateBuf, BuildValuesCachePosPoi
     {
         uint32 appendValue = m_uint32Values[UNIT_NPC_FLAGS];
 
-        if (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && appendValue & UNIT_NPC_FLAG_FLIGHTMASTER)
+        uint32 const instantTaxi = sWorld->getIntConfig(CONFIG_INSTANT_TAXI);
+        if ((instantTaxi == 2 || instantTaxi == 3) && appendValue & UNIT_NPC_FLAG_FLIGHTMASTER)
             appendValue |= UNIT_NPC_FLAG_GOSSIP; // flight masters need NPC gossip flag to show instant flight toggle option
 
         if (!target->CanSeeSpellClickOn(creature))

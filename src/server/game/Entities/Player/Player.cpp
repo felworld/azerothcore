@@ -413,7 +413,8 @@ Player::Player(WorldSession* session): Unit(), m_mover(this), _cinematicMgr(*thi
 
     m_applyResilience = true;
 
-    m_isInstantFlightOn = true;
+    // Mode 3 defaults the per-player instant flight toggle to off; every other mode defaults it on.
+    m_isInstantFlightOn = sWorld->getIntConfig(CONFIG_INSTANT_TAXI) != 3;
 
     _wasOutdoor = true;
 
@@ -10380,7 +10381,8 @@ bool Player::ActivateTaxiPathTo(std::vector<uint32> const& nodes, Creature* npc 
     //RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TALK);
 
     // Xinef: dont use instant flight paths if spellid is present (custom calls use spellid = 1)
-    if ((sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 1 || (sWorld->getIntConfig(CONFIG_INSTANT_TAXI) == 2 && m_isInstantFlightOn)) && !spellid)
+    uint32 const instantTaxi = sWorld->getIntConfig(CONFIG_INSTANT_TAXI);
+    if ((instantTaxi == 1 || ((instantTaxi == 2 || instantTaxi == 3) && m_isInstantFlightOn)) && !spellid)
     {
         TaxiNodesEntry const* lastPathNode = sTaxiNodesStore.LookupEntry(nodes[nodes.size() - 1]);
         m_taxi.ClearTaxiDestinations();
