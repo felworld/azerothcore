@@ -40,6 +40,13 @@ innodb_flush_log_at_trx_commit = 2
 innodb_use_fdatasync           = ON
 skip-log-bin
 
+# MySQL 8.4 changed the default flush method from fsync to O_DIRECT, but
+# O_DIRECT writes to NOCOW (chattr +C) files on btrfs fail with EIO on current
+# kernels (seen on 7.1.2-cachyos: mysqld can't even create ibdata1/ibtmp1, so
+# the container crash-loops). Our datadir volume is +C per the note above, so
+# force buffered I/O; flushes still use fdatasync via the setting above.
+innodb_flush_method            = fsync
+
 # --- Concurrency ------------------------------------------------------------
 # Cuts deadlocks under concurrent bot writes (per the playerbots guide).
 transaction_isolation          = READ-COMMITTED
