@@ -78,13 +78,17 @@ services:
     restart: unless-stopped
     env_file:
         ${DOCKER_AC_ENV_FILE:-conf/dist/env.ac}
+    # List form (not a map) so the canned-chatter overrides below can be listed
+    # value-less — a bare `- KEY` is passed through only when it's set in the
+    # active env file, and omitted otherwise. A `KEY: value` map can't express
+    # that (it would always set the key, clobbering the .conf in every mode).
     environment:
-      AC_DATA_DIR: "/azerothcore/env/dist/data"
-      AC_LOGS_DIR: "/azerothcore/env/dist/logs"
-      AC_LOGIN_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_auth"
-      AC_WORLD_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_world"
-      AC_CHARACTER_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_characters"
-      AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots"
+      - AC_DATA_DIR=/azerothcore/env/dist/data
+      - AC_LOGS_DIR=/azerothcore/env/dist/logs
+      - AC_LOGIN_DATABASE_INFO=ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_auth
+      - AC_WORLD_DATABASE_INFO=ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_world
+      - AC_CHARACTER_DATABASE_INFO=ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_characters
+      - AC_PLAYERBOTS_DATABASE_INFO=ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots
       # Session-mode toggles. AC reads AC_<OPTION> env vars in preference to the
       # matching .conf value at lookup time (see src/common/Configuration/
       # Config.cpp), so these override AiPlayerbot.Enabled / OllamaChat.Enable in
@@ -96,8 +100,22 @@ services:
       #   .env.ollama    bots on,  ollama on  (also activates the ollama profile)
       # Defaults here apply to a bare `up -d` (no --env-file): bots on, ollama
       # off — consistent with the ac-ollama container being profile-gated below.
-      AC_AI_PLAYERBOT_ENABLED: "${AC_AI_PLAYERBOT_ENABLED:-1}"
-      AC_OLLAMA_CHAT_ENABLE: "${AC_OLLAMA_CHAT_ENABLE:-0}"
+      - AC_AI_PLAYERBOT_ENABLED=${AC_AI_PLAYERBOT_ENABLED:-1}
+      - AC_OLLAMA_CHAT_ENABLE=${AC_OLLAMA_CHAT_ENABLE:-0}
+      # Playerbots' own canned chatter, which mod-ollama-chat replaces with LLM
+      # output — this is the exact set its README recommends disabling. Listed
+      # value-less: ONLY .env.ollama sets them (to 0), forcing them off in ollama
+      # mode; in solo/dumbbots they stay unset here so the playerbots.conf values
+      # win (dumbbots relies on the .conf alone). NB: AiPlayerbot.GuildFeedback
+      # isn't implemented in this mod-playerbots build (vestigial .conf line), so
+      # its override is currently inert — kept for README parity / future-proofing.
+      - AC_AI_PLAYERBOT_ENABLE_BROADCASTS
+      - AC_AI_PLAYERBOT_RANDOM_BOT_TALK
+      - AC_AI_PLAYERBOT_RANDOM_BOT_EMOTE
+      - AC_AI_PLAYERBOT_RANDOM_BOT_SUGGEST_DUNGEONS
+      - AC_AI_PLAYERBOT_ENABLE_GREET
+      - AC_AI_PLAYERBOT_GUILD_FEEDBACK
+      - AC_AI_PLAYERBOT_RANDOM_BOT_SAY_WITHOUT_MASTER
     ports:
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
       - ${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
