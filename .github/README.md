@@ -55,14 +55,14 @@ Detailed installation instructions are available [here](http://www.azerothcore.o
 
 This server wires up playerbots (`mod-playerbots`) and LLM-driven bot chat
 (`mod-ollama-chat`) behind three **session modes**, chosen at startup with a
-per-mode env file. Bring the stack up (Docker Compose, against Docker or Podman)
-with one of:
+per-mode env file. Bring the stack up with `podman compose` (Docker Compose
+under the hood, on Podman) using one of:
 
 | Mode          | Command                                        | Playerbots | LLM chat (Ollama) |
 | ------------- | ---------------------------------------------- | :--------: | :---------------: |
-| Solo          | `docker-compose --env-file .env.solo up -d`     |    off     |        off        |
-| Dumb bots     | `docker-compose --env-file .env.dumbbots up -d` |     on     |        off        |
-| Ollama + bots | `docker-compose --env-file .env.ollama up -d`   |     on     |        on         |
+| Solo          | `podman compose --env-file .env.solo up -d`     |    off     |        off        |
+| Dumb bots     | `podman compose --env-file .env.dumbbots up -d` |     on     |        off        |
+| Ollama + bots | `podman compose --env-file .env.ollama up -d`   |     on     |        on         |
 
 Switching modes is just a different `--env-file` + `up -d`. It only recreates
 `ac-worldserver` (the database and authserver keep running), and needs no
@@ -74,10 +74,10 @@ Notes:
 
 - Only `.env.ollama` starts the GPU-backed `ac-ollama` container (gated by
   `COMPOSE_PROFILES=ollama`); the other modes never start it, so it uses no VRAM.
-- A bare `docker-compose up -d` (no `--env-file`) defaults to bots-on /
+- A bare `podman compose up -d` (no `--env-file`) defaults to bots-on /
   Ollama-off.
 - Switching *away* from Ollama does not stop an already-running `ac-ollama` —
-  stop it explicitly with `docker-compose --profile ollama stop ac-ollama` to
+  stop it explicitly with `podman compose --profile ollama stop ac-ollama` to
   free VRAM.
 
 ## Contributing
