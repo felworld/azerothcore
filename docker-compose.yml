@@ -85,6 +85,19 @@ services:
       AC_WORLD_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_world"
       AC_CHARACTER_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_characters"
       AC_PLAYERBOTS_DATABASE_INFO: "ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots"
+      # Session-mode toggles. AC reads AC_<OPTION> env vars in preference to the
+      # matching .conf value at lookup time (see src/common/Configuration/
+      # Config.cpp), so these override AiPlayerbot.Enabled / OllamaChat.Enable in
+      # env/dist/etc/modules/{playerbots,mod_ollama_chat}.conf with no conf edit
+      # or rebuild — a mode switch is just a different --env-file + `up -d`.
+      # Pick a mode via one of the tracked .env.<mode> files:
+      #   .env.solo      bots off, ollama off
+      #   .env.dumbbots  bots on,  ollama off
+      #   .env.ollama    bots on,  ollama on  (also activates the ollama profile)
+      # Defaults here apply to a bare `up -d` (no --env-file): bots on, ollama
+      # off — consistent with the ac-ollama container being profile-gated below.
+      AC_AI_PLAYERBOT_ENABLED: "${AC_AI_PLAYERBOT_ENABLED:-1}"
+      AC_OLLAMA_CHAT_ENABLE: "${AC_OLLAMA_CHAT_ENABLE:-0}"
     ports:
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
       - ${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
@@ -151,6 +164,13 @@ services:
   ac-ollama:
     container_name: ac-ollama
     image: ollama/ollama
+    # Profile-gated: only created/started when the active env file sets
+    # COMPOSE_PROFILES=ollama (i.e. .env.ollama). In solo/dumbbots modes — and on
+    # a bare `up -d` — the container is never started, so no GPU/VRAM is used.
+    # Safe to gate because nothing depends_on it (the module calls Ollama lazily
+    # over ac-network). NB: `up` won't STOP an already-running ollama when you
+    # switch away; stop it explicitly if you want the VRAM back.
+    profiles: [ollama]
     networks:
       - ac-network
     ports:

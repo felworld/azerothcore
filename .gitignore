@@ -18,6 +18,11 @@
 !/env/dist/.gitkeep
 /env/user/*
 /.env*
+# ...but track the session-mode files (toggles only, no secrets — see
+# docker-compose.yml). Real secrets still belong in an untracked .env.
+!/.env.solo
+!/.env.dumbbots
+!/.env.ollama
 /apps/joiner
 /deps/deno
 /data/sql/custom/*
