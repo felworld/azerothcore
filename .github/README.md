@@ -51,6 +51,35 @@ We have a lot of modules already made by the community, many of which can be fou
 
 Detailed installation instructions are available [here](http://www.azerothcore.org/wiki/installation).
 
+## Running: session modes
+
+This server wires up playerbots (`mod-playerbots`) and LLM-driven bot chat
+(`mod-ollama-chat`) behind three **session modes**, chosen at startup with a
+per-mode env file. Bring the stack up (Docker Compose, against Docker or Podman)
+with one of:
+
+| Mode          | Command                                        | Playerbots | LLM chat (Ollama) |
+| ------------- | ---------------------------------------------- | :--------: | :---------------: |
+| Solo          | `docker-compose --env-file .env.solo up -d`     |    off     |        off        |
+| Dumb bots     | `docker-compose --env-file .env.dumbbots up -d` |     on     |        off        |
+| Ollama + bots | `docker-compose --env-file .env.ollama up -d`   |     on     |        on         |
+
+Switching modes is just a different `--env-file` + `up -d`. It only recreates
+`ac-worldserver` (the database and authserver keep running), and needs no
+rebuild or `.conf` edit: each env file sets `AC_AI_PLAYERBOT_ENABLED` /
+`AC_OLLAMA_CHAT_ENABLE`, which the server reads in preference to the
+`AiPlayerbot.Enabled` / `OllamaChat.Enable` module options.
+
+Notes:
+
+- Only `.env.ollama` starts the GPU-backed `ac-ollama` container (gated by
+  `COMPOSE_PROFILES=ollama`); the other modes never start it, so it uses no VRAM.
+- A bare `docker-compose up -d` (no `--env-file`) defaults to bots-on /
+  Ollama-off.
+- Switching *away* from Ollama does not stop an already-running `ac-ollama` —
+  stop it explicitly with `docker-compose --profile ollama stop ac-ollama` to
+  free VRAM.
+
 ## Contributing
 
 AzerothCore can also serve as a learning resource for aspiring developers who want to understand how WoW servers work, how MMORPGs are structured, how game server emulators are created, or to improve their C++ and SQL knowledge.
