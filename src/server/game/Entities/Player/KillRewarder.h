@@ -36,6 +36,7 @@ public:
 private:
     void _InitXP(Player* player);
     void _InitGroupData();
+    uint32 _CalculateXP(Player* player);
 
     void _RewardHonor(Player* player);
     void _RewardXP(Player* player, float rate);

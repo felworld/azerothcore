@@ -53,6 +53,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<float>(RATE_REWARD_QUEST_MONEY, "Rate.RewardQuestMoney", 1.0f);
     SetConfigValue<float>(RATE_REWARD_BONUS_MONEY, "Rate.RewardBonusMoney", 1.0f);
     SetConfigValue<float>(RATE_XP_KILL, "Rate.XP.Kill", 1.0f);
+    SetConfigValue<uint32>(CONFIG_XP_KILL_GROUP_MODE, "XP.Kill.GroupMode", 0, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value <= 2; }, "<= 2");
     SetConfigValue<float>(RATE_XP_BG_KILL_AV, "Rate.XP.BattlegroundKillAV", 1.0f);
     SetConfigValue<float>(RATE_XP_BG_KILL_WSG, "Rate.XP.BattlegroundKillWSG", 1.0f);
     SetConfigValue<float>(RATE_XP_BG_KILL_AB, "Rate.XP.BattlegroundKillAB", 1.0f);
@@ -379,6 +380,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<bool>(CONFIG_QUEST_IGNORE_RAID, "Quests.IgnoreRaid", false);
     SetConfigValue<bool>(CONFIG_QUEST_IGNORE_AUTO_ACCEPT, "Quests.IgnoreAutoAccept", false);
     SetConfigValue<bool>(CONFIG_QUEST_IGNORE_AUTO_COMPLETE, "Quests.IgnoreAutoComplete", false);
+    SetConfigValue<bool>(CONFIG_QUEST_ITEMS_MULTI_DROP, "Quests.MultiDropQuestItems", false);
 
     SetConfigValue<uint32>(CONFIG_RANDOM_BG_RESET_HOUR, "Battleground.Random.ResetHour", 6, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value <= 23; }, "<= 23");
     SetConfigValue<uint32>(CONFIG_CALENDAR_DELETE_OLD_EVENTS_HOUR, "Calendar.DeleteOldEventsHour", 6, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value <= 23; }, "<= 23");

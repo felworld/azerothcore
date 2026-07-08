@@ -2506,6 +2506,22 @@ Rate.XP.Explore   = 1
 Rate.XP.Pet       = 1
 
 #
+#    XP.Kill.GroupMode
+#        Description: How kill XP is distributed among group members. Battlegrounds always
+#                     use blizzlike rules.
+#        Default:     0 - (Blizzlike: kill XP is divided among group members, so grouping
+#                          reduces per-player XP gain)
+#                     1 - (Undivided: each group member within reward distance earns the
+#                          full XP they would have earned for the same kill while solo,
+#                          and hunter pets get full instead of half XP. Note: this lets
+#                          high-level players power-level low-level members very quickly.)
+#                     2 - (Same as 1, but blizzlike rules apply whenever the victim is
+#                          gray to any alive group member within reward distance, closing
+#                          the power-leveling loophole.)
+
+XP.Kill.GroupMode = 0
+
+#
 #    Rate.XP.Profession.SkillUp
 #        Description: Experience awarded when a player gains a profession skill
 #                     point (primary and secondary professions, e.g. Mining,
@@ -2964,6 +2980,18 @@ Quests.IgnoreAutoAccept = 0
 #                     1 - (Enabled, clients will not be told to automatically complete any quest.)
 
 Quests.IgnoreAutoComplete = 0
+
+#
+#    Quests.MultiDropQuestItems
+#        Description: Treat every quest-required loot item as multi-drop: when it drops for
+#                     a group, each member on the quest can loot their own copy (as if the
+#                     item had the multi-drop flag), so grouping up does not make collecting
+#                     quest items slower. Items flagged to follow group loot rules are not
+#                     affected.
+#        Default:     0 - (Disabled, blizzlike: only items flagged multi-drop are shared)
+#                     1 - (Enabled)
+
+Quests.MultiDropQuestItems = 0
 
 #
 #    Rate.RewardQuestMoney

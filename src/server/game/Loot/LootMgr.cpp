@@ -402,6 +402,12 @@ LootItem::LootItem(LootStoreItem const& li)
 
     needs_quest = li.needs_quest;
 
+    // Quests.MultiDropQuestItems: quest-required drops behave as multi-drop, so every group
+    // member on the quest loots their own copy. Items following group loot rules are excluded,
+    // as their roll/master-loot bookkeeping conflicts with free-for-all looting.
+    if (needs_quest && !follow_loot_rules && sWorld->getBoolConfig(CONFIG_QUEST_ITEMS_MULTI_DROP))
+        freeforall = true;
+
     randomSuffix = GenerateEnchSuffixFactor(itemid);
     randomPropertyId = Item::GenerateItemRandomPropertyId(itemid);
     count = 0;

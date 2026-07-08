@@ -24,6 +24,7 @@
 #include "ScriptMgr.h"
 #include "SpellAuraDefines.h"
 #include "SpellAuraEffects.h"
+#include "World.h"
 
 // KillRewarder incapsulates logic of rewarding player upon kill with:
 // * XP;
@@ -122,6 +123,19 @@ void KillRewarder::_InitGroupData()
         _count = 1;
 }
 
+uint32 KillRewarder::_CalculateXP(Player* player)
+{
+    uint32 xp = Acore::XP::Gain(player, _victim, _isBattleGround);
+
+    if (xp && !_isBattleGround && _victim) // pussywizard: npcs with relatively low hp give lower exp
+        if (_victim->IsCreature())
+            if (CreatureTemplate const* ct = _victim->ToCreature()->GetCreatureTemplate())
+                if (ct->ModHealth <= 0.75f && ct->ModHealth >= 0.0f)
+                    xp = uint32(xp * ct->ModHealth);
+
+    return xp;
+}
+
 void KillRewarder::_InitXP(Player* player)
 {
     // Get initial value of XP for kill.
@@ -130,13 +144,7 @@ void KillRewarder::_InitXP(Player* player)
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
     if (_victim && (_isBattleGround || (!_isPvP && !_killer->GetVehicle())))
-        _xp = Acore::XP::Gain(player, _victim, _isBattleGround);
-
-    if (_xp && !_isBattleGround && _victim) // pussywizard: npcs with relatively low hp give lower exp
-        if (_victim->IsCreature())
-            if (const CreatureTemplate* ct = _victim->ToCreature()->GetCreatureTemplate())
-                if (ct->ModHealth <= 0.75f && ct->ModHealth >= 0.0f)
-                    _xp = uint32(_xp * ct->ModHealth);
+        _xp = _CalculateXP(player);
 }
 
 void KillRewarder::_RewardHonor(Player* player)
@@ -149,12 +157,23 @@ void KillRewarder::_RewardHonor(Player* player)
 void KillRewarder::_RewardXP(Player* player, float rate)
 {
     uint32 xp(_xp);
+    bool isUndividedGroupXP = false;
     if (_group)
     {
+        uint32 const groupXPMode = sWorld->getIntConfig(CONFIG_XP_KILL_GROUP_MODE);
+        if (groupXPMode && !_isBattleGround && (groupXPMode == 1 || _isFullXP))
+        {
+            // XP.Kill.GroupMode 1/2: kill XP is not divided among group members - each
+            // alive member is rewarded the XP they would have earned for the same kill
+            // solo. Mode 2 only does so while the victim is not gray to any alive member
+            // within reward distance (_isFullXP), closing the power-leveling loophole.
+            isUndividedGroupXP = true;
+            xp = player->IsAlive() ? _CalculateXP(player) : 0;
+        }
         // 4.2.1. If player is in group, adjust XP:
         //        * set to 0 if player's level is more than maximum level of not gray member;
         //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->IsAlive() &&
+        else if (_maxNotGrayMember && player->IsAlive() &&
             _maxNotGrayMemberLevel >= _GetPlayerLevel(player))
             xp = _isFullXP ?
                  uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
@@ -184,8 +203,8 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         sScriptMgr->OnPlayerGiveXP(player, xp, _victim, PlayerXPSource::XPSOURCE_KILL);
         player->GiveXP(xp, _victim, _groupRate);
         if (Pet* pet = player->GetPet())
-            // 4.2.4. If player has pet, reward pet with XP (100% for single player, 50% for group case).
-            pet->GivePetXP(_group ? xp / 2 : xp);
+            // 4.2.4. If player has pet, reward pet with XP (100% for single player or undivided group XP, 50% for group case).
+            pet->GivePetXP(_group && !isUndividedGroupXP ? xp / 2 : xp);
     }
 }
 
