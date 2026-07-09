@@ -1,11 +1,9 @@
 # Felworld
 
-Felworld replicates the feeling of an MMORPG in a (mostly) single-player
-context: a private World of Warcraft 3.3.5a (Wrath of the Lich King) server
-where "other players" are emulated by AI — game-AI playerbots that quest,
-group, and battleground alongside you, and LLM-driven chat that makes them
-talk like people. The name is Westworld + *fel*, the most Warcraft-y word
-we know.
+Felworld (so-called after the various parks in the Westworld TV series)
+replicates the feeling of an MMORPG in a mostly single-player context: a
+private World of Warcraft 3.3.5a (Wrath of the Lich King) server where "other
+players" are emulated by AI.
 
 This repo is the server core, forked from
 [mod-playerbots/azerothcore-wotlk](https://github.com/mod-playerbots/azerothcore-wotlk)
@@ -29,9 +27,9 @@ with `--recurse-submodules` (or run `git submodule update --init` after).
 
 Only containerized usage is supported — the upstream "install from source"
 instructions don't apply here. We develop on Linux with Podman (using
-`docker-compose` via `podman compose`); Docker on Linux and OrbStack on macOS
-should work equally well. The containers are intended to build and run out of
-the box:
+`docker-compose` via `podman compose`); Docker on Linux, Docker Desktop on
+Windows/macOS, and OrbStack on macOS should work equally well. The containers
+are intended to build and run out of the box:
 
 ```sh
 git clone --recurse-submodules https://github.com/felworld/azerothcore
@@ -90,11 +88,9 @@ quality-of-life changes:
 - **Gameplay** (all opt-in via config, enabled in our configs where noted):
   - `Rate.XP.Profession.SkillUp` — profession skill-ups grant a little XP,
     so crafting sessions aren't dead time.
-  - `InstantFlightPaths = 3` — a per-player instant-flight toggle (off by
-    default, switchable at any flight master).
-  - `XP.Kill.GroupMode = 2` — full (unsplit) kill XP while grouped, so
-    grouping with bots doesn't slow you down.
-  - `Quests.MultiDropQuestItems = 1` — one mob kill can drop a quest item
+  - `XP.Kill.GroupMode` — options for full (unsplit) kill XP while grouped, so
+    grouping doesn't slow down leveling.
+  - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
     for everyone in the group who needs it.
 - **Runtime admin toggles**: `.playerbots enable|disable|status` and
   `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
@@ -110,6 +106,6 @@ AzerothCore documentation (database schema, scripting, GM commands), the
 
 ## License
 
-AzerothCore and the modules are GNU AGPL v3 (older MaNGOS/TrinityCore-derived
-parts GPL v2); Felworld's changes carry the same licenses. Not affiliated
-with or endorsed by Blizzard Entertainment.
+AzerothCore and mod-playerbots are GNU GPL v2; mod-ollama-chat is GNU AGPL
+v3. Felworld's changes carry the same licenses. Not affiliated with or
+endorsed by Blizzard Entertainment.
