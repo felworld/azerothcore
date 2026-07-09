@@ -1,71 +1,61 @@
-# ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
+# Felworld
 
-[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md)
-[![CodeFactor](https://www.codefactor.io/repository/github/azerothcore/azerothcore-wotlk/badge)](https://www.codefactor.io/repository/github/azerothcore/azerothcore-wotlk)
-[![StackOverflow](http://img.shields.io/badge/stackoverflow-azerothcore-blue.svg?logo=stackoverflow)](https://stackoverflow.com/questions/tagged/azerothcore?sort=newest "Ask / browse questions here")
-[![Discord](https://img.shields.io/discord/217589275766685707?logo=discord&logoColor=white)](https://discord.gg/gkt4y2x "Our community hub on Discord")
-[![Bounties on BountyHub](https://img.shields.io/badge/Bounties-on%20BountyHub-yellow)](https://www.bountyhub.dev/bounties?repo=azerothcore)
+Felworld replicates the feeling of an MMORPG in a (mostly) single-player
+context: a private World of Warcraft 3.3.5a (Wrath of the Lich King) server
+where "other players" are emulated by AI — game-AI playerbots that quest,
+group, and battleground alongside you, and LLM-driven chat that makes them
+talk like people. The name is Westworld + *fel*, the most Warcraft-y word
+we know.
 
-## Build Status
+This repo is the server core, forked from
+[mod-playerbots/azerothcore-wotlk](https://github.com/mod-playerbots/azerothcore-wotlk)
+(the AzerothCore fork required by mod-playerbots, itself forked from
+[azerothcore/azerothcore-wotlk](https://github.com/azerothcore/azerothcore-wotlk)).
 
-[![nopch-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-nopch.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-nopch.yml?query=branch%3Amaster)
-[![pch-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-pch.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core-build-pch.yml?query=branch%3Amaster)
-[![core-modules-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core_modules_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/core_modules_build.yml?query=branch%3Amaster)
-[![windows-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/windows_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/windows_build.yml?query=branch%3Amaster)
-[![macos-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/macos_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/macos_build.yml?query=branch%3Amaster)
-[![docker-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/docker_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/docker_build.yml?query=branch%3Amaster)
-[![tools-build](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/tools_build.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/tools_build.yml?query=branch%3Amaster)
-[![dashboard-ci](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/dashboard-ci.yml/badge.svg?branch=master)](https://github.com/azerothcore/azerothcore-wotlk/actions/workflows/dashboard-ci.yml?query=branch%3Amaster)
+## The Felworld repos
 
-## Introduction
+| Repo | Forked from | What it is |
+| ---- | ----------- | ---------- |
+| [felworld/azerothcore](https://github.com/felworld/azerothcore) (this one) | [mod-playerbots/azerothcore-wotlk](https://github.com/mod-playerbots/azerothcore-wotlk) | Server core, container setup, gameplay tweaks |
+| [felworld/mod-playerbots](https://github.com/felworld/mod-playerbots) (`modules/mod-playerbots`) | [mod-playerbots/mod-playerbots](https://github.com/mod-playerbots/mod-playerbots) | The playerbots themselves |
+| [felworld/mod-ollama-chat](https://github.com/felworld/mod-ollama-chat) (`modules/mod-ollama-chat`) | [DustinHendrickson/mod-ollama-chat](https://github.com/DustinHendrickson/mod-ollama-chat) | LLM-powered bot chat via Ollama |
+| [felworld/configs](https://github.com/felworld/configs) (`env/dist/etc`) | — | Our playtested server configs |
 
-AzerothCore is an open-source game server application and framework designed for hosting massively multiplayer online role-playing games (MMORPGs). It is based on the popular MMORPG World of Warcraft (WoW) and seeks to recreate the gameplay experience of the original game from patch 3.3.5a.
+The forks track their upstreams; we periodically merge improvements back in.
+The two modules and the configs repo are wired in as git submodules, so clone
+with `--recurse-submodules` (or run `git submodule update --init` after).
 
-The original code is based on MaNGOS, TrinityCore, and SunwellCore and has since then had extensive development to improve stability, in-game mechanics, and modularity to the game. AC has also grown into a community-driven project with a significant number of contributors and developers. It is written in C++ and provides a solid foundation for creating private servers that mimic the mechanics and behavior of the official WoW servers.
+## Running
 
-## Philosophy
+Only containerized usage is supported — the upstream "install from source"
+instructions don't apply here. We develop on Linux with Podman (using
+`docker-compose` via `podman compose`); Docker on Linux and OrbStack on macOS
+should work equally well. The containers are intended to build and run out of
+the box:
 
-Our main goal is to create a playable game server, offering a fully working in-game experience.
+```sh
+git clone --recurse-submodules https://github.com/felworld/azerothcore
+cd azerothcore
+podman compose --env-file .env.dumbbots up -d
+```
 
-Here are the main points we focus on:
+First startup takes a while: `ac-client-data-init` downloads the client data
+files and `ac-db-import` populates the databases before `ac-worldserver`
+comes up.
 
-* Stability
-  * We make sure all changes pass the CIs before being merged into the master branch.
+### Session modes
 
-* Blizzlike content
-  * We strive to make all in-game content to be blizzlike. Therefore we have a high standard for fixes being made.
+Which flavor of Felworld you get is chosen at startup with a per-mode env
+file:
 
-* Customization
-  * It is easy to customize your experience using [modules](#modules).
-
-* Community driven
-  * AzerothCore has an active community of developers, contributors, and users who collaborate, share knowledge, and provide support through forums, Discord channels, and other communication platforms. 
-
-### Modules
-
-AzerothCore is designed to be highly modular, allowing developers to extend and customize the game to suit their preferences or create unique gameplay experiences. This flexibility enables the addition of custom features, content, and modifications.
-
-We have a lot of modules already made by the community, many of which can be found in the [Module Catalogue](https://www.azerothcore.org/catalogue.html#/).
-
-## Installation
-
-Detailed installation instructions are available [here](http://www.azerothcore.org/wiki/installation).
-
-## Running: session modes
-
-This server wires up playerbots (`mod-playerbots`) and LLM-driven bot chat
-(`mod-ollama-chat`) behind three **session modes**, chosen at startup with a
-per-mode env file. Bring the stack up with `podman compose` (Docker Compose
-under the hood, on Podman) using one of:
-
-| Mode          | Command                                        | Playerbots | LLM chat (Ollama) |
-| ------------- | ---------------------------------------------- | :--------: | :---------------: |
-| Solo          | `podman compose --env-file .env.solo up -d`     |    off     |        off        |
-| Dumb bots     | `podman compose --env-file .env.dumbbots up -d` |     on     |        off        |
-| Ollama + bots | `podman compose --env-file .env.ollama up -d`   |     on     |        on         |
+| Mode          | Command                                          | Playerbots | LLM chat (Ollama) |
+| ------------- | ------------------------------------------------ | :--------: | :---------------: |
+| Solo          | `podman compose --env-file .env.solo up -d`      |    off     |        off        |
+| Dumb bots     | `podman compose --env-file .env.dumbbots up -d`  |     on     |        off        |
+| Ollama + bots | `podman compose --env-file .env.ollama up -d`    |     on     |        on         |
 
 Switching modes is just a different `--env-file` + `up -d`. It only recreates
-`ac-worldserver` (the database and authserver keep running), and needs no
+`ac-worldserver` (the database and authserver keep running) and needs no
 rebuild or `.conf` edit: each env file sets `AC_AI_PLAYERBOT_ENABLED` /
 `AC_OLLAMA_CHAT_ENABLE`, which the server reads in preference to the
 `AiPlayerbot.Enabled` / `OllamaChat.Enable` module options.
@@ -73,51 +63,53 @@ rebuild or `.conf` edit: each env file sets `AC_AI_PLAYERBOT_ENABLED` /
 Notes:
 
 - Only `.env.ollama` starts the GPU-backed `ac-ollama` container (gated by
-  `COMPOSE_PROFILES=ollama`); the other modes never start it, so it uses no VRAM.
+  `COMPOSE_PROFILES=ollama`); the other modes never start it, so it uses no
+  VRAM. On first run it pulls the configured model.
 - A bare `podman compose up -d` (no `--env-file`) defaults to bots-on /
   Ollama-off.
 - Switching *away* from Ollama does not stop an already-running `ac-ollama` —
   stop it explicitly with `podman compose --profile ollama stop ac-ollama` to
   free VRAM.
+- The worldserver console (account creation, GM commands, etc.) is the
+  `ac-worldserver` container's TTY: `podman attach ac-worldserver` (detach
+  with `Ctrl-p Ctrl-q`, not `Ctrl-c`).
 
-## Contributing
+## Configuration
 
-AzerothCore can also serve as a learning resource for aspiring developers who want to understand how WoW servers work, how MMORPGs are structured, how game server emulators are created, or to improve their C++ and SQL knowledge.
+All server configs live in the [felworld/configs](https://github.com/felworld/configs)
+submodule at `env/dist/etc/`, which is bind-mounted into the server
+containers. It versions our "best" settings as determined through
+playtesting — see its README for the `.conf` / `.conf.dist` conventions and
+how to update configs when upstream templates change.
 
-If you want to contribute to the project, you will find a lot of resources that will guide you in our [wiki](https://www.azerothcore.org/wiki/contribute).
+## What we've changed
 
-We also recommend you read our [Contributor Covenant Code of Conduct](https://github.com/azerothcore/azerothcore-wotlk/blob/master/.github/CODE_OF_CONDUCT.md).
+Beyond wiring the AI pieces together, the fork carries a number of
+quality-of-life changes:
 
-Feel free to join our [Discord server](https://discord.gg/gkt4y2x).
+- **Gameplay** (all opt-in via config, enabled in our configs where noted):
+  - `Rate.XP.Profession.SkillUp` — profession skill-ups grant a little XP,
+    so crafting sessions aren't dead time.
+  - `InstantFlightPaths = 3` — a per-player instant-flight toggle (off by
+    default, switchable at any flight master).
+  - `XP.Kill.GroupMode = 2` — full (unsplit) kill XP while grouped, so
+    grouping with bots doesn't slow you down.
+  - `Quests.MultiDropQuestItems = 1` — one mob kill can drop a quest item
+    for everyone in the group who needs it.
+- **Runtime admin toggles**: `.playerbots enable|disable|status` and
+  `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
+  without a restart (see the module repos).
+- **Container/infra**: rootless-Podman compatibility, GPU passthrough to
+  Ollama via CDI, module and client-data volumes mounted at runtime (no image
+  rebuild to pick up changes), and MySQL tuned for the playerbots write load.
 
-Click on the "⭐ Star" button to help us gain more visibility on Github!
-
-## Authors & Contributors
-
-The project was born in 2016 based on SunwellCore. Unfortunately, SunwellCore was published without any git history, so on git there are no credits for all the contributors before 2016.
-
-You can check the [authors](https://github.com/azerothcore/azerothcore-wotlk/blob/master/AUTHORS) file for more details.
-
-## Important Links
-
-- [Doxygen documentation](https://www.azerothcore.org/pages/doxygen/index.html)
-- [Website](http://www.azerothcore.org/)
-- [AzerothCore catalogue](http://www.azerothcore.org/catalogue.html  "Modules, tools, and other stuff for AzerothCore") (modules, tools, etc...)
-- [Our Discord server](https://discord.gg/gkt4y2x)
-- [Our wiki](http://www.azerothcore.org/wiki "Easy to use and developed by AzerothCore founder")
-- [Our forum](https://github.com/azerothcore/azerothcore-wotlk/discussions/)
-- [Our Facebook page](https://www.facebook.com/AzerothCore/)
-- [Our LinkedIn page](https://www.linkedin.com/company/azerothcore/)
+A high-level tour of the C++ codebase is in
+[`doc/CodebaseOverview.md`](../doc/CodebaseOverview.md). For general
+AzerothCore documentation (database schema, scripting, GM commands), the
+[upstream wiki](https://www.azerothcore.org/wiki) still applies.
 
 ## License
 
-- The new AzerothCore source components are released under the [GNU AGPL v3](https://www.gnu.org/licenses/agpl-3.0.en.html)
-- The old sources based on MaNGOS/TrinityCore are released under the [GNU GPL v2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html)
-
-It's important to note that AzerothCore is not an official Blizzard Entertainment product, and it is not affiliated with or endorsed by World of Warcraft or Blizzard Entertainment. AzerothCore does not in any case sponsor nor support illegal public servers. If you use this project to run an illegal public server and not for testing and learning it is your own personal choice.
-
-## Special thanks
-
-[JetBrains](https://www.jetbrains.com/?from=AzerothCore) is providing free [open-source licenses](https://www.jetbrains.com/community/opensource/) to the AzerothCore developers.
-
-[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSourceSupport)
+AzerothCore and the modules are GNU AGPL v3 (older MaNGOS/TrinityCore-derived
+parts GPL v2); Felworld's changes carry the same licenses. Not affiliated
+with or endorsed by Blizzard Entertainment.
