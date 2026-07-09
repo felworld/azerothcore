@@ -1,3 +1,5 @@
+![Felworld logo](felworld.png)
+
 # Felworld
 
 Felworld (so-called after the various parks in the Westworld TV series)
