@@ -70,6 +70,14 @@ void PointMovementGenerator<T>::DoInitialize(T* unit)
         }
         else
         {
+            // mod-playerbots: bots walk the spline the server builds, so falling back
+            // to a straight line when the mesh has no route would carry them through
+            // mid-air. Refuse instead: the generator expires without launching a
+            // spline and the bot AI's stuck handling recovers.
+            if (!_forceDestination && unit->IsPlayer() && unit->ToPlayer()->GetSession()->IsBot() &&
+                (!result || (path.GetPathType() & (PATHFIND_NOPATH | PATHFIND_SHORTCUT | PATHFIND_SHORT))))
+                return;
+
             // Xinef: fix strange client visual bug, moving on z coordinate only switches orientation by 180 degrees (visual only)
             if (G3D::fuzzyEq(unit->GetPositionX(), i_x) && G3D::fuzzyEq(unit->GetPositionY(), i_y))
             {

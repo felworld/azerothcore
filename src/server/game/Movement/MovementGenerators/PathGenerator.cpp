@@ -23,6 +23,7 @@
 #include "MMapMgr.h"
 #include "Map.h"
 #include "Metric.h"
+#include "Player.h"
 
  ////////////////// PathGenerator //////////////////
 PathGenerator::PathGenerator(WorldObject const* owner) :
@@ -180,6 +181,13 @@ void PathGenerator::BuildPolyPath(G3D::Vector3 const& startPos, G3D::Vector3 con
 
         bool canSwim = creature ? creature->CanSwim() : true;
         bool path = creature ? creature->CanFly() : true;
+        // mod-playerbots: real players are client-authoritative, so a server-side
+        // straight-line shortcut through unmeshed space is harmless for them. Bots
+        // actually walk the spline the server builds, so hold them to their real
+        // fly capability or they climb thin air (e.g. onto floating platforms).
+        Player const* sourcePlayer = _source->ToPlayer();
+        if (sourcePlayer && sourcePlayer->GetSession()->IsBot())
+            path = sourcePlayer->CanFly();
         bool waterPath = IsWaterPath(_pathPoints);
         if (path || (waterPath && canSwim))
         {
