@@ -94,6 +94,10 @@ quality-of-life changes:
     grouping doesn't slow down leveling.
   - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
     for everyone in the group who needs it.
+- **Playerbots**: a `grind quests` strategy — tell a bot `grind quests` in
+  chat and it proactively pulls mobs that anyone in the group still needs
+  for a quest (and only those), so questing with a bot feels like questing
+  with a person (see the mod-playerbots README).
 - **Runtime admin toggles**: `.playerbots enable|disable|status` and
   `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
   without a restart (see the module repos).
