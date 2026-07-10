@@ -108,8 +108,10 @@ quality-of-life changes:
     person (see the mod-playerbots README).
   - Warsong Gulch teamwork — bots escort their flag carrier, peel off
     attackers closing in on it, station defenders in the flag room before
-    the flag is taken, re-pick roles when they die, and use Stealth, Prowl,
-    and Shadowmeld where sneaking matters (see the mod-playerbots README).
+    the flag is taken, re-pick roles when they die, use Stealth, Prowl,
+    and Shadowmeld where sneaking matters, call incoming enemies in
+    battleground chat, and ping the map when they spot the enemy flag
+    carrier (see the mod-playerbots README).
   - Bots emoting at each other no longer loop forever — bot-to-bot emote
     replies roll a configurable chance (`AiPlayerbot.EmoteReplyChanceToBots`),
     so exchanges trail off after a reply or two while replies to real players
