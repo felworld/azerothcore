@@ -82,6 +82,21 @@ containers. It versions our "best" settings as determined through
 playtesting — see its README for the `.conf` / `.conf.dist` conventions and
 how to update configs when upstream templates change.
 
+## Tests
+
+The C++ unit tests (`src/test/`, Google Test) are not built or run by
+default. To build and run them in a container:
+
+```sh
+apps/docker/run-unit-tests.sh
+```
+
+The script builds the `unit-tests` stage of the server Dockerfile, which
+recompiles the sources with `-DBUILD_TESTING=ON` and runs the suite as the
+last build step — a successful image build means a green test run. It uses
+Podman if available and Docker otherwise (set `CONTAINER_ENGINE` to
+override), so the same command works locally and in CI.
+
 ## What we've changed
 
 Beyond wiring the AI pieces together, the fork carries a number of

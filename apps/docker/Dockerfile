@@ -98,8 +98,39 @@ RUN --mount=type=cache,target=/ccache,sharing=locked \
        -DCMAKE_C_COMPILER_LAUNCHER="ccache"            \
        -DBoost_USE_STATIC_LIBS="ON"                    \
        -DWITHOUT_GIT="ON"                              \
+       $CMAKE_EXTRA_OPTIONS                            \
     && cmake --build . --config "$CTYPE" -j $(($(nproc) + 1)) \
     && cmake --install . --config "$CTYPE"
+
+##############
+# Unit Tests #
+##############
+
+# Not used by any compose service — build this stage explicitly to run the
+# Google Test suite (src/test), e.g. via apps/docker/run-unit-tests.sh.
+# BUILD_TESTING=ON adds coverage flags to every target, so this recompiles the
+# whole tree (ccached separately from the normal build's objects), then runs
+# the tests as the final build step: the image builds iff the suite passes.
+FROM build AS unit-tests
+
+ARG CTYPE="RelWithDebInfo"
+ARG CCACHE_CPP2="true"
+ARG CCACHE_DIR="/ccache"
+ARG CCACHE_MAXSIZE="1000MB"
+ARG CCACHE_SLOPPINESS="pch_defines,time_macros,include_file_mtime"
+ARG CCACHE_COMPILERCHECK="content"
+
+# The coverage flags BUILD_TESTING adds (-fprofile-arcs) link against clang's
+# profile runtime, which the base clang package doesn't ship.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libclang-rt-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN --mount=type=cache,target=/ccache,sharing=locked \
+    cmake /azerothcore -DBUILD_TESTING="ON" \
+    && cmake --build . --config "$CTYPE" -j $(($(nproc) + 1))
+
+RUN ./src/test/unit_tests
 
 #############################
 # Base runtime for services #
