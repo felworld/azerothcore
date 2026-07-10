@@ -106,6 +106,10 @@ quality-of-life changes:
     proactively pulls mobs that anyone in the group still needs for a quest
     (and only those), so questing with a bot feels like questing with a
     person (see the mod-playerbots README).
+  - Warsong Gulch teamwork — bots escort their flag carrier, peel off
+    attackers closing in on it, station defenders in the flag room before
+    the flag is taken, re-pick roles when they die, and use Stealth, Prowl,
+    and Shadowmeld where sneaking matters (see the mod-playerbots README).
 - **Runtime admin toggles**: `.playerbots enable|disable|status` and
   `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
   without a restart (see the module repos).
