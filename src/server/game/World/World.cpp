@@ -116,6 +116,7 @@ World::World()
 {
     _allowedSecurityLevel = SEC_PLAYER;
     _allowMovement = true;
+    _gameplayPaused = false;
     _shutdownMask = 0;
     _shutdownTimer = 0;
     _nextDailyQuestReset = 0s;
@@ -1187,12 +1188,6 @@ void World::Update(uint32 diff)
 
     sScriptMgr->OnPlayerbotUpdate(diff);
 
-    {
-        // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
-        sAuctionMgr->Update(diff);
-    }
-
     if (currentGameTime > _mail_expire_check_timer)
     {
         sObjectMgr->ReturnOrDeleteOldMails(true);
@@ -1220,15 +1215,67 @@ void World::Update(uint32 diff)
         }
     }
 
+    // GM ".pause": all gameplay subsystems are gated here in one place. Sessions (chat,
+    // GM commands) and server housekeeping outside this block keep running while paused.
+    if (!IsGameplayPaused())
     {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 0"));
-        sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
-    }
+        {
+            // pussywizard: handle expired auctions, auctions expired when realm was offline are also handled here (not during loading when many required things aren't loaded yet)
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update expired auctions"));
+            sAuctionMgr->Update(diff);
+        }
 
-    {
-        ///- Update objects when the timer has passed (maps, transport, creatures, ...)
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update maps"));
-        sMapMgr->Update(diff);
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 0"));
+            sLFGMgr->Update(diff, 0); // pussywizard: remove obsolete stuff before finding compatibility during map update
+        }
+
+        {
+            ///- Update objects when the timer has passed (maps, transport, creatures, ...)
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update maps"));
+            sMapMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlegrounds"));
+            sBattlegroundMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update outdoor pvp"));
+            sOutdoorPvPMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update worldstate"));
+            sWorldState->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlefields"));
+            sBattlefieldMgr->Update(diff);
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 2"));
+            sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
+        }
+
+        ///- Process Game events when necessary
+        if (_timers[WUPDATE_EVENTS].Passed())
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update game events"));
+            _timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
+            uint32 nextGameEvent = sGameEventMgr->Update();
+            _timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
+            _timers[WUPDATE_EVENTS].Reset();
+        }
+
+        {
+            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update instance reset times"));
+            // update the instance reset times
+            sInstanceSaveMgr->Update();
+        }
     }
 
     if (getBoolConfig(CONFIG_AUTOBROADCAST))
@@ -1239,31 +1286,6 @@ void World::Update(uint32 diff)
             _timers[WUPDATE_AUTOBROADCAST].Reset();
             sAutobroadcastMgr->SendAutobroadcasts();
         }
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlegrounds"));
-        sBattlegroundMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update outdoor pvp"));
-        sOutdoorPvPMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update worldstate"));
-        sWorldState->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update battlefields"));
-        sBattlefieldMgr->Update(diff);
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update LFG 2"));
-        sLFGMgr->Update(diff, 2); // pussywizard: handle created proposals
     }
 
     {
@@ -1287,16 +1309,6 @@ void World::Update(uint32 diff)
         LoginDatabase.Execute(stmt);
     }
 
-    ///- Process Game events when necessary
-    if (_timers[WUPDATE_EVENTS].Passed())
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update game events"));
-        _timers[WUPDATE_EVENTS].Reset();                   // to give time for Update() to be processed
-        uint32 nextGameEvent = sGameEventMgr->Update();
-        _timers[WUPDATE_EVENTS].SetInterval(nextGameEvent);
-        _timers[WUPDATE_EVENTS].Reset();
-    }
-
     ///- Ping to keep MySQL connections alive
     if (_timers[WUPDATE_PINGDB].Passed())
     {
@@ -1307,12 +1319,6 @@ void World::Update(uint32 diff)
         LoginDatabase.KeepAlive();
         WorldDatabase.KeepAlive();
         sScriptMgr->OnDatabasesKeepAlive();
-    }
-
-    {
-        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Update instance reset times"));
-        // update the instance reset times
-        sInstanceSaveMgr->Update();
     }
 
     {

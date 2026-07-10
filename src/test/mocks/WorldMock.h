@@ -39,6 +39,8 @@ public:
     MOCK_METHOD(void, LoadDBAllowedSecurityLevel, ());
     MOCK_METHOD(bool, getAllowMovement, (), (const));
     MOCK_METHOD(void, SetAllowMovement, (bool allow), ());
+    MOCK_METHOD(bool, IsGameplayPaused, (), (const));
+    MOCK_METHOD(void, SetGameplayPaused, (bool paused), ());
     MOCK_METHOD(LocaleConstant, GetDefaultDbcLocale, (), (const));
     MOCK_METHOD(std::string const&, GetDataPath, (), (const));
     MOCK_METHOD(Seconds, GetNextDailyQuestsResetTime, (), (const));

@@ -158,6 +158,10 @@ public:
     /// Allow/Disallow object movements
     void SetAllowMovement(bool allow) override { _allowMovement = allow; }
 
+    /// Is gameplay (maps, AI, battlegrounds, ...) frozen by a GM?
+    [[nodiscard]] bool IsGameplayPaused() const override { return _gameplayPaused; }
+    void SetGameplayPaused(bool paused) override { _gameplayPaused = paused; }
+
     [[nodiscard]] LocaleConstant GetDefaultDbcLocale() const override { return _defaultDbcLocale; }
 
     /// Get the path where data (dbc, maps) are stored on disk
@@ -284,6 +288,7 @@ private:
     uint32 _availableDbcLocaleMask;                       // by loaded DBC
     void DetectDBCLang();
     bool _allowMovement;
+    bool _gameplayPaused;
     std::string _dataPath;
 
     // for max speed access

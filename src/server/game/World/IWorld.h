@@ -71,6 +71,8 @@ public:
     virtual void LoadDBAllowedSecurityLevel() = 0;
     [[nodiscard]] virtual bool getAllowMovement() const = 0;
     virtual void SetAllowMovement(bool allow) = 0;
+    [[nodiscard]] virtual bool IsGameplayPaused() const = 0;
+    virtual void SetGameplayPaused(bool paused) = 0;
     [[nodiscard]] virtual LocaleConstant GetDefaultDbcLocale() const = 0;
     [[nodiscard]] virtual std::string const& GetDataPath() const = 0;
     [[nodiscard]] virtual Seconds GetNextDailyQuestsResetTime() const = 0;

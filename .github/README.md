@@ -119,6 +119,9 @@ quality-of-life changes:
 - **Runtime admin toggles**: `.playerbots enable|disable|status` and
   `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
   without a restart (see the module repos).
+- **World pause**: the `.pause [on|off]` GM command freezes all gameplay —
+  creatures, spells, battlegrounds, environment, and playerbot decision-making —
+  while chat and GM commands keep working. Without an argument it toggles.
 - **Container/infra**: rootless-Podman compatibility, GPU passthrough to
   Ollama via CDI, module and client-data volumes mounted at runtime (no image
   rebuild to pick up changes), and MySQL tuned for the playerbots write load.

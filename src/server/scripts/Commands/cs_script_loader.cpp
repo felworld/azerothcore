@@ -50,6 +50,7 @@ void AddSC_misc_commandscript();
 void AddSC_mmaps_commandscript();
 void AddSC_modify_commandscript();
 void AddSC_npc_commandscript();
+void AddSC_pause_commandscript();
 void AddSC_pet_commandscript();
 void AddSC_player_commandscript();
 void AddSC_pool_commandscript();
@@ -109,6 +110,7 @@ void AddCommandsScripts()
     AddSC_mmaps_commandscript();
     AddSC_modify_commandscript();
     AddSC_npc_commandscript();
+    AddSC_pause_commandscript();
     AddSC_pet_commandscript();
     AddSC_player_commandscript();
     AddSC_pool_commandscript();
