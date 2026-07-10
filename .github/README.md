@@ -97,6 +97,19 @@ last build step — a successful image build means a green test run. It uses
 Podman if available and Docker otherwise (set `CONTAINER_ENGINE` to
 override), so the same command works locally and in CI.
 
+The same script is the repo's only GitHub Actions workflow
+([`unit-tests.yml`](workflows/unit-tests.yml), run on every push and pull
+request, with the compiler cache persisted across runs); the upstream
+workflows were removed since they only apply to the upstream repos.
+
+Alongside the inherited upstream tests, the suite covers the fork's own
+features where they are unit-testable: the `.pause` command, profession
+skill-up XP, `XP.Kill.GroupMode`, and multi-drop quest items in the core,
+plus — contributed from each module's `test/` directory via its
+`<module>.cmake` — the playerbot `!` command prefix, the
+`.playerbots`/`.ollama` runtime toggles, and Ollama's chat-vs-command
+disambiguation.
+
 ## What we've changed
 
 Beyond wiring the AI pieces together, the fork carries a number of

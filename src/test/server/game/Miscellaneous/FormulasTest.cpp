@@ -107,3 +107,62 @@ TEST(FormulasTest, Gain)
     /// @todo: create mocks of Player and Creature
     // Gain(nullptr, nullptr);
 }
+
+class ProfessionSkillUpXPTest : public ::testing::Test
+{
+protected:
+    void SetUp() override
+    {
+        _originalWorld = sWorld.release();
+        _worldMock = new ::testing::NiceMock<WorldMock>();
+        sWorld.reset(_worldMock);
+    }
+
+    void TearDown() override
+    {
+        IWorld* currentWorld = sWorld.release();
+        delete currentWorld;
+        _worldMock = nullptr;
+
+        sWorld.reset(_originalWorld);
+        _originalWorld = nullptr;
+    }
+
+    void SetRate(float rate)
+    {
+        ON_CALL(*_worldMock, getRate(RATE_XP_PROFESSION_SKILLUP)).WillByDefault(::testing::Return(rate));
+    }
+
+    IWorld* _originalWorld = nullptr;
+    ::testing::NiceMock<WorldMock>* _worldMock = nullptr;
+};
+
+// cppcheck-suppress syntaxError
+TEST_F(ProfessionSkillUpXPTest, ScalesBaseKillXPByConfiguredRate)
+{
+    SetRate(0.25f);
+
+    // BaseGain(60, 60, CONTENT_1_60) = 345; 345 * 0.25 truncates to 86.
+    EXPECT_EQ(ProfessionSkillUpXP(60), 86u);
+}
+
+TEST_F(ProfessionSkillUpXPTest, RateZeroDisablesTheReward)
+{
+    SetRate(0.0f);
+
+    EXPECT_EQ(ProfessionSkillUpXP(1), 0u);
+    EXPECT_EQ(ProfessionSkillUpXP(80), 0u);
+}
+
+TEST_F(ProfessionSkillUpXPTest, UsesContentBracketOfPlayerLevel)
+{
+    SetRate(1.0f);
+
+    // With rate 1.0 the reward equals BaseGain(level, level, bracket) exactly.
+    EXPECT_EQ(ProfessionSkillUpXP(1), 50u);
+    EXPECT_EQ(ProfessionSkillUpXP(60), 345u);   // CONTENT_1_60
+    EXPECT_EQ(ProfessionSkillUpXP(61), 540u);   // CONTENT_61_70
+    EXPECT_EQ(ProfessionSkillUpXP(70), 585u);
+    EXPECT_EQ(ProfessionSkillUpXP(71), 935u);   // CONTENT_71_80
+    EXPECT_EQ(ProfessionSkillUpXP(80), 980u);
+}

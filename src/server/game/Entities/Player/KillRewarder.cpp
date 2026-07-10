@@ -123,6 +123,15 @@ void KillRewarder::_InitGroupData()
         _count = 1;
 }
 
+// XP.Kill.GroupMode 1/2: kill XP is not divided among group members - each
+// alive member is rewarded the XP they would have earned for the same kill
+// solo. Mode 2 only does so while the victim is not gray to any alive member
+// within reward distance (isFullXP), closing the power-leveling loophole.
+bool KillRewarder::IsUndividedGroupXP(uint32 groupXPMode, bool isBattleGround, bool isFullXP)
+{
+    return groupXPMode && !isBattleGround && (groupXPMode == 1 || isFullXP);
+}
+
 uint32 KillRewarder::_CalculateXP(Player* player)
 {
     uint32 xp = Acore::XP::Gain(player, _victim, _isBattleGround);
@@ -161,12 +170,8 @@ void KillRewarder::_RewardXP(Player* player, float rate)
     if (_group)
     {
         uint32 const groupXPMode = sWorld->getIntConfig(CONFIG_XP_KILL_GROUP_MODE);
-        if (groupXPMode && !_isBattleGround && (groupXPMode == 1 || _isFullXP))
+        if (IsUndividedGroupXP(groupXPMode, _isBattleGround, _isFullXP))
         {
-            // XP.Kill.GroupMode 1/2: kill XP is not divided among group members - each
-            // alive member is rewarded the XP they would have earned for the same kill
-            // solo. Mode 2 only does so while the victim is not gray to any alive member
-            // within reward distance (_isFullXP), closing the power-leveling loophole.
             isUndividedGroupXP = true;
             xp = player->IsAlive() ? _CalculateXP(player) : 0;
         }

@@ -70,6 +70,27 @@ uint32 Acore::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels conten
     return baseGain;
 }
 
+// Experience granted per profession skill point. The baseline is the base XP
+// from killing a same-level mob; Rate.XP.Profession.SkillUp scales that to the
+// intended reward (0.25 by default). Independent of the kill XP rate. Returns 0
+// when the feature is disabled.
+uint32 Acore::XP::ProfessionSkillUpXP(uint8 playerLevel)
+{
+    ContentLevels content;
+    if (playerLevel <= 60)
+        content = CONTENT_1_60;
+    else if (playerLevel <= 70)
+        content = CONTENT_61_70;
+    else
+        content = CONTENT_71_80;
+
+    // Baseline: the base XP for killing a same-level mob.
+    float xp = float(BaseGain(playerLevel, playerLevel, content));
+    xp *= sWorld->getRate(RATE_XP_PROFESSION_SKILLUP);
+
+    return uint32(xp);
+}
+
 uint32 Acore::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= false*/)
 {
     Creature* creature = unit->ToCreature();

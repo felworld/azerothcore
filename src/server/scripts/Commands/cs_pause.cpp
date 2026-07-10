@@ -23,6 +23,29 @@
 
 using namespace Acore::ChatCommands;
 
+// A free function (not class-local) so the unit tests can call it directly:
+// src/test compiles this file into the test binary (see src/test/CMakeLists.txt).
+bool HandleGameplayPauseCommand(ChatHandler* handler, Optional<bool> enableArg)
+{
+    bool const pause = enableArg ? *enableArg : !sWorld->IsGameplayPaused();
+
+    if (pause == sWorld->IsGameplayPaused())
+    {
+        handler->PSendSysMessage("Gameplay is already {}.", pause ? "paused" : "running");
+        return true;
+    }
+
+    sWorld->SetGameplayPaused(pause);
+
+    if (pause)
+        handler->SendGlobalSysMessage("Gameplay has been paused by a Game Master. Chat remains available.");
+    else
+        handler->SendGlobalSysMessage("Gameplay has been resumed.");
+
+    LOG_INFO("server.worldserver", "Gameplay {} via .pause command.", pause ? "paused" : "resumed");
+    return true;
+}
+
 class pause_commandscript : public CommandScript
 {
 public:
@@ -32,30 +55,9 @@ public:
     {
         static ChatCommandTable commandTable =
         {
-            { "pause", HandlePauseCommand, rbac::RBAC_PERM_COMMAND_PAUSE, Console::Yes }
+            { "pause", HandleGameplayPauseCommand, rbac::RBAC_PERM_COMMAND_PAUSE, Console::Yes }
         };
         return commandTable;
-    }
-
-    static bool HandlePauseCommand(ChatHandler* handler, Optional<bool> enableArg)
-    {
-        bool const pause = enableArg ? *enableArg : !sWorld->IsGameplayPaused();
-
-        if (pause == sWorld->IsGameplayPaused())
-        {
-            handler->PSendSysMessage("Gameplay is already {}.", pause ? "paused" : "running");
-            return true;
-        }
-
-        sWorld->SetGameplayPaused(pause);
-
-        if (pause)
-            handler->SendGlobalSysMessage("Gameplay has been paused by a Game Master. Chat remains available.");
-        else
-            handler->SendGlobalSysMessage("Gameplay has been resumed.");
-
-        LOG_INFO("server.worldserver", "Gameplay {} via .pause command.", pause ? "paused" : "resumed");
-        return true;
     }
 };
 

@@ -116,6 +116,8 @@ namespace Acore::XP
 
     uint32 Gain(Player* player, Unit* unit, bool isBattleGround = false);
 
+    uint32 ProfessionSkillUpXP(uint8 playerLevel);
+
     inline float xp_in_group_rate(uint32 count, bool isRaid)
     {
         float rate;

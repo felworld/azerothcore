@@ -910,29 +910,6 @@ static uint32       bonusSkillLevels[] = {75, 150, 225, 300, 375, 450};
 static const std::size_t bonusSkillLevelsSize =
     sizeof(bonusSkillLevels) / sizeof(uint32);
 
-// Experience granted per profession skill point. The baseline is the base XP
-// from killing a same-level mob; Rate.XP.Profession.SkillUp scales that to the
-// intended reward (0.25 by default). Independent of the kill XP rate. Returns 0
-// when the feature is disabled.
-static uint32 ProfessionSkillUpXP(Player const* player)
-{
-    uint8 const level = player->GetLevel();
-
-    ContentLevels content;
-    if (level <= 60)
-        content = CONTENT_1_60;
-    else if (level <= 70)
-        content = CONTENT_61_70;
-    else
-        content = CONTENT_71_80;
-
-    // Baseline: the base XP for killing a same-level mob.
-    float xp = float(Acore::XP::BaseGain(level, level, content));
-    xp *= sWorld->getRate(RATE_XP_PROFESSION_SKILLUP);
-
-    return uint32(xp);
-}
-
 bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 {
     LOG_DEBUG("entities.player.skills",
@@ -1007,7 +984,7 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
             if (skillLine && (skillLine->categoryId == SKILL_CATEGORY_PROFESSION ||
                               skillLine->categoryId == SKILL_CATEGORY_SECONDARY))
             {
-                if (uint32 xp = ProfessionSkillUpXP(this) * pointsGained)
+                if (uint32 xp = Acore::XP::ProfessionSkillUpXP(GetLevel()) * pointsGained)
                 {
                     sScriptMgr->OnPlayerGiveXP(this, xp, nullptr, PlayerXPSource::XPSOURCE_PROFESSION);
                     GiveXP(xp, nullptr);

@@ -33,6 +33,8 @@ public:
     Unit* GetVictim();
     Player* GetKiller();
 
+    static bool IsUndividedGroupXP(uint32 groupXPMode, bool isBattleGround, bool isFullXP);
+
 private:
     void _InitXP(Player* player);
     void _InitGroupData();

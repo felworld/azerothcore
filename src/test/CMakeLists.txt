@@ -14,6 +14,12 @@ CollectSourceFiles(
         PRIVATE_SOURCES
 )
 
+# unit_tests links game but not the scripts library, so script files whose
+# handlers are exercised by tests are compiled into the test binary directly.
+list(APPEND PRIVATE_SOURCES
+        ${CMAKE_SOURCE_DIR}/src/server/scripts/Commands/cs_pause.cpp
+)
+
 include_directories(
         "${CMAKE_CURRENT_SOURCE_DIR}/mocks"
 )
@@ -49,6 +55,13 @@ endif()
 # Link modules library to tests so module code is available
 if(TARGET modules)
     target_link_libraries(unit_tests modules)
+endif()
+
+# Module code may reference script-library types (e.g. the playerbots raid
+# logic dynamic_casts creature AIs to boss classes), so scripts must follow
+# modules on the link line.
+if(TARGET scripts)
+    target_link_libraries(unit_tests scripts)
 endif()
 
 add_test(
