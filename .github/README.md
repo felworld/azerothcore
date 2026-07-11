@@ -141,8 +141,10 @@ quality-of-life changes:
     battleground chat (see the mod-playerbots README).
   - Bots emoting at each other no longer loop forever — bot-to-bot emote
     replies roll a configurable chance (`AiPlayerbot.EmoteReplyChanceToBots`),
-    so exchanges trail off after a reply or two while replies to real players
-    stay as-is (see the mod-playerbots README).
+    and only one bot from a crowd replies to a given emoter at a time
+    (`AiPlayerbot.EmoteReplyClaimSeconds`), so exchanges trail off after a
+    reply or two while replies to real players stay as-is (see the
+    mod-playerbots README).
 - **Runtime admin toggles**: `.playerbots enable|disable|status` and
   `.ollama enable|disable|status` GM commands flip bots and LLM chat live,
   without a restart (see the module repos).
