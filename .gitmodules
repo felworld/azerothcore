@@ -7,3 +7,6 @@
 [submodule "env/dist/etc"]
 	path = env/dist/etc
 	url = https://github.com/felworld/configs
+[submodule "modules/mod-llm"]
+	path = modules/mod-llm
+	url = https://github.com/felworld/mod-llm
