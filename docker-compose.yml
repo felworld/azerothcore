@@ -91,24 +91,24 @@ services:
       - AC_PLAYERBOTS_DATABASE_INFO=ac-database;3306;root;${DOCKER_DB_ROOT_PASSWORD:-password};acore_playerbots
       # Session-mode toggles. AC reads AC_<OPTION> env vars in preference to the
       # matching .conf value at lookup time (see src/common/Configuration/
-      # Config.cpp), so these override AiPlayerbot.Enabled / OllamaChat.Enable in
-      # env/dist/etc/modules/{playerbots,mod_ollama_chat}.conf with no conf edit
+      # Config.cpp), so these override AiPlayerbot.Enabled / LLM.Enable in
+      # env/dist/etc/modules/{playerbots,mod_llm}.conf with no conf edit
       # or rebuild — a mode switch is just a different --env-file + `up -d`.
       # Pick a mode via one of the tracked .env.<mode> files:
-      #   .env.solo      bots off, ollama off
-      #   .env.dumbbots  bots on,  ollama off
-      #   .env.ollama    bots on,  ollama on  (also activates the ollama profile)
-      # Defaults here apply to a bare `up -d` (no --env-file): bots on, ollama
-      # off — consistent with the ac-ollama container being profile-gated below.
+      #   .env.solo      bots off, llm off
+      #   .env.dumbbots  bots on,  llm off
+      #   .env.llm       bots on,  llm on  (also activates the llm profile)
+      # Defaults here apply to a bare `up -d` (no --env-file): bots on, llm
+      # off — consistent with the ac-vllm container being profile-gated below.
       - AC_AI_PLAYERBOT_ENABLED=${AC_AI_PLAYERBOT_ENABLED:-1}
-      - AC_OLLAMA_CHAT_ENABLE=${AC_OLLAMA_CHAT_ENABLE:-0}
-      # Playerbots' own canned chatter, which mod-ollama-chat replaces with LLM
-      # output — this is the exact set its README recommends disabling. Listed
-      # value-less: ONLY .env.ollama sets them (to 0), forcing them off in ollama
-      # mode; in solo/dumbbots they stay unset here so the playerbots.conf values
-      # win (dumbbots relies on the .conf alone). NB: AiPlayerbot.GuildFeedback
-      # isn't implemented in this mod-playerbots build (vestigial .conf line), so
-      # its override is currently inert — kept for README parity / future-proofing.
+      - AC_LLM_ENABLE=${AC_LLM_ENABLE:-0}
+      # Playerbots' own canned chatter, which mod-llm replaces with LLM
+      # output. Listed value-less: ONLY .env.llm sets them (to 0), forcing them
+      # off in llm mode; in solo/dumbbots they stay unset here so the
+      # playerbots.conf values win (dumbbots relies on the .conf alone). NB:
+      # AiPlayerbot.GuildFeedback isn't implemented in this mod-playerbots build
+      # (vestigial .conf line), so its override is currently inert — kept for
+      # README parity / future-proofing.
       - AC_AI_PLAYERBOT_ENABLE_BROADCASTS
       - AC_AI_PLAYERBOT_RANDOM_BOT_TALK
       - AC_AI_PLAYERBOT_RANDOM_BOT_EMOTE
@@ -173,43 +173,57 @@ services:
       ac-db-import:
         condition: service_completed_successfully
 
-  # Ollama LLM server used by mod-ollama-chat. Runs on the NVIDIA GPU (requires
-  # the NVIDIA Container Toolkit on the host) and auto-pulls the model on first
-  # start. worldserver reaches it over ac-network at http://ac-ollama:11434 —
-  # see OllamaChat.Url in env/dist/etc/modules/mod_ollama_chat.conf. There is
-  # intentionally no depends_on from worldserver: the module calls Ollama
-  # lazily, so a missing GPU / failed pull won't block the game server.
-  ac-ollama:
-    container_name: ac-ollama
-    image: ollama/ollama
+  # vLLM server used by mod-llm (OpenAI-compatible chat completions with tool
+  # calling). Runs on the NVIDIA GPU (requires the NVIDIA Container Toolkit on
+  # the host) and downloads the model from Hugging Face on first start.
+  # worldserver reaches it over ac-network at http://ac-vllm:8000 — see
+  # LLM.Endpoint in env/dist/etc/modules/mod_llm.conf. There is intentionally
+  # no depends_on from worldserver: the module calls the endpoint lazily, so a
+  # missing GPU / failed download won't block the game server.
+  ac-vllm:
+    container_name: ac-vllm
+    image: vllm/vllm-openai:${VLLM_IMAGE_TAG:-latest}
     # Profile-gated: only created/started when the active env file sets
-    # COMPOSE_PROFILES=ollama (i.e. .env.ollama). In solo/dumbbots modes — and on
-    # a bare `up -d` — the container is never started, so no GPU/VRAM is used.
-    # Safe to gate because nothing depends_on it (the module calls Ollama lazily
-    # over ac-network). NB: `up` won't STOP an already-running ollama when you
-    # switch away; stop it explicitly if you want the VRAM back.
-    profiles: [ollama]
+    # COMPOSE_PROFILES=llm (i.e. .env.llm). In solo/dumbbots modes — and on a
+    # bare `up -d` — the container is never started, so no GPU/VRAM is used.
+    # Safe to gate because nothing depends_on it (the module calls the endpoint
+    # lazily over ac-network). NB: `up` won't STOP an already-running vllm when
+    # you switch away; stop it explicitly if you want the VRAM back.
+    profiles: [llm]
     networks:
       - ac-network
     ports:
-      - ${DOCKER_OLLAMA_EXTERNAL_PORT:-11434}:11434
+      - ${DOCKER_VLLM_EXTERNAL_PORT:-8000}:8000
+    # vLLM wants a large shared-memory segment for tensor transfer.
+    ipc: host
     environment:
-      # Bind all interfaces so other containers can reach it by service name
-      # (the image otherwise listens on 127.0.0.1 only).
-      OLLAMA_HOST: "0.0.0.0:11434"
+      # Only needed for gated models (e.g. Llama); Qwen downloads anonymously.
+      HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
+    # The model is swappable via VLLM_MODEL with no conf edit: the server
+    # always announces it under the alias "felworld" (--served-model-name),
+    # which is what LLM.Model in mod_llm.conf requests. Tool-call parsing is
+    # model-family-specific — keep VLLM_TOOL_PARSER in sync when changing
+    # models (hermes fits Qwen; llama3_json for Llama 3.x, mistral for
+    # Mistral; see the vLLM tool-calling docs).
+    command: >
+      --model ${VLLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
+      --served-model-name felworld
+      --enable-auto-tool-choice
+      --tool-call-parser ${VLLM_TOOL_PARSER:-hermes}
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
+      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.85}
     volumes:
-      - ${DOCKER_VOL_OLLAMA:-ac-ollama}:/root/.ollama
-      # Starts the server, then pulls the model on first run (see the script).
-      - ./apps/docker/ollama-entrypoint.sh:/usr/local/bin/ollama-entrypoint.sh:ro
+      # Hugging Face cache: model downloads survive container replacement.
+      - ${DOCKER_VOL_VLLM:-ac-vllm}:/root/.cache/huggingface
     restart: unless-stopped
-    entrypoint: ["bash", "/usr/local/bin/ollama-entrypoint.sh"]
     healthcheck:
-      # Healthy only once the model has finished downloading.
-      test: ["CMD-SHELL", "ollama list | grep -q gemma4 || exit 1"]
+      # Healthy only once the model is downloaded, loaded, and serving.
+      # Generous retries: the first start downloads several GB.
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
       interval: 10s
       timeout: 5s
-      retries: 120
-      start_period: 20s
+      retries: 180
+      start_period: 30s
     # GPU passthrough. This stack runs under rootless podman, which IGNORES the
     # Docker Compose `deploy.resources.reservations.devices` (nvidia driver)
     # syntax — that's a Docker-runtime hook. Podman consumes the GPU as a CDI
@@ -302,7 +316,7 @@ services:
 volumes:
   ac-database:
   ac-client-data:
-  ac-ollama:
+  ac-vllm:
   # Used for dev server
   ac-build-dev:
   ac-ccache-dev:

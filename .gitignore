@@ -23,7 +23,7 @@
 # docker-compose.yml). Real secrets still belong in an untracked .env.
 !/.env.solo
 !/.env.dumbbots
-!/.env.ollama
+!/.env.llm
 /apps/joiner
 /deps/deno
 /data/sql/custom/*

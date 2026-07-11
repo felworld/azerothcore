@@ -186,26 +186,32 @@ Two practical notes:
 - Playerbot state persists in its own fourth database connection (separate from the three
   core DBs).
 
-## mod-ollama-chat — bots that talk
+## mod-llm — agentic bots
 
-A small add-on (depends on playerbots) that makes bots **chat using a local LLM** via Ollama.
-It hooks the chat and game-event systems: when you talk near a bot or something happens (it
-dings, completes a quest, gets a kill), it builds a text prompt describing who the bot is and
-what's going on, sends it to the LLM, and the bot says the reply in character.
+Our own add-on (depends on playerbots) that makes bots **act through an LLM**, not just chat.
+Every trigger — someone talks near a bot, emotes at it, something happens nearby (a ding, a
+quest turn-in, a duel), or an idle "initiative" timer fires — is presented to the model as
+the bot's situation plus a **tool list** (OpenAI tool-call format, served by vLLM): send a
+message, perform an emote, adjust its opinion of the player, invite to a party, challenge to
+a duel. The model may call any of them — or nothing; silence is a first-class outcome.
+Adding a bot capability is one `ToolSpec` (name, JSON schema, executor) in the registry.
 
-The one architectural thing that matters: **LLM calls are slow (seconds), so they never run
-on the game loop** — they're fired off on background threads and the answer is spoken
-whenever it comes back, so the world never freezes waiting.
+Two architectural things matter:
 
-On top of the basics it adds:
+- **LLM calls are slow (seconds), so they never run on the game loop** — requests go through
+  a bounded worker pool (a full queue drops requests, so a stalled LLM server can't back up
+  into the game).
+- **Game state is only touched on the world thread.** Hooks snapshot everything into plain
+  values, workers do HTTP and parsing, and the resulting tool calls are marshalled back
+  through playerbots' world-thread operation queue, re-resolving players by GUID.
 
-- **Personalities** — each bot gets a persona (gamer, roleplayer, pirate, …) that shapes its
-  tone.
-- **Sentiment** — a value tracking how each bot feels about you, nudged over time by a second
-  LLM call that judges whether your messages were positive or negative, then fed back into
-  future prompts.
-- **RAG (lore retrieval)** — optional lightweight retrieval from local knowledge files to
-  ground answers, using simple text similarity (no embedding model).
+On top of the basics it keeps two pieces of persistent state (characters DB):
+
+- **Sentiment** — a 0..1 value tracking how each bot feels about each player, fed into
+  prompts and adjusted by the model itself via the `adjust_sentiment` tool (no extra LLM
+  round-trip).
+- **Conversation history** — per bot↔player and per room (party/guild/channel) transcripts,
+  fed back into prompts so exchanges have continuity across sessions.
 
 ## Cross-cutting themes
 
