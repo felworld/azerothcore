@@ -313,6 +313,9 @@ public:
 
     virtual bool Process(WorldPacket* /*packet*/) { return true; }
     [[nodiscard]] virtual bool ProcessUnsafe() const { return true; }
+    //accepted packets the session update should delete unhandled instead of
+    //processing (see PausedSessionFilter)
+    [[nodiscard]] virtual bool Discard(WorldPacket* /*packet*/) const { return false; }
 
 protected:
     WorldSession* const m_pSession;

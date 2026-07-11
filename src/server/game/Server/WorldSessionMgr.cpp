@@ -20,6 +20,7 @@
 #include "RBAC.h"
 #include "GameTime.h"
 #include "Metric.h"
+#include "PausedSessionFilter.h"
 #include "Player.h"
 #include "ScriptMgr.h"
 #include "World.h"
@@ -113,7 +114,6 @@ void WorldSessionMgr::UpdateSessions(uint32 const diff)
 
         ///- and remove not active sessions from the list
         WorldSession* pSession = itr->second;
-        WorldSessionFilter updater(pSession);
 
         // pussywizard:
         if (pSession->HandleSocketClosed())
@@ -137,7 +137,21 @@ void WorldSessionMgr::UpdateSessions(uint32 const diff)
         [[maybe_unused]] uint32 currentSessionId = itr->first;
         METRIC_DETAILED_TIMER("world_update_sessions_time", METRIC_TAG("account_id", std::to_string(currentSessionId)));
 
-        if (!pSession->Update(diff, updater))
+        bool sessionAlive;
+        if (sWorld->IsGameplayPaused())
+        {
+            // GM .pause: maps aren't updating, so discard map-bound packets instead of
+            // letting them wedge the queue ahead of chat and GM commands
+            PausedSessionFilter updater(pSession);
+            sessionAlive = pSession->Update(diff, updater);
+        }
+        else
+        {
+            WorldSessionFilter updater(pSession);
+            sessionAlive = pSession->Update(diff, updater);
+        }
+
+        if (!sessionAlive)
         {
             if (!RemoveQueuedPlayer(pSession) && sWorld->getIntConfig(CONFIG_INTERVAL_DISCONNECT_TOLERANCE))
                 _disconnects[pSession->GetAccountId()] = GameTime::GetGameTime().count();

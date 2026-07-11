@@ -38,6 +38,7 @@
 #include "ObjectMgr.h"
 #include "Opcodes.h"
 #include "OutdoorPvPMgr.h"
+#include "PausedSessionFilter.h"
 #include "PacketUtilities.h"
 #include "Pet.h"
 #include "Player.h"
@@ -102,6 +103,14 @@ bool WorldSessionFilter::Process(WorldPacket* packet)
 
     //lets process all packets for non-in-the-world player
     return !player->IsInWorld();
+}
+
+bool PausedSessionFilter::Discard(WorldPacket* packet) const
+{
+    ClientOpcodeHandler const* opHandle = opcodeTable[static_cast<OpcodeClient>(packet->GetOpcode())];
+
+    Player* player = m_pSession->GetPlayer();
+    return ShouldDiscard(opHandle->ProcessingPlace, player && player->IsInWorld());
 }
 
 /// WorldSession constructor
@@ -399,6 +408,15 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
     {
         OpcodeClient opcode = static_cast<OpcodeClient>(packet->GetOpcode());
         ClientOpcodeHandler const* opHandle = opcodeTable[opcode];
+
+        //while gameplay is paused there is no map update to drain map-bound packets,
+        //so PausedSessionFilter accepts and discards them here; not counted against
+        //the per-update cap so a paused tick always fully drains the queue
+        if (updater.Discard(packet))
+        {
+            delete packet;
+            continue;
+        }
 
         METRIC_DETAILED_TIMER("worldsession_update_opcode_time", METRIC_TAG("opcode", opHandle->Name));
         LOG_DEBUG("network", "message id {} ({}) under READ", opcode, opHandle->Name);

@@ -1216,7 +1216,9 @@ void World::Update(uint32 diff)
     }
 
     // GM ".pause": all gameplay subsystems are gated here in one place. Sessions (chat,
-    // GM commands) and server housekeeping outside this block keep running while paused.
+    // GM commands) and server housekeeping outside this block keep running while paused;
+    // with maps not updating, UpdateSessions discards map-bound client packets
+    // (PausedSessionFilter) so they can't wedge the ordered receive queue ahead of chat.
     if (!IsGameplayPaused())
     {
         {
