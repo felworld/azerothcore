@@ -206,7 +206,7 @@ services:
     # models (hermes fits Qwen; llama3_json for Llama 3.x, mistral for
     # Mistral; see the vLLM tool-calling docs).
     command: >
-      --model ${VLLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
+      ${VLLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
       --served-model-name felworld
       --enable-auto-tool-choice
       --tool-call-parser ${VLLM_TOOL_PARSER:-hermes}
