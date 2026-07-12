@@ -101,7 +101,9 @@ namespace
         }
         else
         {
-            LOG_ERROR("server.loading", message);
+            // "{}" so a message containing braces (e.g. a config default with
+            // fmt placeholders) isn't re-interpreted as a format string.
+            LOG_ERROR("server.loading", "{}", message);
         }
     }
 
@@ -119,7 +121,7 @@ namespace
                 if (IsAppConfig(filename))
                     fmt::print("{}\n", message);
 
-                LOG_WARN("server.loading", message);
+                LOG_WARN("server.loading", "{}", message);
                 return;
             }
             case ConfigSeverity::Error:
@@ -127,7 +129,7 @@ namespace
                 if (IsAppConfig(filename))
                     fmt::print("{}\n", message);
 
-                LOG_ERROR("server.loading", message);
+                LOG_ERROR("server.loading", "{}", message);
                 return;
             }
             case ConfigSeverity::Fatal:
@@ -135,7 +137,7 @@ namespace
                 if (IsAppConfig(filename))
                     fmt::print("{}\n", message);
 
-                LOG_FATAL("server.loading", message);
+                LOG_FATAL("server.loading", "{}", message);
                 ABORT(message);
             }
         }
