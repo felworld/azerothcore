@@ -4934,13 +4934,12 @@ void Player::CleanupChannels()
     }
 }
 
-// Playerbot helper if bot talks in a different locale
 bool Player::IsInChannel(const Channel* c)
 {
-    return std::any_of(m_channels.begin(), m_channels.end(), [c](const Channel* chan)
-    {
-        return c->GetChannelId() == chan->GetChannelId();
-    });
+    // Compare the channel object itself: builtin channels share one
+    // ChannelId per kind across zones (and all custom channels use 0), so
+    // an id comparison would claim membership of any same-kind channel.
+    return std::find(m_channels.begin(), m_channels.end(), c) != m_channels.end();
 }
 
 void Player::ClearChannelWatch()
