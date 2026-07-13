@@ -251,8 +251,11 @@ bool ChatHandler::ParseCommands(std::string_view text)
 {
     ASSERT(!text.empty());
 
-    // chat case (.command or !command format)
-    if ((text[0] != '!') && (text[0] != '.'))
+    // chat case (.command format)
+    // Felworld: upstream also accepts !command, but '!' is the playerbot
+    // command prefix here, and for GM accounts the failed lookup would
+    // consume the message before the playerbot module ever saw it.
+    if (text[0] != '.')
         return false;
 
     // ignore single . and ! in line

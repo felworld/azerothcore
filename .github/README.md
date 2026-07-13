@@ -139,7 +139,8 @@ quality-of-life changes:
     still applies, just prefixed). Anything without the prefix is ordinary
     chat, so a sentence that happens to start with a command word ("who said
     that?") gets an LLM reply instead of being silently swallowed as a
-    command.
+    command. To make room for this, the core's legacy `!` alias for GM
+    commands is disabled — GM commands use `.` only.
   - A `grind quests` strategy — tell a bot `!grind quests` in chat and it
     proactively pulls mobs that anyone in the group still needs for a quest
     (and only those), so questing with a bot feels like questing with a
