@@ -72,8 +72,9 @@ Notes:
 - Only `.env.llm` starts the GPU-backed `ac-vllm` container (gated by
   `COMPOSE_PROFILES=llm`); the other modes never start it, so it uses no
   VRAM. On first run it downloads the configured model from Hugging Face
-  (override with `VLLM_MODEL`, plus `VLLM_TOOL_PARSER` to match the model
-  family — see `docker-compose.yml`).
+  (override with `VLLM_MODEL`, plus `VLLM_TOOL_PARSER` and
+  `VLLM_REASONING_PARSER` to match the model family — see
+  `docker-compose.yml`).
 - A bare `podman compose up -d` (no `--env-file`) defaults to bots-on /
   LLM-off.
 - Switching *away* from LLM mode does not stop an already-running `ac-vllm` —

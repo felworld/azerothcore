@@ -206,15 +206,24 @@ services:
       HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
     # The model is swappable via VLLM_MODEL with no conf edit: the server
     # always announces it under the alias "felworld" (--served-model-name),
-    # which is what LLM.Model in mod_llm.conf requests. Tool-call parsing is
-    # model-family-specific — keep VLLM_TOOL_PARSER in sync when changing
-    # models (hermes fits Qwen; llama3_json for Llama 3.x, mistral for
-    # Mistral; see the vLLM tool-calling docs).
+    # which is what LLM.Model in mod_llm.conf requests. Tool-call and
+    # reasoning parsing are model-family-specific — keep VLLM_TOOL_PARSER and
+    # VLLM_REASONING_PARSER in sync when changing models (qwen3_coder/qwen3
+    # fit Qwen3.5; hermes for Qwen3/2.5; llama3_json for Llama 3.x; see the
+    # vLLM tool-calling docs). Qwen3.5's hybrid GDN architecture needs
+    # vLLM >= 0.17 — re-pull the image if the cached :latest predates it.
+    # Thinking mode is off (--default-chat-template-kwargs): reasoning tokens
+    # would eat the LLM.MaxTokens budget and multiply reply latency. Chat
+    # templates without the flag (e.g. Qwen3-4B-Instruct-2507) ignore it.
+    # AWQ 4-bit weights (~6 GB) leave headroom on a 12 GB GPU; the official
+    # bf16 Qwen/Qwen3.5-9B needs ~18 GB and does not fit.
     command: >
-      ${VLLM_MODEL:-Qwen/Qwen3-4B-Instruct-2507}
+      ${VLLM_MODEL:-QuantTrio/Qwen3.5-9B-AWQ}
       --served-model-name felworld
       --enable-auto-tool-choice
-      --tool-call-parser ${VLLM_TOOL_PARSER:-hermes}
+      --tool-call-parser ${VLLM_TOOL_PARSER:-qwen3_coder}
+      --reasoning-parser ${VLLM_REASONING_PARSER:-qwen3}
+      --default-chat-template-kwargs '{"enable_thinking": ${VLLM_ENABLE_THINKING:-false}}'
       --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
       --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.85}
     volumes:
