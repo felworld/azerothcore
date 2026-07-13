@@ -220,6 +220,12 @@ services:
     # than the 4-bit rule of thumb suggests. The 4B AWQ is 5.65 GiB and leaves
     # KV-cache headroom on a 12 GB GPU; the 9B AWQ is 11.53 GiB and OOMs
     # before it finishes loading (2B AWQ, 3.04 GiB, is the step down).
+    # GPU memory: the WoW client and desktop share this GPU (~1-2.5 GiB in
+    # play), and vLLM budgets utilization x *total* VRAM regardless of what
+    # others hold, so 0.85 OOMs once the game is running. 0.65 caps vLLM at
+    # ~7.6 GiB (5.65 weights + ~1.9 KV/graphs), keeping ~4 GiB for the game.
+    # If it still OOMs, add --enforce-eager (frees ~1 GiB of CUDA graphs,
+    # costs some latency) before reaching for the 2B model.
     command: >
       ${VLLM_MODEL:-QuantTrio/Qwen3.5-4B-AWQ}
       --served-model-name felworld
@@ -228,7 +234,7 @@ services:
       --reasoning-parser ${VLLM_REASONING_PARSER:-qwen3}
       --default-chat-template-kwargs '{"enable_thinking": ${VLLM_ENABLE_THINKING:-false}}'
       --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
-      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.85}
+      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.65}
     volumes:
       # Hugging Face cache: model downloads survive container replacement.
       - ${DOCKER_VOL_VLLM:-ac-vllm}:/root/.cache/huggingface
