@@ -29,11 +29,12 @@ services:
 
   ac-db-import:
     container_name: ac-db-import
-    # The default tag is "felworld" (not upstream's "master") on all ac-*
-    # images below: these are built from this fork, and reusing upstream's
-    # published tag would let a stray `pull` shadow the local builds with
-    # stock AzerothCore images.
-    image: acore/ac-wotlk-db-import:${DOCKER_IMAGE_TAG:-felworld}
+    # All ac-* images below live under "felworld/" (not upstream's "acore/"):
+    # they are built from this fork, and reusing upstream's Docker Hub names
+    # would let a stray `pull` shadow the local builds with stock AzerothCore
+    # images. The default tag matches this fork's branch (main), mirroring
+    # upstream's master-branch/:master convention; DOCKER_IMAGE_TAG overrides.
+    image: felworld/ac-wotlk-db-import:${DOCKER_IMAGE_TAG:-main}
     networks:
       - ac-network
     build:
@@ -66,7 +67,7 @@ services:
 
   ac-worldserver:
     container_name: ac-worldserver
-    image: acore/ac-wotlk-worldserver:${DOCKER_IMAGE_TAG:-felworld}
+    image: felworld/ac-wotlk-worldserver:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       target: worldserver
@@ -146,7 +147,7 @@ services:
 
   ac-authserver:
     container_name: ac-authserver
-    image: acore/ac-wotlk-authserver:${DOCKER_IMAGE_TAG:-felworld}
+    image: felworld/ac-wotlk-authserver:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       target: authserver
@@ -239,7 +240,7 @@ services:
 
   ac-client-data-init:
     container_name: ac-client-data-init
-    image: acore/ac-wotlk-client-data:${DOCKER_IMAGE_TAG:-felworld}
+    image: felworld/ac-wotlk-client-data:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       target: client-data
@@ -255,7 +256,7 @@ services:
   # Most of the time this shouldn't be needed
   ac-tools:
     container_name: ac-tools
-    image: acore/ac-wotlk-tools:${DOCKER_IMAGE_TAG:-felworld}
+    image: felworld/ac-wotlk-tools:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       target: tools
@@ -281,7 +282,7 @@ services:
   # first-class support
   ac-dev-server:
     tty: true
-    image: acore/ac-wotlk-dev-server:${DOCKER_IMAGE_TAG:-felworld}
+    image: felworld/ac-wotlk-dev-server:${DOCKER_IMAGE_TAG:-main}
     build:
       context: .
       dockerfile: ./apps/docker/Dockerfile.dev-server
