@@ -231,6 +231,10 @@ services:
     # ~1.3 KV cache (four full 8192-token sequences — GDN keeps KV tiny),
     # leaving ~2.9 GiB for the game. 0.65 left only 0.11 GiB KV and failed
     # startup ("To serve at least one request...").
+    # --max-num-batched-tokens 1024 keeps the activation peak small: the
+    # logits buffer alone is vocab (248k) x chunk x 2 bytes = ~0.5 GiB per
+    # 1024-token prefill chunk, and every GiB shaved off the peak becomes
+    # KV cache within the same budget. Long prompts just prefill in chunks.
     # --max-num-seqs matters just as much: CUDA graph capture and the GDN
     # recurrent-state pool are sized by max batch size and sit OUTSIDE the
     # utilization budget — the default (batches up to 512) allocated 1 GiB
@@ -247,6 +251,7 @@ services:
       --default-chat-template-kwargs '{"enable_thinking": ${VLLM_ENABLE_THINKING:-false}}'
       --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
       --max-num-seqs ${VLLM_MAX_NUM_SEQS:-8}
+      --max-num-batched-tokens ${VLLM_MAX_BATCHED_TOKENS:-1024}
       --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.75}
     volumes:
       # Hugging Face cache: model downloads survive container replacement.
