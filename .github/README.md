@@ -19,10 +19,11 @@ This repo is the server core, forked from
 | [felworld/azerothcore](https://github.com/felworld/azerothcore) (this one) | [mod-playerbots/azerothcore-wotlk](https://github.com/mod-playerbots/azerothcore-wotlk) | Server core, container setup, gameplay tweaks |
 | [felworld/mod-playerbots](https://github.com/felworld/mod-playerbots) (`modules/mod-playerbots`) | [mod-playerbots/mod-playerbots](https://github.com/mod-playerbots/mod-playerbots) | The playerbots themselves |
 | [felworld/mod-llm](https://github.com/felworld/mod-llm) (`modules/mod-llm`) | — | Agentic LLM-driven bots (tool-call architecture, vLLM) |
+| [felworld/mod-ah-bot-plus](https://github.com/felworld/mod-ah-bot-plus) (`modules/mod-ah-bot-plus`) | [NathanHandley/mod-ah-bot-plus](https://github.com/NathanHandley/mod-ah-bot-plus) | Stocks and trades on the auction house |
 | [felworld/configs](https://github.com/felworld/configs) (`env/dist/etc`) | — | Our playtested server configs |
 
 The forks track their upstreams; we periodically merge improvements back in.
-The two modules and the configs repo are wired in as git submodules, so clone
+The modules and the configs repo are wired in as git submodules, so clone
 with `--recurse-submodules` (or run `git submodule update --init` after).
 
 mod-llm is our own module (no upstream). Where its predecessor

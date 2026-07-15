@@ -7,3 +7,6 @@
 [submodule "modules/mod-llm"]
 	path = modules/mod-llm
 	url = https://github.com/felworld/mod-llm
+[submodule "modules/mod-ah-bot-plus"]
+	path = modules/mod-ah-bot-plus
+	url = https://github.com/felworld/mod-ah-bot-plus
