@@ -44,6 +44,7 @@ are intended to build and run out of the box:
 ```sh
 git clone --recurse-submodules https://github.com/felworld/azerothcore
 cd azerothcore
+podman compose build
 podman compose --env-file .env.dumbbots up -d
 ```
 
