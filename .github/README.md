@@ -156,8 +156,8 @@ quality-of-life changes:
     battleground chat (see the mod-playerbots README).
   - World PvP excursions — bots occasionally travel to enemy or contested
     towns (Southshore/Tarren Mill, the Crossroads, sometimes even Goldshire)
-    to lurk and pick fights for a while, with stealth-class goading,
-    level-gap-curved gankers, and defenders calling invaders out in
+    to lurk and pick fights for a while, with goading emotes at unflagged
+    passers-by, level-gap-curved gankers, and defenders calling invaders out in
     LocalDefense; `.playerbots wpvp` GM commands provide a test hook and a
     kill switch (see the mod-playerbots README).
   - Bots emoting at each other no longer loop forever — bot-to-bot emote
