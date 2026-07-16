@@ -202,7 +202,12 @@ services:
     # vLLM wants a large shared-memory segment for tensor transfer.
     ipc: host
     environment:
-      # Only needed for gated models (e.g. Llama); Qwen downloads anonymously.
+      # A read-scope token from https://huggingface.co/settings/tokens lifts
+      # anonymous download rate limits and unlocks gated repos (e.g. Llama).
+      # Export it in the shell or an extra --env-file — .env.llm is tracked,
+      # so the token itself must not live there. huggingface_hub honors both
+      # spellings; HF_TOKEN is the current canonical name.
+      HF_TOKEN: ${HF_TOKEN:-}
       HUGGING_FACE_HUB_TOKEN: ${HUGGING_FACE_HUB_TOKEN:-}
       # Set VLLM_HF_OFFLINE=1 to load straight from the cache volume with no
       # Hugging Face calls: faster startup, and immune to broken container
@@ -212,47 +217,46 @@ services:
     # always announces it under the alias "felworld" (--served-model-name),
     # which is what LLM.Model in mod_llm.conf requests. Tool-call and
     # reasoning parsing are model-family-specific — keep VLLM_TOOL_PARSER and
-    # VLLM_REASONING_PARSER in sync when changing models (qwen3_coder/qwen3
-    # fit Qwen3.5; hermes for Qwen3/2.5; llama3_json for Llama 3.x; see the
-    # vLLM tool-calling docs). Qwen3.5's hybrid GDN architecture needs
-    # vLLM >= 0.17 — re-pull the image if the cached :latest predates it.
+    # VLLM_REASONING_PARSER in sync when changing models (qwen3_xml/qwen3 fit
+    # Qwen3.6; qwen3_coder for Qwen3.5; hermes for Qwen3/2.5; llama3_json for
+    # Llama 3.x; see the vLLM tool-calling docs).
+    # The defaults below are NVIDIA's "agent-ready" DGX Spark recipe for
+    # Qwen3.6-35B-A3B in NVFP4 (Blackwell-accelerated 4-bit), taken from
+    # https://build.nvidia.com/spark/vllm/agent-ready-qwen35b (the slug says
+    # qwen35b; the recipe serves Qwen3.6). The vllm/vllm-openai image is
+    # multi-arch and pulls the aarch64 variant on the Spark's Grace CPU —
+    # re-pull :latest if the cached image predates Qwen3.6 support.
     # Thinking mode is off (--default-chat-template-kwargs): reasoning tokens
     # would eat the LLM.MaxTokens budget and multiply reply latency. Chat
-    # templates without the flag (e.g. Qwen3-4B-Instruct-2507) ignore it.
-    # Model size: Qwen3.5's 248k-token vocabulary keeps its embedding + lm_head
-    # in fp16 even under AWQ (~1.9 GiB each), so checkpoints run far bigger
-    # than the 4-bit rule of thumb suggests. The 4B AWQ is 5.65 GiB and leaves
-    # KV-cache headroom on a 12 GB GPU; the 9B AWQ is 11.53 GiB and OOMs
-    # before it finishes loading (2B AWQ, 3.04 GiB, is the step down).
-    # GPU memory: the WoW client and desktop share this GPU (~1-2.5 GiB in
-    # play), and vLLM budgets utilization x *total* VRAM regardless of what
-    # others hold, so 0.85 OOMs once the game is running. Measured ledger at
-    # 0.75 (of 11.62 GiB): 8.7 budget = 5.65 weights + ~1.7 activations +
-    # ~1.3 KV cache (four full 8192-token sequences — GDN keeps KV tiny),
-    # leaving ~2.9 GiB for the game. 0.65 left only 0.11 GiB KV and failed
-    # startup ("To serve at least one request...").
-    # --max-num-batched-tokens 1024 keeps the activation peak small: the
-    # logits buffer alone is vocab (248k) x chunk x 2 bytes = ~0.5 GiB per
-    # 1024-token prefill chunk, and every GiB shaved off the peak becomes
-    # KV cache within the same budget. Long prompts just prefill in chunks.
-    # --max-num-seqs matters just as much: CUDA graph capture and the GDN
-    # recurrent-state pool are sized by max batch size and sit OUTSIDE the
-    # utilization budget — the default (batches up to 512) allocated 1 GiB
-    # chunks until the GPU OOM'd. mod-llm sends at most a handful of
-    # concurrent requests (LLM.MaxConcurrentRequests), so 8 is generous.
-    # If memory is still tight, add --enforce-eager (skips CUDA graph
-    # capture, costs some latency) before reaching for the 2B model.
+    # templates without the flag ignore it.
+    # Memory: the Spark's 128 GiB is unified, so vLLM's utilization fraction
+    # budgets against the same pool the worldserver, MySQL, and OS use.
+    # 0.4 ≈ 51 GiB ≈ ~20 GiB NVFP4 weights + generous KV/activations (fp8 KV
+    # cache and Qwen3.6's hybrid-GDN attention keep the 262k context
+    # affordable), leaving the rest of the box to the game stack.
+    # --max-num-seqs 4 covers mod-llm's LLM.MaxConcurrentRequests (3).
+    # VLLM_EXTRA_ARGS is the hook for machine-specific extras.
     command: >
-      ${VLLM_MODEL:-QuantTrio/Qwen3.5-4B-AWQ}
+      ${VLLM_MODEL:-nvidia/Qwen3.6-35B-A3B-NVFP4}
       --served-model-name felworld
       --enable-auto-tool-choice
-      --tool-call-parser ${VLLM_TOOL_PARSER:-qwen3_coder}
+      --tool-call-parser ${VLLM_TOOL_PARSER:-qwen3_xml}
       --reasoning-parser ${VLLM_REASONING_PARSER:-qwen3}
       --default-chat-template-kwargs '{"enable_thinking": ${VLLM_ENABLE_THINKING:-false}}'
-      --max-model-len ${VLLM_MAX_MODEL_LEN:-8192}
-      --max-num-seqs ${VLLM_MAX_NUM_SEQS:-8}
-      --max-num-batched-tokens ${VLLM_MAX_BATCHED_TOKENS:-1024}
-      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.75}
+      --trust-remote-code
+      --kv-cache-dtype fp8
+      --attention-backend flashinfer
+      --moe-backend marlin
+      --enable-chunked-prefill
+      --async-scheduling
+      --enable-prefix-caching
+      --speculative-config '{"method":"mtp","num_speculative_tokens":3,"moe_backend":"triton"}'
+      --load-format fastsafetensors
+      --max-model-len ${VLLM_MAX_MODEL_LEN:-262144}
+      --max-num-seqs ${VLLM_MAX_NUM_SEQS:-4}
+      --max-num-batched-tokens ${VLLM_MAX_BATCHED_TOKENS:-8192}
+      --gpu-memory-utilization ${VLLM_GPU_MEM_UTIL:-0.4}
+      ${VLLM_EXTRA_ARGS:-}
     volumes:
       # Hugging Face cache: model downloads survive container replacement.
       - ${DOCKER_VOL_VLLM:-ac-vllm}:/root/.cache/huggingface

@@ -74,9 +74,11 @@ Notes:
 - Only `.env.llm` starts the GPU-backed `ac-vllm` container (gated by
   `COMPOSE_PROFILES=llm`); the other modes never start it, so it uses no
   VRAM. On first run it downloads the configured model from Hugging Face
-  (override with `VLLM_MODEL`, plus `VLLM_TOOL_PARSER` and
-  `VLLM_REASONING_PARSER` to match the model family — see
-  `docker-compose.yml`).
+  (export `HF_TOKEN` first to avoid anonymous rate limits). The default is
+  NVIDIA's DGX Spark agent-ready recipe (Qwen3.6-35B-A3B, NVFP4) and needs
+  Spark-class memory — on smaller GPUs override `VLLM_MODEL`, plus
+  `VLLM_TOOL_PARSER` / `VLLM_REASONING_PARSER` to match the model family,
+  and `VLLM_EXTRA_ARGS` for anything else — see `docker-compose.yml`.
 - A bare `podman compose up -d` (no `--env-file`) defaults to bots-on /
   LLM-off.
 - Switching *away* from LLM mode does not stop an already-running `ac-vllm` —
