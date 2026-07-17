@@ -29,9 +29,9 @@ with `--recurse-submodules` (or run `git submodule update --init` after).
 mod-llm is our own module (no upstream). Where its predecessor
 (mod-ollama-chat, a fork of DustinHendrickson/mod-ollama-chat) prompted the
 LLM for chat replies, mod-llm gives the model a set of *tools* — send a
-message, emote, adjust its opinion of a player, invite to a party, challenge
-to a duel — and lets it decide what, if anything, to do. See its README for
-the architecture.
+message, emote, write or delete a note in its persistent private memory,
+invite to a party, challenge to a duel — and lets it decide what, if
+anything, to do. See its README for the architecture.
 
 ## Running
 
