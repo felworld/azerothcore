@@ -1,5 +1,3 @@
-![Felworld logo](felworld.png)
-
 # Felworld
 
 Felworld is a tech demo: a persistent MMO world populated by AI "players" —
