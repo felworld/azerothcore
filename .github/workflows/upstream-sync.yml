@@ -1,0 +1,110 @@
+name: upstream-sync
+
+# Weekly upstream sync: check the upstreams of the core and the forked
+# modules for new commits and, if there are any, have Claude Code merge
+# them, regenerate the deployed configs, and open one PR per affected
+# felworld repo. Procedure and PR conventions: ../UPSTREAM_SYNC.md.
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Mondays 08:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-sync
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      # Fine-grained PAT covering the felworld repos (the default
+      # GITHUB_TOKEN can't read the private submodules or open PRs in
+      # the sibling repos). Needs Contents + Pull requests read/write
+      # on felworld/{azerothcore,mod-playerbots,mod-ah-bot-plus,configs}
+      # and Issues write on felworld/azerothcore (failure reports), plus
+      # read on felworld/mod-llm for the submodule checkout.
+      GH_TOKEN: ${{ secrets.GH_FELWORLD_TOKEN }}
+    steps:
+      # Full history everywhere: the sync merges upstream histories, so
+      # shallow clones won't do.
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GH_FELWORLD_TOKEN }}
+
+      - name: Check upstreams for new commits
+        id: check
+        run: |
+          set -euo pipefail
+
+          git remote add upstream https://github.com/mod-playerbots/azerothcore-wotlk.git
+          git fetch --quiet upstream Playerbot
+          core=$(git rev-list --count origin/main..upstream/Playerbot)
+
+          git -C modules/mod-playerbots remote add upstream https://github.com/mod-playerbots/mod-playerbots.git
+          git -C modules/mod-playerbots fetch --quiet upstream master
+          pb=$(git -C modules/mod-playerbots rev-list --count origin/main..upstream/master)
+
+          git -C modules/mod-ah-bot-plus remote add upstream https://github.com/NathanHandley/mod-ah-bot-plus.git
+          git -C modules/mod-ah-bot-plus fetch --quiet upstream master
+          ah=$(git -C modules/mod-ah-bot-plus rev-list --count origin/main..upstream/master)
+
+          echo "New upstream commits: core=$core mod-playerbots=$pb mod-ah-bot-plus=$ah"
+
+          # Don't stack sync cycles: skip while any previous upstream-sync
+          # PR is still open.
+          open=0
+          for repo in azerothcore mod-playerbots mod-ah-bot-plus configs; do
+            n=$(gh pr list --repo "felworld/$repo" --state open --json headRefName \
+              --jq '[.[] | select(.headRefName | startswith("upstream-sync/"))] | length')
+            open=$((open + n))
+          done
+
+          run=false
+          if [ "$open" -gt 0 ]; then
+            echo "::notice::Skipping: $open upstream-sync PR(s) from a previous cycle are still open."
+          elif [ $((core + pb + ah)) -eq 0 ]; then
+            echo "::notice::All upstreams already merged; nothing to do."
+          else
+            run=true
+          fi
+
+          {
+            echo "run=$run"
+            echo "core=$core"
+            echo "pb=$pb"
+            echo "ah=$ah"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Configure git identity
+        if: steps.check.outputs.run == 'true'
+        run: |
+          git config --global user.name "Felworld Upstream Sync"
+          git config --global user.email "justin@fernforestgames.com"
+
+      - name: Merge upstreams and open PRs
+        if: steps.check.outputs.run == 'true'
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ secrets.GH_FELWORLD_TOKEN }}
+          prompt: |
+            Run the weekly upstream sync for this checkout, following the
+            runbook at .github/UPSTREAM_SYNC.md exactly.
+
+            The previous workflow step already added and fetched the
+            `upstream` remotes in the core repo, modules/mod-playerbots,
+            and modules/mod-ah-bot-plus. New upstream commit counts:
+            core=${{ steps.check.outputs.core }},
+            mod-playerbots=${{ steps.check.outputs.pb }},
+            mod-ah-bot-plus=${{ steps.check.outputs.ah }}.
+          claude_args: |
+            --model claude-sonnet-5
+            --max-turns 150
+            --allowedTools "Bash,Read,Write,Edit,Glob,Grep"

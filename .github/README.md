@@ -22,7 +22,11 @@ This repo is the server core, forked from
 | [felworld/mod-ah-bot-plus](https://github.com/felworld/mod-ah-bot-plus) (`modules/mod-ah-bot-plus`) | [NathanHandley/mod-ah-bot-plus](https://github.com/NathanHandley/mod-ah-bot-plus) | Stocks and trades on the auction house |
 | [felworld/configs](https://github.com/felworld/configs) (`env/dist/etc`) | — | Our playtested server configs |
 
-The forks track their upstreams; we periodically merge improvements back in.
+The forks track their upstreams; a weekly GitHub Actions run
+([`upstream-sync.yml`](workflows/upstream-sync.yml)) checks for new upstream
+commits and, when there are any, has [Claude Code](https://claude.com/claude-code)
+merge them, regenerate the configs, and open a PR per affected repo — see
+[`UPSTREAM_SYNC.md`](UPSTREAM_SYNC.md) for the procedure it follows.
 The modules and the configs repo are wired in as git submodules, so clone
 with `--recurse-submodules` (or run `git submodule update --init` after).
 
@@ -111,10 +115,10 @@ last build step — a successful image build means a green test run. It uses
 Podman if available and Docker otherwise (set `CONTAINER_ENGINE` to
 override), so the same command works locally and in CI.
 
-The same script is the repo's only GitHub Actions workflow
-([`unit-tests.yml`](workflows/unit-tests.yml), run on every push and pull
-request, with the compiler cache persisted across runs); the upstream
-workflows were removed since they only apply to the upstream repos.
+The same script runs in CI as the [`unit-tests.yml`](workflows/unit-tests.yml)
+workflow (on every push and pull request, with the compiler cache persisted
+across runs); the upstream workflows were removed since they only apply to
+the upstream repos.
 
 Alongside the inherited upstream tests, the suite covers the fork's own
 features where they are unit-testable: the `.pause` command, profession
