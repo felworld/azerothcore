@@ -2,10 +2,11 @@
 
 # Felworld
 
-Felworld (so-called after the various parks in the Westworld TV series)
-replicates the feeling of an MMORPG in a mostly single-player context: a
-private World of Warcraft 3.3.5a (Wrath of the Lich King) server where "other
-players" are emulated by AI.
+Felworld is a tech demo: a persistent MMO world populated by AI "players" —
+a mixture of LLM agents and classical game AI — that quest, group, trade,
+banter, and fight alongside (and against) you. It replicates the feeling of
+playing an MMORPG in a mostly single-player context, and doubles as a
+testbed for agentic LLM behaviour embedded in a live game loop.
 
 This repo is the server core, forked from
 [mod-playerbots/azerothcore-wotlk](https://github.com/mod-playerbots/azerothcore-wotlk)
@@ -54,7 +55,9 @@ podman compose --env-file .env.dumbbots up -d
 
 First startup takes a while: `ac-client-data-init` downloads the client data
 files and `ac-db-import` populates the databases before `ac-worldserver`
-comes up.
+comes up. To actually play you connect with your own 3.3.5a game client —
+none of the client or its assets is included in these repos (see the
+[disclaimer](#license-and-disclaimer) below).
 
 ### Session modes
 
@@ -185,8 +188,13 @@ A high-level tour of the C++ codebase is in
 AzerothCore documentation (database schema, scripting, GM commands), the
 [upstream wiki](https://www.azerothcore.org/wiki) still applies.
 
-## License
+## License and disclaimer
 
 AzerothCore and mod-playerbots are GNU GPL v2; Felworld's changes to them
-carry the same licenses. mod-llm is MIT. Not affiliated with or endorsed by
-Blizzard Entertainment.
+carry the same licenses. mod-llm is MIT.
+
+Felworld is a non-commercial research and educational project. These repos
+contain no game client, no client assets, and no proprietary Blizzard
+Entertainment code; you must supply your own legally obtained game client
+and comply with the laws of your jurisdiction. Felworld is not affiliated
+with or endorsed by Blizzard Entertainment.

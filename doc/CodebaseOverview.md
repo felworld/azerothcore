@@ -10,10 +10,10 @@ notes.
 
 When you play WoW, the game client (the `.exe`) is mostly a renderer + input handler. It
 doesn't *know* the rules — it asks the server "I pressed Fireball, what happens?" and the
-server decides. **AzerothCore is a from-scratch reimplementation of that server side**, for
-the WotLK 3.3.5a client specifically. An unmodified WoW client connects to it and can't
-really tell it isn't Blizzard. So the whole codebase exists to: *be the authoritative
-simulation of the game world, enforce the rules, and persist everyone's data.*
+server decides. **AzerothCore is a from-scratch reimplementation of that server side**,
+speaking the network protocol of the WotLK 3.3.5a client specifically. So the whole
+codebase exists to: *be the authoritative simulation of the game world, enforce the
+rules, and persist everyone's data.*
 
 It runs as **two programs**, which is normal for online games:
 
