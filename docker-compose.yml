@@ -11,8 +11,12 @@ services:
     image: mysql:8.4
     networks:
       - ac-network
+    # Loopback-only: host-side DB access for debugging, never the internet.
+    # Docker's port publishing bypasses host firewalls (UFW/firewalld), so
+    # anything not meant to be public must bind 127.0.0.1 here — only the
+    # authserver (3724) and worldserver (8085) ports are published wide.
     ports:
-      - ${DOCKER_DB_EXTERNAL_PORT:-3306}:3306
+      - 127.0.0.1:${DOCKER_DB_EXTERNAL_PORT:-3306}:3306
     environment:
       - MYSQL_ROOT_PASSWORD=${DOCKER_DB_ROOT_PASSWORD:-password}
     volumes:
@@ -124,7 +128,9 @@ services:
       - AC_AI_PLAYERBOT_WPVP_CALLOUTS
     ports:
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
-      - ${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
+      # SOAP is loopback-only (and SOAP.Enabled=0 besides): remote admin API,
+      # must never be internet-reachable. See the ac-database ports note.
+      - 127.0.0.1:${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
     volumes:
       - ${DOCKER_VOL_ETC:-./env/dist/etc}:/azerothcore/env/dist/etc
       # [osxfs optimization]: https://stackoverflow.com/a/63437557/1964544
@@ -198,8 +204,11 @@ services:
     profiles: [llm]
     networks:
       - ac-network
+    # Loopback-only: vLLM has no auth (LLM.ApiKey is empty) — exposing it
+    # would offer free GPU inference to the internet. worldserver reaches it
+    # over ac-network; this publish exists only for host-side debugging.
     ports:
-      - ${DOCKER_VLLM_EXTERNAL_PORT:-8000}:8000
+      - 127.0.0.1:${DOCKER_VLLM_EXTERNAL_PORT:-8000}:8000
     # vLLM wants a large shared-memory segment for tensor transfer.
     ipc: host
     environment:
@@ -344,7 +353,7 @@ services:
     ports:
       - ${DOCKER_AUTH_EXTERNAL_PORT:-3724}:3724
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
-      - ${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
+      - 127.0.0.1:${DOCKER_SOAP_EXTERNAL_PORT:-7878}:7878
     volumes:
       - ${DOCKER_VOL_ROOT:-.}:/azerothcore:cached
       # [osxfs optimization]: https://stackoverflow.com/a/63437557/1964544
