@@ -132,54 +132,29 @@ prompt assembly, and name-mention matching.
 ## What we've changed
 
 Beyond wiring the AI pieces together, the fork carries a number of
-quality-of-life changes:
+quality-of-life changes — the full tour is in
+[FEATURES.md](../FEATURES.md), with the module details in each module's own
+FEATURES.md:
 
-- **Gameplay** (all opt-in via config, enabled in our configs where noted):
-  - `Rate.XP.Profession.SkillUp` — profession skill-ups grant a little XP,
-    so crafting sessions aren't dead time.
-  - `XP.Kill.GroupMode` — options for full (unsplit) kill XP while grouped, so
-    grouping doesn't slow down leveling.
-  - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
-    for everyone in the group who needs it.
-- **Playerbots**:
-  - All playerbot commands require a `!` prefix: `!follow`, `!attack`,
-    `!who warrior`, and so on (the
-    [playerbot command list](https://github.com/mod-playerbots/mod-playerbots/wiki/Playerbot-Commands)
-    still applies, just prefixed). Anything without the prefix is ordinary
-    chat, so a sentence that happens to start with a command word ("who said
-    that?") gets an LLM reply instead of being silently swallowed as a
-    command. To make room for this, the core's legacy `!` alias for GM
-    commands is disabled — GM commands use `.` only.
-  - A `grind quests` strategy — tell a bot `!grind quests` in chat and it
-    proactively pulls mobs that anyone in the group still needs for a quest
-    (and only those), so questing with a bot feels like questing with a
-    person (see the mod-playerbots README).
-  - Warsong Gulch teamwork — bots escort their flag carrier, peel off
-    attackers closing in on it, station defenders in the flag room before
-    the flag is taken, re-pick roles when they die, use Stealth, Prowl,
-    and Shadowmeld where sneaking matters, and call incoming enemies in
-    battleground chat (see the mod-playerbots README).
-  - World PvP excursions — bots occasionally travel to enemy or contested
-    towns (Southshore/Tarren Mill, the Crossroads, sometimes even Goldshire)
-    to lurk and pick fights for a while, with goading emotes at unflagged
-    passers-by, level-gap-curved gankers, and defenders calling invaders out in
-    LocalDefense; `.playerbots wpvp` GM commands provide a test hook and a
-    kill switch (see the mod-playerbots README).
-  - Bots emoting at each other no longer loop forever — bot-to-bot emote
-    replies roll a configurable chance (`AiPlayerbot.EmoteReplyChanceToBots`),
-    and only one bot from a crowd replies to a given emoter at a time
-    (`AiPlayerbot.EmoteReplyClaimSeconds`), so exchanges trail off after a
-    reply or two while replies to real players stay as-is (see the
-    mod-playerbots README).
-- **Runtime admin toggles**: `.playerbots enable|disable|status` and
-  `.llm enable|disable|status|reload` GM commands flip bots and LLM behaviour
-  live, without a restart (see the module repos).
-- **World pause**: the `.pause [on|off]` GM command freezes all gameplay —
-  creatures, spells, battlegrounds, environment, and playerbot decision-making —
-  while chat and GM commands keep working. Without an argument it toggles.
-- **Container/infra**: rootless-Podman compatibility, GPU passthrough to
-  vLLM via CDI, module and client-data volumes mounted at runtime (no image
-  rebuild to pick up changes), and MySQL tuned for the playerbots write load.
+- **Gameplay options** (opt-in via config) — XP from profession skill-ups,
+  unsplit group kill XP, multi-drop quest items.
+- **`!` command prefix** for playerbot commands, so ordinary chat is never
+  silently swallowed as a command.
+- **Quest-aware grinding** — `!grind quests` makes a bot pull only what its
+  group still needs, like a questing partner.
+- **Warsong Gulch teamwork** — flag-carrier escorts and peels, flag-room
+  defenders, stealthy approaches, incoming callouts.
+- **World PvP** — bots travel to enemy towns to lurk and pick fights;
+  defenders call out and hunt gankers, and beaten gankers pull
+  reinforcements — real players included, on both ends.
+- **Social behaviours** — bots rescue strangers about to die, buff
+  passers-by, group up over quest-spawn competition, and end emote
+  exchanges instead of looping them.
+- **Runtime admin toggles** — `.playerbots` and `.llm` GM commands flip
+  bots and LLM behaviour live; `.pause` freezes all gameplay while chat
+  and GM commands keep working.
+- **Container/infra** — rootless Podman, GPU passthrough to vLLM via CDI,
+  runtime-mounted module/data volumes, MySQL tuned for the bot write load.
 
 A high-level tour of the C++ codebase is in
 [`doc/CodebaseOverview.md`](../doc/CodebaseOverview.md). For general
