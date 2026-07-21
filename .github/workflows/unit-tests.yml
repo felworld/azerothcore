@@ -6,6 +6,15 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Serialize runs per ref so each run finishes and saves its ccache before the
+# next one restores it. Canceling in progress would discard the superseded
+# run's compiler cache (the cache post-steps never see a completed build),
+# leaving every subsequent run to compile from a stale snapshot. GitHub keeps
+# only the newest queued run per group, so the backlog is at most one run.
+concurrency:
+  group: unit-tests-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
