@@ -87,6 +87,16 @@ The `.pause [on|off]` GM command freezes all gameplay — creatures, spells,
 battlegrounds, environment, and playerbot decision-making — while chat and
 GM commands keep working. Without an argument it toggles.
 
+## Per-player XP rate
+
+The `.modify xp <rate>` GM command sets an XP-gain multiplier for the
+selected player (yourself if no one is selected), applied to every XP
+source — kills, quests, exploration, battlegrounds, dungeon-finder
+rewards — with rested and recruit-a-friend bonuses scaling to match.
+`1` is normal, `0` disables XP gain, and `.modify xp` without a value
+shows the current rate. Like the other `.modify` commands, the rate
+resets at logout.
+
 ## Container / infrastructure
 
 Rootless-Podman compatibility, GPU passthrough to vLLM via CDI, module and

@@ -152,7 +152,8 @@ FEATURES.md:
   exchanges instead of looping them.
 - **Runtime admin toggles** — `.playerbots` and `.llm` GM commands flip
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
-  and GM commands keep working.
+  and GM commands keep working; `.modify xp` sets a per-player XP rate
+  multiplier.
 - **Container/infra** — rootless Podman, GPU passthrough to vLLM via CDI,
   runtime-mounted module/data volumes, MySQL tuned for the bot write load.
 
