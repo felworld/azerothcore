@@ -1191,6 +1191,10 @@ public:
     void GiveXP(uint32 xp, Unit* victim, float group_rate = 1.0f, bool isLFGReward = false);
     void GiveLevel(uint8 level);
 
+    // GM-set multiplier (.modify xp) applied to all XP gains; not persisted across logout
+    [[nodiscard]] float GetPersonalXpRate() const { return _personalXpRate; }
+    void SetPersonalXpRate(float rate) { _personalXpRate = rate; }
+
     void InitStatsForLevel(bool reapplyMods = false);
 
     [[nodiscard]] bool HasActivePowerType(Powers power) override;
@@ -2946,6 +2950,7 @@ protected:
     float _restBonus;
     uint32 _restFlagMask;
     ////////////////////Rest System/////////////////////
+    float _personalXpRate;
     uint32 m_resetTalentsCost;
     time_t m_resetTalentsTime;
     uint32 m_usedTalentCount;

@@ -284,6 +284,8 @@ Player::Player(WorldSession* session): Unit(), m_mover(this), _cinematicMgr(*thi
     _restFlagMask = 0;
     ////////////////////Rest System/////////////////////
 
+    _personalXpRate = 1.0f;
+
     m_mailsUpdated = false;
     unReadMails = 0;
     m_nextMailDelivereTime = time_t(0);
@@ -2387,6 +2389,13 @@ void Player::GiveXP(uint32 xp, Unit* victim, float group_rate, bool isLFGReward)
 
     xp = uint32(xp * (1 + favored_exp_mult));
     // Favored experience increase END
+
+    // apply before the rested/RaF bonus is derived so the bonus scales with it
+    xp = uint32(xp * _personalXpRate);
+    if (xp < 1)
+    {
+        return;
+    }
 
     // XP to money conversion processed in Player::RewardQuest
     uint32 maxLevel = sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);

@@ -65,6 +65,7 @@ public:
             { "standstate",     HandleModifyStandStateCommand,    rbac::RBAC_PERM_COMMAND_MODIFY_STANDSTATE,      Console::No },
             { "phase",          HandleModifyPhaseCommand,         rbac::RBAC_PERM_COMMAND_MODIFY_PHASE,           Console::No },
             { "gender",         HandleModifyGenderCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_GENDER,          Console::No },
+            { "xp",             HandleModifyXpRateCommand,        rbac::RBAC_PERM_COMMAND_MODIFY_XP,              Console::No },
             { "speed",          modifyspeedCommandTable }
         };
 
@@ -512,6 +513,40 @@ public:
         }
 
         target->SetObjectScale(scale);
+
+        return true;
+    }
+
+    //Edit Player XP gain rate
+    static bool HandleModifyXpRateCommand(ChatHandler* handler, Optional<float> rate)
+    {
+        Player* target = handler->getSelectedPlayer();
+        if (!target)
+        {
+            handler->SendErrorMessage(LANG_NO_CHAR_SELECTED);
+            return false;
+        }
+
+        if (!rate)
+        {
+            handler->PSendSysMessage("XP gain rate of {} is {}.", handler->GetNameLink(target), target->GetPersonalXpRate());
+            return true;
+        }
+
+        if (*rate < 0.0f || *rate > 100.0f)
+        {
+            handler->SendErrorMessage(LANG_BAD_VALUE);
+            return false;
+        }
+
+        if (handler->HasLowerSecurity(target))
+            return false;
+
+        target->SetPersonalXpRate(*rate);
+
+        handler->PSendSysMessage("You changed the XP gain rate of {} to {}.", handler->GetNameLink(target), *rate);
+        if (handler->needReportToTarget(target))
+            ChatHandler(target->GetSession()).PSendSysMessage("{} changed your XP gain rate to {}.", handler->GetNameLink(), *rate);
 
         return true;
     }
