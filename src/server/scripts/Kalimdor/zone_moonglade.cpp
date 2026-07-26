@@ -16,13 +16,16 @@
  */
 
 #include "Cell.h"
+#include "Chat.h"
 #include "CreatureScript.h"
 #include "GridNotifiers.h"
+#include "Language.h"
 #include "Player.h"
 #include "ScriptedCreature.h"
 #include "ScriptedEscortAI.h"
 #include "ScriptedGossip.h"
 #include "SpellInfo.h"
+#include "World.h"
 
 /*######
 ## npc_bunthen_plainswind
@@ -35,6 +38,23 @@ enum Bunthen
     TAXI_PATH_ID_ALLY           = 315,
     TAXI_PATH_ID_HORDE          = 316
 };
+
+// The Moonglade druid flight masters lack UNIT_NPC_FLAG_FLIGHTMASTER, so the
+// InstantFlightPaths toggle the core adds for regular flight masters has to be
+// offered by these scripts instead.
+static void AddInstantFlightToggleItemFor(Player* player)
+{
+    uint32 const instantTaxi = sWorld->getIntConfig(CONFIG_INSTANT_TAXI);
+    if (instantTaxi == 2 || instantTaxi == 3)
+        AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, player->GetSession()->GetAcoreString(LANG_TOGGLE_INSTANT_FLIGHT), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT);
+}
+
+static void HandleInstantFlightToggle(Player* player)
+{
+    player->ToggleInstantFlight();
+    ChatHandler(player->GetSession()).SendNotification(player->IsInstantFlightOn() ? LANG_INSTANT_FLIGHT_ON : LANG_INSTANT_FLIGHT_OFF);
+    CloseGossipMenuFor(player);
+}
 
 class npc_bunthen_plainswind : public CreatureScript
 {
@@ -56,6 +76,9 @@ public:
                 break;
             case GOSSIP_ACTION_INFO_DEF + 3:
                 SendGossipMenuFor(player, 5374, creature->GetGUID());
+                break;
+            case GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT:
+                HandleInstantFlightToggle(player);
                 break;
         }
         return true;
@@ -84,6 +107,7 @@ public:
             if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_TAXI))
             {
                 AddGossipItemFor(player, 4042, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddInstantFlightToggleItemFor(player);
             }
 
             if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_QUEST) && player->GetQuestStatus(QUEST_SEA_LION_HORDE) == QUEST_STATUS_INCOMPLETE)
@@ -129,6 +153,9 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 3:
                 SendGossipMenuFor(player, 5375, creature->GetGUID());
                 break;
+            case GOSSIP_ACTION_TOGGLE_INSTANT_FLIGHT:
+                HandleInstantFlightToggle(player);
+                break;
         }
         return true;
     }
@@ -155,6 +182,7 @@ public:
             if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_TAXI))
             {
                 AddGossipItemFor(player, 4041, 0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+                AddInstantFlightToggleItemFor(player);
             }
 
             if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_QUEST) && player->GetQuestStatus(QUEST_SEA_LION_ALLY) == QUEST_STATUS_INCOMPLETE)

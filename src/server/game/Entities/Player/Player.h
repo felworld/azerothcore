@@ -1442,6 +1442,7 @@ public:
     static uint32 GetDefaultGossipMenuForSource(WorldObject* source);
 
     void ToggleInstantFlight();
+    bool IsInstantFlightOn() const { return m_isInstantFlightOn; }
 
     /*********************************************************/
     /***                    QUEST SYSTEM                   ***/
