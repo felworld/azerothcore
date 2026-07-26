@@ -520,7 +520,7 @@ public:
     //Edit Player XP gain rate
     static bool HandleModifyXpRateCommand(ChatHandler* handler, Optional<float> rate)
     {
-        Player* target = handler->getSelectedPlayer();
+        Player* target = handler->getSelectedPlayerOrSelf();
         if (!target)
         {
             handler->SendErrorMessage(LANG_NO_CHAR_SELECTED);
