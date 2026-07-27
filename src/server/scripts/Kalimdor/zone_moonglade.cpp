@@ -69,7 +69,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 1:
                 CloseGossipMenuFor(player);
                 if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_TAXI) && player->GetTeamId() == TEAM_HORDE)
-                    player->ActivateTaxiPathTo(TAXI_PATH_ID_HORDE);
+                    player->ActivateTaxiPathTo(TAXI_PATH_ID_HORDE, 0);  // spellid 0 so InstantFlightPaths is honored
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 SendGossipMenuFor(player, 5373, creature->GetGUID());
@@ -145,7 +145,7 @@ public:
             case GOSSIP_ACTION_INFO_DEF + 1:
                 CloseGossipMenuFor(player);
                 if (player->IsClass(CLASS_DRUID, CLASS_CONTEXT_TAXI) && player->GetTeamId() == TEAM_ALLIANCE)
-                    player->ActivateTaxiPathTo(TAXI_PATH_ID_ALLY);
+                    player->ActivateTaxiPathTo(TAXI_PATH_ID_ALLY, 0);  // spellid 0 so InstantFlightPaths is honored
                 break;
             case GOSSIP_ACTION_INFO_DEF + 2:
                 SendGossipMenuFor(player, 5376, creature->GetGUID());
