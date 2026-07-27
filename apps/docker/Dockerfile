@@ -255,17 +255,27 @@ LABEL description="AzerothCore client-data"
 ENV DATAPATH=/azerothcore/env/dist/data
 
 RUN apt-get update && \
-    apt-get install -y curl unzip && \
+    apt-get install -y curl unzip adduser && \
     rm -rf /var/lib/apt/lists/*
 
-COPY apps apps
+ARG USER_ID=1000
+ARG GROUP_ID=1000
+ARG DOCKER_USER=acore
+
+# To use GID/UID 1000 in ubuntu > 23.04 the existing user must be deleted
+# See https://bugs.launchpad.net/cloud-images/+bug/2005129
+RUN userdel --remove ubuntu \
+  && addgroup --gid "$GROUP_ID" "$DOCKER_USER" \
+  && adduser --disabled-password --gecos '' --uid "$USER_ID" --gid "$GROUP_ID" "$DOCKER_USER" \
+  && passwd -d "$DOCKER_USER" \
+  && chown -R "$DOCKER_USER:$DOCKER_USER" /azerothcore
+
+COPY --chown=$DOCKER_USER:$DOCKER_USER apps apps
 
 VOLUME /azerothcore/env/dist/data
 
-# NOTE: this stage is `FROM skeleton`, which never declares ARG DOCKER_USER nor
-# creates the acore user (that happens in the `runtime` stage), so $DOCKER_USER
-# is empty here. Run as root rather than chown/USER to an empty user — buildah
-# strictly parses `--chown=:` and an empty USER and fails where BuildKit tolerates them.
+USER $DOCKER_USER
+
 CMD ["bash",  "-c", "source /azerothcore/apps/installer/includes/functions.sh && inst_download_client_data" ]
 
 ##################
