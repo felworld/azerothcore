@@ -55,6 +55,9 @@ full in [mod-playerbots' FEATURES.md](https://github.com/felworld/mod-playerbots
   to hunt the attacker, and a ganker beaten by outside help can pull a wave
   of faction reinforcements — all keyed off actual PvP kills, so it works
   the same when the ganker or victim is a real player.
+- **Bandage crafting**: idle bots with First Aid craft bandages from the
+  cloth they carry, keep the stock level-appropriate (no level 55 hoarding
+  linen bandages), and use their best bandage first.
 - **Emote exchanges that end**: bot-to-bot emote replies roll a
   configurable chance and only one bot from a crowd replies to a given
   emoter at a time, so exchanges trail off after a reply or two while
