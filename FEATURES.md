@@ -58,6 +58,12 @@ full in [mod-playerbots' FEATURES.md](https://github.com/felworld/mod-playerbots
 - **Bandage crafting**: idle bots with First Aid craft bandages from the
   cloth they carry, keep the stock level-appropriate (no level 55 hoarding
   linen bandages), and use their best bandage first.
+- **Engineering in combat**: engineer bots stock skill-appropriate
+  explosives and gadgets and actually use them — bombs and grenades
+  thrown at targets that matter, stun-grenade interrupts, sapper charges
+  when surrounded, target dummies to shed aggro, explosive sheep, Nitro
+  Boosts popped on Warsong Gulch flag runs, glove tinkers on cooldown,
+  and jumper-cable resurrection attempts by bots with no real rez spell.
 - **Emote exchanges that end**: bot-to-bot emote replies roll a
   configurable chance and only one bot from a crowd replies to a given
   emoter at a time, so exchanges trail off after a reply or two while
