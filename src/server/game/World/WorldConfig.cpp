@@ -445,6 +445,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_INVITATION_TYPE, "Battleground.InvitationType", 0);
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_PREMADE_GROUP_WAIT_FOR_MATCH, "Battleground.PremadeGroupWaitForMatch", 1800000);
     SetConfigValue<bool>(CONFIG_BG_XP_FOR_KILL, "Battleground.GiveXPForKills", false);
+    SetConfigValue<bool>(CONFIG_WORLD_PVP_XP_FOR_KILL, "WorldPvP.GiveXPForKills", false);
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_REPORT_AFK_TIMER, "Battleground.ReportAFK.Timer", 4);
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_REPORT_AFK, "Battleground.ReportAFK", 3, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value > 0 && value <= 9; }, "> 0 && value <= 9");
     SetConfigValue<uint32>(CONFIG_BATTLEGROUND_PLAYER_RESPAWN, "Battleground.PlayerRespawn", 30, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value >= 3; }, ">= 3");

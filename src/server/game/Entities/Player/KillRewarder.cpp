@@ -70,7 +70,7 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
 // 1. Initialize internal variables to default values.
         _killer(killer), _victim(victim), _group(killer->GetGroup()),
         _groupRate(1.0f), _maxNotGrayMember(nullptr), _maxNotGrayMemberLevel(0), _count(0), _aliveSumLevel(0), _sumLevel(0), _xp(0),
-        _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
+        _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false), _isWorldPvPXP(false)
 {
     // mark the credit as pvp if victim is player
     if (victim->IsPlayer())
@@ -78,6 +78,13 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
         // or if its owned by player and its not a vehicle
     else if (victim->GetCharmerOrOwnerGUID().IsPlayer())
         _isPvP = !victim->IsVehicle();
+
+    // WorldPvP.GiveXPForKills: player kills in the open world reward XP like battleground
+    // kills do. Killer must not be on a battleground/arena map - those kills reach this
+    // rewarder too (with isBattleGround = false), and battlegrounds already reward XP
+    // through their own Battleground::RewardXPAtKill call.
+    _isWorldPvPXP = !_isBattleGround && victim->IsPlayer() && !killer->InBattleground()
+        && sWorld->getBoolConfig(CONFIG_WORLD_PVP_XP_FOR_KILL);
 
     _InitGroupData();
 }
@@ -150,9 +157,10 @@ void KillRewarder::_InitXP(Player* player)
     // Get initial value of XP for kill.
     // XP is given:
     // * on battlegrounds;
+    // * for world PvP kills, if WorldPvP.GiveXPForKills is enabled;
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
-    if (_victim && (_isBattleGround || (!_isPvP && !_killer->GetVehicle())))
+    if (_victim && (_isBattleGround || _isWorldPvPXP || (!_isPvP && !_killer->GetVehicle())))
         _xp = _CalculateXP(player);
 }
 
@@ -243,9 +251,9 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             player->KilledPlayerCredit();
     }
 
-    // Give XP only in PvE or in battlegrounds.
+    // Give XP only in PvE, in battlegrounds, or in world PvP if enabled.
     // Give reputation and kill credit only in PvE.
-    if (!_isPvP || _isBattleGround)
+    if (!_isPvP || _isBattleGround || _isWorldPvPXP)
     {
         float xpRate = _group ? _groupRate * float(_GetPlayerLevel(player)) / _aliveSumLevel : /*Personal rate is 100%.*/ 1.0f; // Group rate depends on the sum of levels.
         sScriptMgr->OnPlayerRewardKillRewarder(player, this, isDungeon, xpRate);                                                // Personal rate is 100%.

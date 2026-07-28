@@ -3904,6 +3904,17 @@ Battleground.PremadeGroupWaitForMatch = 1800000
 Battleground.GiveXPForKills = 0
 
 #
+#    WorldPvP.GiveXPForKills
+#        Description: Give experience for player kills in the open world (outside
+#                     battlegrounds and arenas), like Battleground.GiveXPForKills does
+#                     for battlegrounds. Affected by Rate.XP.Kill; kills of gray-level
+#                     players give no experience.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+WorldPvP.GiveXPForKills = 0
+
+#
 #    Battleground.Random.ResetHour
 #        Description: Hour of the day when the global instance resets occur.
 #        Range:       0-23

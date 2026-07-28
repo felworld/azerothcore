@@ -62,6 +62,7 @@ private:
     uint8 _maxLevel;
     bool _isBattleGround;
     bool _isPvP;
+    bool _isWorldPvPXP;
 };
 
 #endif
