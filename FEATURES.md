@@ -55,6 +55,10 @@ full in [mod-playerbots' FEATURES.md](https://github.com/felworld/mod-playerbots
   to hunt the attacker, and a ganker beaten by outside help can pull a wave
   of faction reinforcements — all keyed off actual PvP kills, so it works
   the same when the ganker or victim is a real player.
+- **World PvP threat reactions**: attacked in the open world, bots get up
+  from meals, abort long casts (unless nearly done), turn from mobs to
+  the player attacking them, hold a soulstone res while the killer lurks,
+  and wait out corpse campers instead of rezzing into them.
 - **Bandage crafting**: idle bots with First Aid craft bandages from the
   cloth they carry, keep the stock level-appropriate (no level 55 hoarding
   linen bandages), and use their best bandage first.
