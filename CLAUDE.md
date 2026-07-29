@@ -2,26 +2,77 @@
 
 AzerothCore is a C++ MMORPG server emulator for World of Warcraft 3.3.5a (WotLK), built with CMake, backed by MySQL.
 
+## Felworld
+
+This checkout is part of **Felworld**: replicating the feel of an MMORPG in a mostly single-player context, with "other players" emulated by AI (game-AI playerbots + LLM-driven behavior). The repos are public, sanitized as a tech demo. Five repos:
+
+- **felworld/azerothcore** (this repo) — fork of mod-playerbots/azerothcore-wotlk (itself forked from azerothcore/azerothcore-wotlk); server core, containers, gameplay QOL. GPL v2.
+- **felworld/mod-playerbots** (`modules/mod-playerbots`) — fork of mod-playerbots/mod-playerbots; QOL on top. GPL v2. Version-coupled with the core fork (see below).
+- **felworld/mod-llm** (`modules/mod-llm`) — our own module (no upstream, MIT): agentic LLM-driven bots via a tool-call architecture (say/emote/remember/forget, party/guild/duel/follow actions, …) against the ac-vllm OpenAI-compatible endpoint.
+- **felworld/mod-ah-bot-plus** (`modules/mod-ah-bot-plus`) — fork of NathanHandley/mod-ah-bot-plus (GPLv2+); deterministic auction house market maker (seller + buyer). Inert until `AuctionHouseBot.GUIDs` names dedicated non-playerbot character(s) created in-game.
+- **felworld/configs** (`env/dist/etc`) — our playtested configs, no upstream.
+
+Only containerized usage is supported (Podman via `podman compose`; Docker fine too) — upstream install-from-source instructions are obsolete here. Session modes via `.env.solo` / `.env.dumbbots` / `.env.llm` (vLLM profile).
+
+### Upstream syncing
+
+The felworld repos are not GitHub forks (GitHub `parent` is null) — find the sync point via `git merge-base` against the last non-Justin commit, not the fork API. `upstream` remotes are configured locally in the main repo and the submodules.
+
+- **azerothcore** (this repo) ← `https://github.com/mod-playerbots/azerothcore-wotlk.git` branch **`Playerbot`** (the playerbots org's AC fork, which itself merges acore/master). NOT `azerothcore/azerothcore-wotlk`.
+- **mod-playerbots** ← `https://github.com/mod-playerbots/mod-playerbots.git` branch `master`.
+- **mod-ah-bot-plus** ← `https://github.com/NathanHandley/mod-ah-bot-plus.git` branch `master` (our default branch is `main`). Not version-coupled. When upstream's `conf/mod_ahbot.conf.dist` changes, regenerate `env/dist/etc/modules/mod_ahbot.conf` with `tools/regen-config.py`.
+- **mod-llm** — entirely our code, no upstream to sync.
+
+**Coupling:** mod-playerbots and the core `Playerbot` branch are version-locked — update them as a pair, then rebuild. Upstream commits like mod-playerbots #2470/#2492 ("must accompany core PR" / "Required update for core") match core-side changes. Never bump one without the other.
+
+Sync = merge (not rebase) `upstream/<branch>` into `main`, then in the main repo `git add modules/<mod>` + commit the pointer bump. On README conflicts, resolve keep-ours (and keep upstream's translated READMEs deleted).
+
+### Config tree (`env/dist/etc`)
+
+The `felworld/configs` submodule is the deployed config tree — bind-mounted into the containers, which read **only the `.conf` files** (`.conf.dist` are in-repo reference, never read at runtime). Policy ("parallel pair"):
+
+- Each `.conf.dist` is a **verbatim copy** of the pinned upstream template it tracks (`src/server/apps/worldserver/worldserver.conf.dist` for core, `modules/<mod>/conf/<mod>.conf.dist` for a module).
+- Each `.conf` is **that template with our value-overrides re-applied** — structurally identical (same comments, order, whitespace, line count), differing only in overridden values, so `diff <name>.conf <name>.conf.dist` shows exactly our deviations from default.
+- On an upstream bump: copy the new templates over the `.conf.dist` files verbatim, then regenerate each `.conf` with `tools/regen-config.py` (3-way: base = old `.dist`, ours = old `.conf`, theirs = new `.dist`). New upstream keys keep the template default. Verify identical line counts and a value-only diff; if upstream reformatted the template, the `.conf` gets reflowed to match — accepted cost.
+- Commit in the submodule, then bump the pointer in the main repo.
+
+### No backwards compatibility
+
+Felworld is pre-production; existing DB data is disposable. When a schema or feature replaces an old one, drop/replace directly (e.g. `DROP TABLE IF EXISTS` in module base SQL) — no migration or seeding code, no support for deprecated config options.
+
+### Documentation upkeep
+
+READMEs are hub-and-spokes and are the onboarding surface for closed-beta invitees — keep them current:
+
+- **Hub**: `.github/README.md` — project pitch, repo/fork table, containerized quickstart, session-modes table, "What we've changed" QOL summary, license note.
+- **Spokes**: `modules/mod-playerbots/README.md`, `modules/mod-llm/README.md`, `env/dist/etc/README.md` — each: what the fork/module is, "Felworld changes" list, links to upstream + hub.
+- **FEATURES.md** (uniform name on purpose) at the hub root, mod-playerbots, and mod-llm holds the detailed feature/behavior docs (config knobs + rationale); READMEs carry only one-liner summaries linking to it.
+
+When landing a user-visible change — gameplay/QOL option, GM command, compose/session-mode change, config-convention change — update the matching docs in the same piece of work: full detail in that repo's FEATURES.md, a one-liner in the README. Style: to-the-point, closed-beta audience, server-side only (no client-setup docs), no public-repo fluff (badges, contributing, socials).
+
+**Framing**: all docs and repo descriptions present Felworld as *a tech demo of AI "players" (LLM agents + classical game AI) populating and interacting in an MMO world* — not as "a private WoW server". Avoid "blizzlike"/"World of Warcraft" in our own prose (factual, nominative mentions like "3.3.5a client" are fine; quoted upstream text stays verbatim). The hub README's "License and disclaimer" section (`#license-and-disclaimer` anchor) is linked from every spoke — keep the anchor stable and new docs consistent with it. Licenses are verified from LICENSE files, not upstream READMEs' claims.
+
+### LLM prompt/context design (mod-llm)
+
+- **Context heuristic**: anything a player would see **on their screen** (party/raid frames, target, zone, chat, own current activity, …) must be in the bot's context; anything a player would **remember over 1–5 minutes** is a strong candidate. Bots should act on the same information a human at the keyboard would have — missing on-screen facts causes nonsense like inviting someone already in the party. Check ContextSnapshot against this bar before reaching for tool-availability filtering or prompt rules. Where a server config defines player rules (e.g. `ListenRange.*` hear distances), mirror bot behavior to it.
+- **No anti-examples in prompts**: never quote what not to say (e.g. `never say "Greetings, traveler"`) — on small local models a phrase given as a negative example can *increase* its generation probability, since the tokens are in context regardless of the negation. Steer register with positive few-shot exemplars and positive rules only.
+
 ## Agent rules
 
 - **Do not configure or build unless explicitly asked.** Builds are slow (CMake + compile of a large C++ codebase) and rarely needed to make code changes.
 - **Never edit SQL files outside `data/sql/updates/pending_db_*/`.** `data/sql/base/`, `data/sql/archive/`, and `data/sql/updates/db_*/` are immutable (do not modify).
-- **Do not run git commands that modify repo state** (commit, branch, merge, rebase, reset, push, …) unless explicitly requested, and do not include them in plans. Read-only git (status, diff, log) is fine.
+- **Commit after every completed change, without being asked.** Don't wait for a running build/test to finish — commit as soon as the change is done; if the build later fails, fix forward with a follow-up commit. `modules/*` and `env/dist/etc` are git submodules with their own history: commit inside the submodule, then bump the pointer in the parent repo as a separate commit (both commit directly to `main`). Stage only the files you changed — never sweep in unrelated dirty files; if a pointer bump would pull in earlier submodule commits you didn't author, flag it and let the user decide. **Push only when asked.**
 
 ## Build
 
-Out-of-source build is required (in-source is blocked by CMake).
+Only containerized builds are supported — do not run cmake/make natively:
 
 ```bash
-mkdir -p build && cd build
-cmake .. -DCMAKE_INSTALL_PREFIX=$HOME/azeroth-server -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-  -DSCRIPTS=static -DMODULES=static
-make -j$(nproc) && make install
+podman compose build ac-worldserver                 # the main (slow) build
+podman compose build ac-authserver ac-db-import     # also worth verifying after core merges
 ```
 
-Compiler: **C++20** required (`CMAKE_CXX_STANDARD 20`). Useful CMake flags: `BUILD_TESTING=ON` (Google Test), `NOPCH=1` (disable precompiled headers). Full flag set in `conf/dist/config.cmake`. `compile_commands.json` is exported automatically.
-
-Tests (Google Test, in `src/test/`): configure with `-DBUILD_TESTING=ON`, then `ctest` or `./src/test/unit_tests` from the build dir.
+Compiler: **C++20** required (`CMAKE_CXX_STANDARD 20`). Full CMake flag set in `conf/dist/config.cmake`. Google Test unit tests live in `src/test/` (built with `-DBUILD_TESTING=ON`).
 
 ## Repository layout
 
