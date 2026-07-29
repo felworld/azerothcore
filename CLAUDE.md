@@ -12,7 +12,7 @@ This checkout is part of **Felworld**: replicating the feel of an MMORPG in a mo
 - **felworld/mod-ah-bot-plus** (`modules/mod-ah-bot-plus`) — fork of NathanHandley/mod-ah-bot-plus (GPLv2+); deterministic auction house market maker (seller + buyer). Inert until `AuctionHouseBot.GUIDs` names dedicated non-playerbot character(s) created in-game.
 - **felworld/configs** (`env/dist/etc`) — our playtested configs, no upstream.
 
-Only containerized usage is supported (Podman via `podman compose`; Docker fine too) — upstream install-from-source instructions are obsolete here. Session modes via `.env.solo` / `.env.dumbbots` / `.env.llm` (vLLM profile).
+Only containerized usage is supported (`docker compose`; Podman via `podman compose` works equally well) — upstream install-from-source instructions are obsolete here. Session modes via `.env.solo` / `.env.dumbbots` / `.env.llm` (vLLM profile).
 
 ### Upstream syncing
 
@@ -68,8 +68,8 @@ When landing a user-visible change — gameplay/QOL option, GM command, compose/
 Only containerized builds are supported — do not run cmake/make natively:
 
 ```bash
-podman compose build ac-worldserver                 # the main (slow) build
-podman compose build ac-authserver ac-db-import     # also worth verifying after core merges
+docker compose build ac-worldserver                 # the main (slow) build
+docker compose build ac-authserver ac-db-import     # also worth verifying after core merges
 ```
 
 Compiler: **C++20** required (`CMAKE_CXX_STANDARD 20`). Full CMake flag set in `conf/dist/config.cmake`. Google Test unit tests live in `src/test/` (built with `-DBUILD_TESTING=ON`).

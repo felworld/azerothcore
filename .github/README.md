@@ -39,16 +39,16 @@ anything, to do. See its README for the architecture.
 ## Running
 
 Only containerized usage is supported — the upstream "install from source"
-instructions don't apply here. We develop on Linux with Podman (using
-`docker-compose` via `podman compose`); Docker on Linux, Docker Desktop on
-Windows/macOS, and OrbStack on macOS should work equally well. The containers
+instructions don't apply here. The commands below use Docker (Linux, Docker
+Desktop on Windows/macOS, or OrbStack on macOS); rootless Podman with
+`podman compose` is equally well supported — we develop on it. The containers
 are intended to build and run out of the box:
 
 ```sh
 git clone --recurse-submodules https://github.com/felworld/azerothcore
 cd azerothcore
-podman compose build
-podman compose --env-file .env.dumbbots up -d
+docker compose build
+docker compose --env-file .env.dumbbots up -d
 ```
 
 First startup takes a while: `ac-client-data-init` downloads the client data
@@ -64,9 +64,9 @@ file:
 
 | Mode          | Command                                          | Playerbots | LLM bots |
 | ------------- | ------------------------------------------------ | :--------: | :------: |
-| Solo          | `podman compose --env-file .env.solo up -d`      |    off     |   off    |
-| Dumb bots     | `podman compose --env-file .env.dumbbots up -d`  |     on     |   off    |
-| LLM bots      | `podman compose --env-file .env.llm up -d`       |     on     |    on    |
+| Solo          | `docker compose --env-file .env.solo up -d`      |    off     |   off    |
+| Dumb bots     | `docker compose --env-file .env.dumbbots up -d`  |     on     |   off    |
+| LLM bots      | `docker compose --env-file .env.llm up -d`       |     on     |    on    |
 
 Switching modes is just a different `--env-file` + `up -d`. It only recreates
 `ac-worldserver` (the database and authserver keep running) and needs no
@@ -84,13 +84,13 @@ Notes:
   Spark-class memory — on smaller GPUs override `VLLM_MODEL`, plus
   `VLLM_TOOL_PARSER` / `VLLM_REASONING_PARSER` to match the model family,
   and `VLLM_EXTRA_ARGS` for anything else — see `docker-compose.yml`.
-- A bare `podman compose up -d` (no `--env-file`) defaults to bots-on /
+- A bare `docker compose up -d` (no `--env-file`) defaults to bots-on /
   LLM-off.
 - Switching *away* from LLM mode does not stop an already-running `ac-vllm` —
-  stop it explicitly with `podman compose --profile llm stop ac-vllm` to
+  stop it explicitly with `docker compose --profile llm stop ac-vllm` to
   free VRAM.
 - The worldserver console (account creation, GM commands, etc.) is the
-  `ac-worldserver` container's TTY: `podman attach ac-worldserver` (detach
+  `ac-worldserver` container's TTY: `docker attach ac-worldserver` (detach
   with `Ctrl-p Ctrl-q`, not `Ctrl-c`).
 
 ## Configuration
