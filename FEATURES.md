@@ -13,6 +13,9 @@ where noted:
   so crafting sessions aren't dead time.
 - `XP.Kill.GroupMode` — options for full (unsplit) kill XP while grouped, so
   grouping doesn't slow down leveling.
+- `WorldPvP.GiveXPForKills` — open-world PvP kills grant XP, mirroring what
+  `Battleground.GiveXPForKills` does inside battlegrounds; arena kills stay
+  XP-free, and gray-level victims give nothing.
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
 
