@@ -197,6 +197,8 @@ FEATURES.md:
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
   and GM commands keep working; `.modify xp` sets a per-player XP rate
   multiplier.
+- **Account lookup by character** — `.lookup player character <name>`
+  lists every character on the account a character belongs to.
 - **Container/infra** — prebuilt multi-arch images on GHCR, rootless
   Podman, GPU passthrough to vLLM via CDI, runtime-mounted module/data
   volumes, MySQL tuned for the bot write load.

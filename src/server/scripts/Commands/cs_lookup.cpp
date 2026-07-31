@@ -15,6 +15,7 @@
  * with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "AccountMgr.h"
 #include "CharacterCache.h"
 #include "Chat.h"
 #include "CommandScript.h"
@@ -39,9 +40,10 @@ public:
     {
         static ChatCommandTable lookupPlayerCommandTable =
         {
-            { "ip",      HandleLookupPlayerIpCommand,      rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      Console::Yes  },
-            { "account", HandleLookupPlayerAccountCommand, rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, Console::Yes  },
-            { "email",   HandleLookupPlayerEmailCommand,   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,   Console::Yes  }
+            { "ip",        HandleLookupPlayerIpCommand,        rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_IP,      Console::Yes  },
+            { "account",   HandleLookupPlayerAccountCommand,   rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, Console::Yes  },
+            { "email",     HandleLookupPlayerEmailCommand,     rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_EMAIL,   Console::Yes  },
+            { "character", HandleLookupPlayerCharacterCommand, rbac::RBAC_PERM_COMMAND_LOOKUP_PLAYER_ACCOUNT, Console::Yes  }
         };
 
         static ChatCommandTable lookupCommandTable =
@@ -1623,6 +1625,32 @@ public:
         PreparedQueryResult result = LoginDatabase.Query(stmt);
 
         return LookupPlayerSearchCommand(result, *limit ? *limit : -1, handler);
+    }
+
+    static bool HandleLookupPlayerCharacterCommand(ChatHandler* handler, Optional<PlayerIdentifier> player, Optional<int32> limit)
+    {
+        if (!player)
+            player = PlayerIdentifier::FromTargetOrSelf(handler);
+
+        if (!player)
+            return false;
+
+        uint32 accountId = player->IsConnected()
+            ? player->GetConnectedPlayer()->GetSession()->GetAccountId()
+            : sCharacterCache->GetCharacterAccountIdByGuid(player->GetGUID());
+
+        std::string accountName;
+        if (!accountId || !AccountMgr::GetName(accountId, accountName))
+        {
+            handler->SendErrorMessage(LANG_NO_PLAYERS_FOUND);
+            return false;
+        }
+
+        LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_SEL_ACCOUNT_LIST_BY_NAME);
+        stmt->SetData(0, accountName);
+        PreparedQueryResult result = LoginDatabase.Query(stmt);
+
+        return LookupPlayerSearchCommand(result, limit.value_or(-1), handler);
     }
 
     static bool LookupPlayerSearchCommand(PreparedQueryResult result, int32 limit, ChatHandler* handler)

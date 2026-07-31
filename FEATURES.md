@@ -129,6 +129,15 @@ rewards — with rested and recruit-a-friend bonuses scaling to match.
 shows the current rate. Like the other `.modify` commands, the rate
 resets at logout.
 
+## Account lookup by character
+
+The `.lookup player character [$name] [$limit]` GM command (also available
+from the console) lists every character on the account a character belongs
+to — the named character's account, or the selected player's (yourself if
+no one is selected) when no name is given. It complements upstream's
+`.lookup player account`, which does the same starting from an account
+name; both show each character's race, class, level, and online status.
+
 ## Container / infrastructure
 
 Rootless-Podman compatibility, GPU passthrough to vLLM via CDI, module and
