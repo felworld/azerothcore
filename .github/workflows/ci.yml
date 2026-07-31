@@ -153,7 +153,8 @@ jobs:
           done
 
   # Merge the per-arch tags into one multi-arch manifest per image, under the
-  # plain tag (`main` or the git tag name) that docker-compose.yml pulls.
+  # plain tag (`main` or the git tag name) that docker-compose.yml pulls. Pushes
+  # to main also get `latest`, so a bare `docker pull` resolves to something.
   publish-manifests:
     needs: build-images
     runs-on: ubuntu-latest
@@ -170,8 +171,11 @@ jobs:
       - name: Create multi-arch manifests
         run: |
           for name in ac-authserver ac-worldserver ac-db-import ac-client-data ac-tools; do
-            docker buildx imagetools create \
-              --tag "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME" \
+            tags=(--tag "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME")
+            if [ "$GITHUB_REF_NAME" = "main" ]; then
+              tags+=(--tag "$IMAGE_PREFIX/$name:latest")
+            fi
+            docker buildx imagetools create "${tags[@]}" \
               "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME-amd64" \
               "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME-arm64"
           done

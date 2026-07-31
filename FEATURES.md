@@ -122,8 +122,8 @@ changes), and MySQL tuned for the playerbots write load.
 Service images are published to `ghcr.io/felworld/ac-*` as multi-arch
 (linux/amd64 + linux/arm64) manifests, built on native runners by the `ci`
 workflow after the unit tests pass — on every push to `main` (tagged `main`,
-the compose default) and on every git tag (tagged with the tag name;
-`DOCKER_IMAGE_TAG` selects one). The compose services set
+the compose default, with `latest` as an alias) and on every git tag (tagged
+with the tag name; `DOCKER_IMAGE_TAG` selects one). The compose services set
 `pull_policy: missing`, so a fresh checkout pulls the prebuilt images while
 an explicit `docker compose build` still takes precedence. The dev-server
 image is dev-only and never published.
