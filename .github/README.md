@@ -77,6 +77,26 @@ realms. The same commands work in-game from the chat box with a leading dot
 command reference is the upstream wiki's
 [GM commands](https://www.azerothcore.org/wiki/gm-commands) page.
 
+Finally, point the client at the server: edit `realmlist.wtf` in the
+client's `Data/enUS/` folder (or whichever locale) to read
+
+```
+set realmlist <server address>
+```
+
+With client and server on the same machine, `127.0.0.1` works and you're
+done. Otherwise the server must also announce an address the client can
+reach: the realm list it hands out defaults to `127.0.0.1`, so update it in
+the auth database (`password` being the default
+`DOCKER_DB_ROOT_PASSWORD`):
+
+```sh
+docker compose exec ac-database mysql -uroot -ppassword acore_auth \
+  -e "UPDATE realmlist SET address = '<server address>' WHERE id = 1;"
+```
+
+No restart needed — the change applies at the next login.
+
 ### Session modes
 
 Which flavor of Felworld you get is chosen at startup with a per-mode env
