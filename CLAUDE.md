@@ -54,6 +54,7 @@ When landing a user-visible change — gameplay/QOL option, GM command, compose/
 
 ### LLM prompt/context design (mod-llm)
 
+- **Commands + tools, not chat parsing**: mod-playerbots never interprets free-form chat — natural-language understanding lives in mod-llm. When bots should react to something players say (e.g. BG callouts like "inc" or "fc mid"), add an explicit playerbot command that performs the behavior deterministically, then expose that command to mod-llm as a tool so the LLM decides when to invoke it. Real players get the same command for free, and keyword heuristics stay out of C++.
 - **Context heuristic**: anything a player would see **on their screen** (party/raid frames, target, zone, chat, own current activity, …) must be in the bot's context; anything a player would **remember over 1–5 minutes** is a strong candidate. Bots should act on the same information a human at the keyboard would have — missing on-screen facts causes nonsense like inviting someone already in the party. Check ContextSnapshot against this bar before reaching for tool-availability filtering or prompt rules. Where a server config defines player rules (e.g. `ListenRange.*` hear distances), mirror bot behavior to it.
 - **No anti-examples in prompts**: never quote what not to say (e.g. `never say "Greetings, traveler"`) — on small local models a phrase given as a negative example can *increase* its generation probability, since the tokens are in context regardless of the negation. Steer register with positive few-shot exemplars and positive rules only.
 
