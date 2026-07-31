@@ -6,8 +6,8 @@ name: upstream-sync
 # felworld repo. Procedure and PR conventions: ../UPSTREAM_SYNC.md.
 
 on:
-  schedule:
-    - cron: "0 8 * * 1" # Mondays 08:00 UTC
+  # schedule:
+  #   - cron: "0 8 * * 1" # Mondays 08:00 UTC
   workflow_dispatch:
 
 concurrency:
