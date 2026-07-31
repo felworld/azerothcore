@@ -221,7 +221,11 @@ void SocialMgr::GetFriendInfo(Player* player, ObjectGuid const& friendGUID, Frie
     friendInfo.Class = 0;
 
     Player* pFriend = ObjectAccessor::FindConnectedPlayer(friendGUID);
-    if (!pFriend || pFriend->GetSession()->IsGMAccount())
+    if (!pFriend)
+        return;
+
+    // GM characters show as offline to players unless GM.AllowFriend is set; GMs always see other GMs
+    if (pFriend->GetSession()->IsGMAccount() && !player->GetSession()->IsGMAccount() && !sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND))
         return;
 
     TeamId teamId = player->GetTeamId();

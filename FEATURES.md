@@ -19,6 +19,22 @@ where noted:
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
 
+## GM accounts as players
+
+On Felworld the humans usually hold GM accounts, so upstream's GM social
+isolation mostly gets in the way. Two changes:
+
+- **GM-to-GM exemptions (always on)** — between two GM accounts, whispers
+  bypass the accept-whispers filter, friends lists show real online status,
+  and group invites always go through. Upstream hard-codes GM characters as
+  offline/unreachable with no exemption even when the viewer is also a GM.
+- **`GM.AllowFriend` now governs friends-list status too** — upstream only
+  applied it to *adding* a GM friend, while the status display stayed
+  hard-coded to offline; now the option controls both. Our configs default
+  `GM.AllowFriend`, `GM.AllowInvite`, and `GM.WhisperingTo` to open, so GM
+  characters are messageable, friendable, and invitable by everyone.
+  Per-character toggles (`.whisper off`, `.gm visible off`, …) still work.
+
 ## Playerbots
 
 Quality-of-life changes in our mod-playerbots fork; each is documented in

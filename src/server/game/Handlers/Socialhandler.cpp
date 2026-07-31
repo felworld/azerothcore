@@ -58,7 +58,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recv_data)
     TeamId teamId = Player::TeamIdForRace(playerData->Race);
     FriendsResult friendResult = FRIEND_NOT_FOUND;
 
-    if (HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
+    if (IsGMAccount() || HasPermission(rbac::RBAC_PERM_ALLOW_GM_FRIEND) || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND) || AccountMgr::IsPlayerAccount(AccountMgr::GetSecurity(friendAccountId, realm.Id.Realm)))
     {
         if (friendGuid)
         {
@@ -71,7 +71,7 @@ void WorldSession::HandleAddFriendOpcode(WorldPacket& recv_data)
             else
             {
                 Player* pFriend = ObjectAccessor::FindConnectedPlayer(friendGuid);
-                if (pFriend && pFriend->IsVisibleGloballyFor(GetPlayer()) && !pFriend->GetSession()->IsGMAccount())
+                if (pFriend && pFriend->IsVisibleGloballyFor(GetPlayer()) && (!pFriend->GetSession()->IsGMAccount() || IsGMAccount() || sWorld->getBoolConfig(CONFIG_ALLOW_GM_FRIEND)))
                     friendResult = FRIEND_ADDED_ONLINE;
                 else
                     friendResult = FRIEND_ADDED_OFFLINE;

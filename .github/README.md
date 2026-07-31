@@ -178,6 +178,9 @@ FEATURES.md:
 - **Gameplay options** (opt-in via config) — XP from profession skill-ups,
   unsplit group kill XP, XP for open-world PvP kills, multi-drop quest
   items.
+- **GM accounts as players** — GM-to-GM whispers, friend status, and
+  invites always work, and config defaults make GM characters messageable
+  and friendable, since Felworld humans usually hold GM accounts.
 - **`!` command prefix** for playerbot commands, so ordinary chat is never
   silently swallowed as a command.
 - **Quest-aware grinding** — `!grind quests` makes a bot pull only what its
