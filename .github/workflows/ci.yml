@@ -31,7 +31,7 @@ jobs:
       - name: Free up runner disk space
         run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           # The default GITHUB_TOKEN is scoped to this repo only; the
@@ -45,7 +45,7 @@ jobs:
       # Dockerfile's /ccache cache mount, and (via the same action's post step)
       # extract it back out so actions/cache saves the updated contents.
       - name: Restore ccache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ccache
           key: unit-tests-ccache-${{ github.sha }}
@@ -92,7 +92,7 @@ jobs:
       - name: Free up runner disk space
         run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           token: ${{ secrets.GH_FELWORLD_TOKEN || github.token }}
@@ -103,7 +103,7 @@ jobs:
       # same objects adds nothing worth saving back.
       - name: Restore ccache (amd64, from unit-tests)
         if: matrix.arch == 'amd64'
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v6
         with:
           path: ccache
           key: unit-tests-ccache-${{ github.sha }}
@@ -114,7 +114,7 @@ jobs:
       # ccache lineage (saved via the post step, like unit-tests does).
       - name: Restore ccache (arm64)
         if: matrix.arch == 'arm64'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ccache
           key: publish-ccache-arm64-${{ github.sha }}
@@ -130,7 +130,7 @@ jobs:
             }
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
@@ -161,7 +161,7 @@ jobs:
       packages: write
     steps:
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
