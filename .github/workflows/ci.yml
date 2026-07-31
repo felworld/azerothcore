@@ -9,6 +9,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Default the GITHUB_TOKEN to read-only; the publish jobs declare their own
+# job-level permissions (which replace this default entirely).
+permissions:
+  contents: read
+
 # Serialize runs per ref so each run finishes and saves its ccache before the
 # next one restores it. Canceling in progress would discard the superseded
 # run's compiler cache (the cache post-steps never see a completed build),
