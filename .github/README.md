@@ -57,6 +57,21 @@ comes up. To actually play you connect with your own 3.3.5a game client —
 none of the client or its assets is included in these repos (see the
 [disclaimer](#license-and-disclaimer) below).
 
+Before you can log in, create a game account from the worldserver console —
+the `ac-worldserver` container's TTY: `docker attach ac-worldserver` (detach
+with `Ctrl-p Ctrl-q`, not `Ctrl-c`), then:
+
+```
+account create <username> <password>
+account set gmlevel <username> 3 -1
+```
+
+The second line is optional and grants that account full GM powers on all
+realms. The same commands work in-game from the chat box with a leading dot
+(`.account create ...`), GM level permitting; the full console/in-game
+command reference is the upstream wiki's
+[GM commands](https://www.azerothcore.org/wiki/gm-commands) page.
+
 ### Session modes
 
 Which flavor of Felworld you get is chosen at startup with a per-mode env
@@ -89,9 +104,6 @@ Notes:
 - Switching *away* from LLM mode does not stop an already-running `ac-vllm` —
   stop it explicitly with `docker compose --profile llm stop ac-vllm` to
   free VRAM.
-- The worldserver console (account creation, GM commands, etc.) is the
-  `ac-worldserver` container's TTY: `docker attach ac-worldserver` (detach
-  with `Ctrl-p Ctrl-q`, not `Ctrl-c`).
 
 ## Configuration
 
