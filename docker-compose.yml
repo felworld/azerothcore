@@ -340,9 +340,9 @@ services:
   # first-class support
   ac-dev-server:
     tty: true
-    # Deliberately not a ghcr.io name: this image is dev-only and never
-    # published, so the local-only name keeps compose from trying to pull it.
-    image: felworld/ac-dev-server:${DOCKER_IMAGE_TAG:-main}
+    # No image: name — this dev-only image is never published, so let compose
+    # auto-name the local build (<project>-ac-dev-server) rather than give it
+    # a registry-looking name something might try to pull.
     build:
       context: .
       dockerfile: ./apps/docker/Dockerfile.dev-server
