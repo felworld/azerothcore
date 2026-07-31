@@ -1,0 +1,177 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+    # Tag pushes get the full pipeline too: tests, then images named after
+    # the tag. Slashes are excluded because they aren't valid in image tags.
+    tags: ['*']
+  pull_request:
+  workflow_dispatch:
+
+# Serialize runs per ref so each run finishes and saves its ccache before the
+# next one restores it. Canceling in progress would discard the superseded
+# run's compiler cache (the cache post-steps never see a completed build),
+# leaving every subsequent run to compile from a stale snapshot. GitHub keeps
+# only the newest queued run per group, so the backlog is at most one run.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  IMAGE_PREFIX: ghcr.io/felworld
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      # The container build needs room for two full compiles' worth of objects;
+      # drop the biggest preinstalled toolchains we never use.
+      - name: Free up runner disk space
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          # The default GITHUB_TOKEN is scoped to this repo only; the
+          # submodules are private felworld repos, so checkout needs a
+          # fine-grained PAT that can read them (fall back to the default
+          # token so the main checkout still works if the secret is unset).
+          token: ${{ secrets.GH_FELWORLD_TOKEN || github.token }}
+
+      # Persist the container build's compiler cache across runs: restore the
+      # ./ccache directory from the Actions cache, inject it into the
+      # Dockerfile's /ccache cache mount, and (via the same action's post step)
+      # extract it back out so actions/cache saves the updated contents.
+      - name: Restore ccache
+        uses: actions/cache@v4
+        with:
+          path: ccache
+          key: unit-tests-ccache-${{ github.sha }}
+          restore-keys: |
+            unit-tests-ccache-
+
+      - name: Inject ccache into the container build
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          cache-map: |
+            {
+              "ccache": "/ccache"
+            }
+
+      # Builds the unit-tests stage of apps/docker/Dockerfile; the suite runs
+      # as the final build step, so the build succeeds iff the tests pass.
+      - name: Build and run the test suite
+        run: apps/docker/run-unit-tests.sh
+        env:
+          CONTAINER_ENGINE: docker
+
+  # Build and push the service images for one architecture each, on native
+  # runners (no QEMU cross-compilation). Gated behind unit-tests so nothing is
+  # published from a commit that doesn't pass the suite. Each arch pushes
+  # <image>:<ref>-<arch> tags; publish-manifests below merges them into the
+  # plain <image>:<ref> multi-arch tag that docker-compose.yml references.
+  build-images:
+    needs: unit-tests
+    if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-latest
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 300
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Free up runner disk space
+        run: sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GH_FELWORLD_TOKEN || github.token }}
+
+      # amd64 reuses the exact ccache the unit-tests job saved moments ago in
+      # this same run (its parent `build` stage compiled with identical flags,
+      # so this build is nearly all cache hits). Restore-only: recompiling the
+      # same objects adds nothing worth saving back.
+      - name: Restore ccache (amd64, from unit-tests)
+        if: matrix.arch == 'amd64'
+        uses: actions/cache/restore@v4
+        with:
+          path: ccache
+          key: unit-tests-ccache-${{ github.sha }}
+          restore-keys: |
+            unit-tests-ccache-
+
+      # arm64 has no unit-tests job to piggyback on, so it keeps its own
+      # ccache lineage (saved via the post step, like unit-tests does).
+      - name: Restore ccache (arm64)
+        if: matrix.arch == 'arm64'
+        uses: actions/cache@v4
+        with:
+          path: ccache
+          key: publish-ccache-arm64-${{ github.sha }}
+          restore-keys: |
+            publish-ccache-arm64-
+
+      - name: Inject ccache into the container build
+        uses: reproducible-containers/buildkit-cache-dance@v3
+        with:
+          cache-map: |
+            {
+              "ccache": "/ccache"
+            }
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      # Sequential builds share the daemon's layer cache, so the expensive
+      # `build` stage compiles once and the per-target images reuse it.
+      - name: Build and push per-arch images
+        run: |
+          for target in authserver worldserver db-import client-data tools; do
+            image="$IMAGE_PREFIX/ac-$target:$GITHUB_REF_NAME-${{ matrix.arch }}"
+            docker build . \
+              --file apps/docker/Dockerfile \
+              --target "$target" \
+              --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+              --label "org.opencontainers.image.revision=${{ github.sha }}" \
+              --label "org.opencontainers.image.licenses=GPL-2.0" \
+              --tag "$image"
+            docker push "$image"
+          done
+
+  # Merge the per-arch tags into one multi-arch manifest per image, under the
+  # plain tag (`main` or the git tag name) that docker-compose.yml pulls.
+  publish-manifests:
+    needs: build-images
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Create multi-arch manifests
+        run: |
+          for name in ac-authserver ac-worldserver ac-db-import ac-client-data ac-tools; do
+            docker buildx imagetools create \
+              --tag "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME" \
+              "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME-amd64" \
+              "$IMAGE_PREFIX/$name:$GITHUB_REF_NAME-arm64"
+          done

@@ -41,15 +41,20 @@ anything, to do. See its README for the architecture.
 Only containerized usage is supported — the upstream "install from source"
 instructions don't apply here. The commands below use Docker (Linux, Docker
 Desktop on Windows/macOS, or OrbStack on macOS); rootless Podman with
-`podman compose` is equally well supported — we develop on it. The containers
-are intended to build and run out of the box:
+`podman compose` is equally well supported — we develop on it. Prebuilt
+images (x86_64 and arm64) are published to GHCR from every green CI run, so
+`up` pulls them and nothing needs to compile:
 
 ```sh
 git clone --recurse-submodules https://github.com/felworld/azerothcore
 cd azerothcore
-docker compose build
 docker compose --env-file .env.dumbbots up -d
 ```
+
+To build the images from source instead, run `docker compose build` first —
+compose then prefers the local build over the registry. `DOCKER_IMAGE_TAG`
+selects a published tag other than the default `main` (releases are tagged
+with their git tag name).
 
 First startup takes a while: `ac-client-data-init` downloads the client data
 files and `ac-db-import` populates the databases before `ac-worldserver`
@@ -128,10 +133,12 @@ last build step — a successful image build means a green test run. It uses
 Podman if available and Docker otherwise (set `CONTAINER_ENGINE` to
 override), so the same command works locally and in CI.
 
-The same script runs in CI as the [`unit-tests.yml`](workflows/unit-tests.yml)
-workflow (on every push and pull request, with the compiler cache persisted
-across runs); the upstream workflows were removed since they only apply to
-the upstream repos.
+The same script runs in CI as the [`ci.yml`](workflows/ci.yml) workflow (on
+every push and pull request, with the compiler cache persisted across runs);
+the upstream workflows were removed since they only apply to the upstream
+repos. On pushes to `main` and on tags, the same workflow — only after the
+tests pass — builds the service images on native x86_64 and arm64 runners
+and publishes multi-arch manifests to GHCR.
 
 Alongside the inherited upstream tests, the suite covers the fork's own
 features where they are unit-testable: the `.pause` command, profession
@@ -167,8 +174,9 @@ FEATURES.md:
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
   and GM commands keep working; `.modify xp` sets a per-player XP rate
   multiplier.
-- **Container/infra** — rootless Podman, GPU passthrough to vLLM via CDI,
-  runtime-mounted module/data volumes, MySQL tuned for the bot write load.
+- **Container/infra** — prebuilt multi-arch images on GHCR, rootless
+  Podman, GPU passthrough to vLLM via CDI, runtime-mounted module/data
+  volumes, MySQL tuned for the bot write load.
 
 A high-level tour of the C++ codebase is in
 [`doc/CodebaseOverview.md`](../doc/CodebaseOverview.md). For general
