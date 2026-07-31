@@ -29,6 +29,21 @@ add_executable(
         ${PRIVATE_SOURCES}
 )
 
+# Static-archive link order must match the worldserver's (modules, scripts,
+# game): the linker resolves archives left to right, and only game-interface
+# (headers) is declared as a dependency of modules/scripts, so CMake won't
+# reorder or repeat game for us. Module code may reference script-library
+# types (e.g. the playerbots raid logic dynamic_casts creature AIs to boss
+# classes), and both pull most of their symbols from game, so scripts follows
+# modules and game follows both.
+if(TARGET modules)
+    target_link_libraries(unit_tests modules)
+endif()
+
+if(TARGET scripts)
+    target_link_libraries(unit_tests scripts)
+endif()
+
 target_link_libraries(
         unit_tests
         game
@@ -50,18 +65,6 @@ if(MODULE_TEST_INCLUDES)
     list(REMOVE_DUPLICATES MODULE_TEST_INCLUDES)
     target_include_directories(unit_tests PRIVATE ${MODULE_TEST_INCLUDES})
     message(STATUS "Added module test includes to unit_tests target")
-endif()
-
-# Link modules library to tests so module code is available
-if(TARGET modules)
-    target_link_libraries(unit_tests modules)
-endif()
-
-# Module code may reference script-library types (e.g. the playerbots raid
-# logic dynamic_casts creature AIs to boss classes), so scripts must follow
-# modules on the link line.
-if(TARGET scripts)
-    target_link_libraries(unit_tests scripts)
 endif()
 
 add_test(
