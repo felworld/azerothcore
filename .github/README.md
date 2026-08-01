@@ -178,6 +178,9 @@ FEATURES.md:
 - **Gameplay options** (opt-in via config) — XP from profession skill-ups,
   unsplit group kill XP, XP for open-world PvP kills, multi-drop quest
   items.
+- **Instant boat/zeppelin travel** — "Expediter" NPCs on every dock and
+  zeppelin tower teleport you along the routes the real transports serve,
+  the ship-network analogue of instant flight paths.
 - **GM accounts as players** — GM-to-GM whispers, friend status, and
   invites always work, and config defaults make GM characters messageable
   and friendable, since Felworld humans usually hold GM accounts.

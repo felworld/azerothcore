@@ -19,6 +19,20 @@ where noted:
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
 
+## Instant boat and zeppelin travel
+
+Every boat dock and zeppelin tower has a resident **Expediter** NPC — the
+transport-network analogue of `InstantFlightPaths`. Each one offers exactly
+the destinations that dock's real transports serve (Menethil's ferryman
+sells passage to Theramore and Valgarde, the Orgrimmar dispatchers cover
+Undercity, Grom'gol, Thunder Bluff, and Warsong Hold, and so on) and
+teleports you to the far dock on the spot, free of charge. The scheduled
+boats and zeppelins still run — the expediters just let you skip the wait.
+All 3.3.5a routes are covered: Alliance ships, Horde zeppelins, the neutral
+Booty Bay–Ratchet line, and the Dragonblight turtle ferries. Implemented as
+pure world content (gossip + SmartAI, one SQL update); always on, no
+config.
+
 ## GM accounts as players
 
 On Felworld the humans usually hold GM accounts, so upstream's GM social
