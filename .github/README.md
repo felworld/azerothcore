@@ -196,6 +196,9 @@ FEATURES.md:
 - **Social behaviours** — bots rescue strangers about to die, buff
   passers-by, group up over quest-spawn competition, and end emote
   exchanges instead of looping them.
+- **City market trading** — bots advertise WTS/WTB in Trade at
+  market-ish prices, evaluate your offers, and complete agreed deals by
+  walking over and trading items for gold through a real trade window.
 - **Runtime admin toggles** — `.playerbots` and `.llm` GM commands flip
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
   and GM commands keep working; `.modify xp` sets a per-player XP rate
