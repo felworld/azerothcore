@@ -49,7 +49,7 @@ INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`,
 (460020, 0, 24146, 1, 1, 0);
 
 DELETE FROM `creature` WHERE `guid` BETWEEN 46000001 AND 46000020;
-INSERT INTO `creature` (`guid`, `id1`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `Comment`) VALUES
+INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `Comment`) VALUES
 (46000001, 460001, 0, -8464, 1290, 5.33, 2.95, 300, 1, 'Bosun Maddie Reeve'),
 (46000002, 460002, 0, -3730.2, -580.5, 4.73, 0.95, 300, 1, 'Ferryman Alden Creel'),
 (46000003, 460003, 1, -3899.5, -4585.5, 9.2, 0.55, 300, 1, 'Boatswain Errol Tidd'),
