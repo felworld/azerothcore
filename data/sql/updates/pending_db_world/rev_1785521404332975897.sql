@@ -48,28 +48,31 @@ INSERT INTO `creature_template_model` (`CreatureID`, `Idx`, `CreatureDisplayID`,
 (460019, 0, 24126, 1, 1, 0),
 (460020, 0, 24146, 1, 1, 0);
 
+-- Spawn ids are a 24-bit GUID field (cap 0xFFFFFF); an earlier revision of this
+-- update used guids past the cap, which overflowed the dynamic spawn-id generator.
 DELETE FROM `creature` WHERE `guid` BETWEEN 46000001 AND 46000020;
+DELETE FROM `creature` WHERE `guid` BETWEEN 8000001 AND 8000020;
 INSERT INTO `creature` (`guid`, `id`, `map`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `curhealth`, `Comment`) VALUES
-(46000001, 460001, 0, -8464, 1290, 5.33, 2.95, 300, 1, 'Bosun Maddie Reeve'),
-(46000002, 460002, 0, -3730.2, -580.5, 4.73, 0.95, 300, 1, 'Ferryman Alden Creel'),
-(46000003, 460003, 1, -3899.5, -4585.5, 9.2, 0.55, 300, 1, 'Boatswain Errol Tidd'),
-(46000004, 460004, 1, 6427.9, 603.4, 9.65, 3.8, 300, 1, 'Tidewatcher Elandris'),
-(46000005, 460005, 1, 8599, 1006.5, 5.6, 1.6, 300, 1, 'Dockwarden Syllania'),
-(46000006, 460006, 530, -4272.5, -11339, 5.8, 1.7, 300, 1, 'Voyager Mahuun'),
-(46000007, 460007, 571, 598, -5102.5, 5.35, 1.71, 300, 1, 'Bosun Harrick Vayne'),
-(46000008, 460008, 571, 2239.5, 5131, 5.43, 1.57, 300, 1, 'Skipper Wobbin Gearworth'),
-(46000009, 460009, 0, -14293.3, 554, 8.97, 4.7, 300, 1, 'Skindle Quickfare'),
-(46000010, 460010, 1, -989.5, -3799.5, 5.23, 0.24, 300, 1, 'Zink Portwhistle'),
-(46000011, 460011, 1, 1342, -4646, 53.63, 1.9, 300, 1, 'Nazzy Steamwhistle'),
-(46000012, 460012, 1, 1161.5, -4150.5, 51.75, 4.5, 300, 1, 'Fizzi Sparkfare'),
-(46000013, 460013, 0, 2067.5, 290.5, 97.11, 4.35, 300, 1, 'Zerix Farfling'),
-(46000014, 460014, 0, -12429.5, 212.5, 31.32, 4.4, 300, 1, 'Bixxle Longhaul'),
-(46000015, 460015, 1, -1029, 310.5, 135, 4.64, 300, 1, 'Zeb Skyhopper'),
-(46000016, 460016, 571, 2814.5, 6174.5, 122.21, 0.14, 300, 1, 'Krizzle Gustline'),
-(46000017, 460017, 571, 1978, -6092.5, 67.22, 4.22, 300, 1, 'Vexo Loosewick'),
-(46000018, 460018, 571, 2660.5, 894.5, 4.46, 6.21, 300, 1, 'Orabuk the Unhurried'),
-(46000019, 460019, 571, 2843, 4022, 5.08, 0.3, 300, 1, 'Pamiuk'),
-(46000020, 460020, 571, 786.5, -2813.5, 4.83, 4.7, 300, 1, 'Anuruk');
+(8000001, 460001, 0, -8464, 1290, 5.33, 2.95, 300, 1, 'Bosun Maddie Reeve'),
+(8000002, 460002, 0, -3730.2, -580.5, 4.73, 0.95, 300, 1, 'Ferryman Alden Creel'),
+(8000003, 460003, 1, -3899.5, -4585.5, 9.2, 0.55, 300, 1, 'Boatswain Errol Tidd'),
+(8000004, 460004, 1, 6427.9, 603.4, 9.65, 3.8, 300, 1, 'Tidewatcher Elandris'),
+(8000005, 460005, 1, 8599, 1006.5, 5.6, 1.6, 300, 1, 'Dockwarden Syllania'),
+(8000006, 460006, 530, -4272.5, -11339, 5.8, 1.7, 300, 1, 'Voyager Mahuun'),
+(8000007, 460007, 571, 598, -5102.5, 5.35, 1.71, 300, 1, 'Bosun Harrick Vayne'),
+(8000008, 460008, 571, 2239.5, 5131, 5.43, 1.57, 300, 1, 'Skipper Wobbin Gearworth'),
+(8000009, 460009, 0, -14293.3, 554, 8.97, 4.7, 300, 1, 'Skindle Quickfare'),
+(8000010, 460010, 1, -989.5, -3799.5, 5.23, 0.24, 300, 1, 'Zink Portwhistle'),
+(8000011, 460011, 1, 1342, -4646, 53.63, 1.9, 300, 1, 'Nazzy Steamwhistle'),
+(8000012, 460012, 1, 1161.5, -4150.5, 51.75, 4.5, 300, 1, 'Fizzi Sparkfare'),
+(8000013, 460013, 0, 2067.5, 290.5, 97.11, 4.35, 300, 1, 'Zerix Farfling'),
+(8000014, 460014, 0, -12429.5, 212.5, 31.32, 4.4, 300, 1, 'Bixxle Longhaul'),
+(8000015, 460015, 1, -1029, 310.5, 135, 4.64, 300, 1, 'Zeb Skyhopper'),
+(8000016, 460016, 571, 2814.5, 6174.5, 122.21, 0.14, 300, 1, 'Krizzle Gustline'),
+(8000017, 460017, 571, 1978, -6092.5, 67.22, 4.22, 300, 1, 'Vexo Loosewick'),
+(8000018, 460018, 571, 2660.5, 894.5, 4.46, 6.21, 300, 1, 'Orabuk the Unhurried'),
+(8000019, 460019, 571, 2843, 4022, 5.08, 0.3, 300, 1, 'Pamiuk'),
+(8000020, 460020, 571, 786.5, -2813.5, 4.83, 4.7, 300, 1, 'Anuruk');
 
 DELETE FROM `npc_text` WHERE `ID` BETWEEN 460001 AND 460020;
 INSERT INTO `npc_text` (`ID`, `text0_0`, `text0_1`, `Probability0`, `VerifiedBuild`) VALUES
