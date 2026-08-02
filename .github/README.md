@@ -200,7 +200,9 @@ FEATURES.md:
   market-ish prices, react to your ads when they genuinely want (or
   stock) the item, and complete agreed deals by coming to you — from
   another city if need be — and trading items for gold through a real
-  trade window.
+  trade window. Mages and warlocks also sell portals and summons for a
+  tip the same way ("wtb summon tanaris" reaches a warlock actually
+  standing there); their own group and guild still ride free.
 - **Runtime admin toggles** — `.playerbots` and `.llm` GM commands flip
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
   and GM commands keep working; `.modify xp` sets a per-player XP rate
