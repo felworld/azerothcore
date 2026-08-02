@@ -37,6 +37,25 @@ count. That makes this a "who else is actually here" signal rather than a
 population ticker. Default `0` upstream, `1` in
 [our configs](https://github.com/felworld/configs).
 
+## Joinable WorldDefense channel
+
+On 3.3.5 clients WorldDefense is a stranded relic: the vanilla PvP-rank
+gate that governed joining it left with the old honor system, so the client
+never auto-joins it, never shows it in the channel lists, and gives
+`/join WorldDefense` none of the usual feedback — while the server happily
+force-joined players into it on every zone change.
+
+Felworld makes it a normal opt-in channel instead: the core never
+force-joins anyone, and
+[mod-playerbots](https://github.com/felworld/mod-playerbots) creates it as
+a custom channel (no client-side DBC identity) that bots enter at login.
+`/join WorldDefense` now behaves like joining any player-made channel —
+join confirmation, `/chatlist` and chat-pane listing, `/leave` — and it
+carries the bots' world-PvP pleas and shouts, so joining it is tuning into
+your faction's defense chatter. A `channels_rights` row keeps it
+civilized: no join/leave announces (bots rotate in and out constantly), no
+ownership or moderation, no persistence across restarts.
+
 ## Instant boat and zeppelin travel
 
 Every boat dock and zeppelin tower has a resident **Expediter** NPC — the

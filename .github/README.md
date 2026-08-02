@@ -181,6 +181,9 @@ FEATURES.md:
 - **Login/logout announcements** — `ShowLoginLogoutInWorld` tells everyone
   online when a real player comes online or goes offline; bot sessions are
   never announced, so it stays a signal rather than spam.
+- **Joinable WorldDefense** — the channel stranded since vanilla's honor
+  ranks is a normal opt-in chat channel: `/join WorldDefense` works like
+  any custom channel and tunes into the bots' defense callouts.
 - **Instant boat/zeppelin travel** — "Expediter" NPCs on every dock and
   zeppelin tower teleport you along the routes the real transports serve,
   the ship-network analogue of instant flight paths.

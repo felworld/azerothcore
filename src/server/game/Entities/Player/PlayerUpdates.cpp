@@ -525,6 +525,13 @@ void Player::UpdateLocalChannels(uint32 newZone)
         if (ChatChannelsEntry const* channel =
                 sChatChannelsStore.LookupEntry(i))
         {
+            // Never force-join global channels (WorldDefense): it is
+            // repurposed as an opt-in custom channel entered via /join
+            // (see mod-playerbots), and clients suppress the normal
+            // channel UX for the DBC version anyway.
+            if (channel->flags & CHANNEL_DBC_FLAG_GLOBAL)
+                continue;
+
             Channel* usedChannel = nullptr;
 
             for (Channel* channel : m_channels)
