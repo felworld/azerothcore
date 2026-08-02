@@ -1107,6 +1107,9 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
 
     sScriptMgr->OnPlayerLogin(pCurrChar);
 
+    if (sWorld->getBoolConfig(CONFIG_SHOW_LOGIN_LOGOUT_IN_WORLD) && !IsBot())
+        ChatHandler(nullptr).SendWorldText(LANG_ANNOUNCE_PLAYER_LOGIN, pCurrChar->GetName());
+
     if (pCurrChar->HasAtLoginFlag(AT_LOGIN_FIRST))
     {
         pCurrChar->RemoveAtLoginFlag(AT_LOGIN_FIRST);
@@ -1252,6 +1255,9 @@ void WorldSession::HandlePlayerLoginToCharInWorld(Player* pCurrChar)
 
     if (pCurrChar->IsGameMaster())
         ChatHandler(pCurrChar->GetSession()).SendNotification(LANG_GM_ON);
+
+    if (sWorld->getBoolConfig(CONFIG_SHOW_LOGIN_LOGOUT_IN_WORLD) && !IsBot())
+        ChatHandler(nullptr).SendWorldText(LANG_ANNOUNCE_PLAYER_LOGIN, pCurrChar->GetName());
 
     m_playerLoading = false;
 }

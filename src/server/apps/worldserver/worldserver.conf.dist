@@ -1131,6 +1131,16 @@ ShowMuteInWorld = 0
 ShowBanInWorld = 0
 
 #
+#    ShowLoginLogoutInWorld
+#        Description: Determines whether a message is broadcast to the entire server when a
+#                     player logs in on a character or logs out of one. Bot sessions are
+#                     never announced.
+#        Default:     0 - (Disabled)
+#                     1 - (Enabled)
+
+ShowLoginLogoutInWorld = 0
+
+#
 #    MaxWhoListReturns
 #        Description: Set the max number of players returned in the /who list and interface.
 #        Default:     49 - (stable)

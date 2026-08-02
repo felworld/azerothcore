@@ -1528,7 +1528,12 @@ enum AcoreStrings
     LANG_COMMAND_NPC_SHOWLOOT_MONEY     = 35458,
     LANG_COMMAND_NPC_SHOWLOOT_ITEMS     = 35459,
     LANG_COMMAND_NPC_SHOWLOOT_ENTRY     = 35460,
-    LANG_COMMAND_NPC_SHOWLOOT_QUEST     = 35461
+    LANG_COMMAND_NPC_SHOWLOOT_QUEST     = 35461,
+
+    // Fork-local strings live in a reserved high range so upstream can keep
+    // allocating from 35xxx without colliding
+    LANG_ANNOUNCE_PLAYER_LOGIN          = 4600001,
+    LANG_ANNOUNCE_PLAYER_LOGOUT         = 4600002
 
 };
 #endif

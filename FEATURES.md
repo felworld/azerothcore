@@ -19,6 +19,24 @@ where noted:
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
 
+## Login and logout announcements
+
+`ShowLoginLogoutInWorld` broadcasts a system message to everyone online when
+a player logs in on a character ("*Name* has come online.") or logs out of
+one ("*Name* has gone offline."), in the same vein as upstream's
+`ShowKickInWorld` / `ShowBanInWorld`. It fires for both fresh logins and
+reconnects to a character still in the world, and on every kind of logout
+(including disconnects and kicks); the departing player doesn't get told
+about their own logout. The strings live in `acore_string` entries 4600001
+and 4600002, translated into all nine client locales, so the wording is
+editable in the world DB.
+
+Bot sessions are never announced — with 1500+ playerbots rotating in and out
+the channel would be nothing but login spam, so only real client sessions
+count. That makes this a "who else is actually here" signal rather than a
+population ticker. Default `0` upstream, `1` in
+[our configs](https://github.com/felworld/configs).
+
 ## Instant boat and zeppelin travel
 
 Every boat dock and zeppelin tower has a resident **Expediter** NPC — the

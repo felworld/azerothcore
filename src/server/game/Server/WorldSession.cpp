@@ -24,6 +24,7 @@
 #include "BattlegroundMgr.h"
 #include "BanMgr.h"
 #include "CharacterPackets.h"
+#include "Chat.h"
 #include "Common.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -31,6 +32,7 @@
 #include "Guild.h"
 #include "GuildMgr.h"
 #include "Hyperlinks.h"
+#include "Language.h"
 #include "Log.h"
 #include "MapMgr.h"
 #include "Metric.h"
@@ -815,6 +817,10 @@ void WorldSession::LogoutPlayer(bool save)
         uint32 statementParam = GetAccountId();
         sScriptMgr->OnDatabaseSelectIndexLogout(_player, statementIndex, statementParam);
 
+        // captured here, announced once the player is gone so they aren't told about their own logout
+        bool const announceLogout = sWorld->getBoolConfig(CONFIG_SHOW_LOGIN_LOGOUT_IN_WORLD) && !IsBot();
+        std::string const playerName = _player->GetName();
+
         //! Remove the player from the world
         // the player may not be in the world when logging out
         // e.g if he got disconnected during a transfer to another map
@@ -827,6 +833,9 @@ void WorldSession::LogoutPlayer(bool save)
         }
 
         SetPlayer(nullptr); // pointer already deleted
+
+        if (announceLogout)
+            ChatHandler(nullptr).SendWorldText(LANG_ANNOUNCE_PLAYER_LOGOUT, playerName);
 
         //! Send the 'logout complete' packet to the client
         //! Client will respond by sending 3x CMSG_CANCEL_TRADE, which we currently dont handle
