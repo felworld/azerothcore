@@ -48,6 +48,7 @@ BattlegroundWS::BattlegroundWS()
     _reputationCapture = 0;
     _honorWinKills = 0;
     _honorEndKills = 0;
+    _totalGameTime = BG_WS_TOTAL_GAME_TIME;
 }
 
 BattlegroundWS::~BattlegroundWS()
@@ -63,7 +64,7 @@ void BattlegroundWS::PostUpdateImpl(uint32 diff)
         {
             case BG_WS_EVENT_UPDATE_GAME_TIME:
                 UpdateWorldState(WORLD_STATE_BATTLEGROUND_WS_STATE_TIMER, GetMatchTime());
-                _bgEvents.ScheduleEvent(BG_WS_EVENT_UPDATE_GAME_TIME, Milliseconds(((BG_WS_TOTAL_GAME_TIME - GetStartTime()) % (MINUTE * IN_MILLISECONDS)) + 1));
+                _bgEvents.ScheduleEvent(BG_WS_EVENT_UPDATE_GAME_TIME, Milliseconds(((_totalGameTime - GetStartTime()) % (MINUTE * IN_MILLISECONDS)) + 1));
                 break;
             case BG_WS_EVENT_NO_TIME_LEFT:
                 if (GetTeamScore(TEAM_ALLIANCE) == GetTeamScore(TEAM_HORDE))
@@ -505,6 +506,13 @@ void BattlegroundWS::Init()
     _configurableMaxTeamScore = bgWarsongFlagsConfig > 0
         ? bgWarsongFlagsConfig
         : static_cast<uint32>(BG_WS_MAX_TEAM_SCORE);
+
+    // GetStartTime() also runs during the preparation phase, so the clock shown to players is
+    // 25 minutes of play plus however long preparation lasts. BG_WS_TOTAL_GAME_TIME assumes the
+    // stock 2 minutes; swap in the configured value so the clock still reads zero exactly when
+    // BG_WS_EVENT_NO_TIME_LEFT ends the match.
+    uint32 prepTime = sWorld->getIntConfig(CONFIG_BATTLEGROUND_PREP_TIME) * IN_MILLISECONDS;
+    _totalGameTime = BG_WS_TOTAL_GAME_TIME - 2 * MINUTE * IN_MILLISECONDS + prepTime;
 }
 
 void BattlegroundWS::EndBattleground(TeamId winnerTeamId)

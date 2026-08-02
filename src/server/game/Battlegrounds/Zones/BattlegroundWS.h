@@ -247,7 +247,7 @@ public:
     void AddPoints(TeamId teamId, uint32 points) { m_TeamScores[teamId] += points; }
 
     TeamId GetPrematureWinner() override;
-    uint32 GetMatchTime() const { return 1 + (BG_WS_TOTAL_GAME_TIME - GetStartTime()) / (MINUTE * IN_MILLISECONDS); }
+    uint32 GetMatchTime() const { return 1 + (_totalGameTime - GetStartTime()) / (MINUTE * IN_MILLISECONDS); }
     uint32 GetAssaultSpellId() const;
     void RemoveAssaultAuras();
 
@@ -263,6 +263,8 @@ private:
     uint32 _honorWinKills;
     uint32 _honorEndKills;
     uint32 _configurableMaxTeamScore;
+    // BG_WS_TOTAL_GAME_TIME with the configured preparation phase in place of the stock 2 minutes
+    uint32 _totalGameTime;
 
     void PostUpdateImpl(uint32 diff) override;
 };
