@@ -6768,6 +6768,12 @@ SpellCastResult Spell::CheckCast(bool strict, uint32* /*param1*/, uint32* /*para
                     return SPELL_FAILED_AURA_BOUNCED;
     }
 
+    // check if target already has a higher rank of the same spell - a weaker rank must not replace it
+    if (!nonAuraEffectMask && approximateAuraEffectMask && !m_spellInfo->IsTargetingArea() && !IsTriggered() && !m_CastItem)
+        if (Unit* target = m_targets.GetUnitTarget())
+            if (target->HasStrongerRankedAura(m_spellInfo, m_originalCaster ? m_originalCaster->GetGUID() : m_caster->GetGUID()))
+                return SPELL_FAILED_AURA_BOUNCED;
+
     // check trade slot case (last, for allow catch any another cast problems)
     if (m_targets.GetTargetMask() & TARGET_FLAG_TRADE_ITEM)
     {

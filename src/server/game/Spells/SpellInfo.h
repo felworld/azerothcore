@@ -555,6 +555,10 @@ public:
     bool IsRankOf(SpellInfo const* spellInfo) const;
     bool IsDifferentRankOf(SpellInfo const* spellInfo) const;
     bool IsHighRankOf(SpellInfo const* spellInfo) const;
+    // true when auras of this spell and an existing one coexist because they come from different casters
+    bool CanStackFromDifferentCasters(SpellInfo const* existingSpellInfo) const;
+    // true when an aura of this spell would evict an existing aura of another rank of the same chain
+    bool ReplacesAuraOfDifferentRank(SpellInfo const* existingSpellInfo, bool sameCaster) const;
 
     std::array<SpellEffectInfo, MAX_SPELL_EFFECTS> const& GetEffects() const { return Effects; }
     SpellEffectInfo const& GetEffect(SpellEffIndex index) const { ASSERT(index < Effects.size()); return Effects[index]; }

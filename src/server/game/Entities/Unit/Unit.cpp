@@ -5891,6 +5891,36 @@ AuraApplication* Unit::GetAuraApplicationOfRankedSpell(uint32 spellId, ObjectGui
     return nullptr;
 }
 
+bool Unit::HasStrongerRankedAura(SpellInfo const* spellInfo, ObjectGuid casterGUID) const
+{
+    uint32 rankSpell = sSpellMgr->GetFirstSpellInChain(spellInfo->Id);
+    while (rankSpell)
+    {
+        AuraApplicationMapBounds range = m_appliedAuras.equal_range(rankSpell);
+        for (; range.first != range.second; ++range.first)
+        {
+            Aura const* existingAura = range.first->second->GetBase();
+
+            // dynobj auras always stack, they are never replaced
+            if (existingAura->GetType() == DYNOBJ_AURA_TYPE)
+                continue;
+
+            SpellInfo const* existingSpellInfo = existingAura->GetSpellInfo();
+            if (!existingSpellInfo->IsHighRankOf(spellInfo))
+                continue;
+
+            // only a rank which would evict the stronger one is refused - auras which would have
+            // coexisted with it (periodics from another caster, extra aura slots) are fine
+            if (spellInfo->ReplacesAuraOfDifferentRank(existingSpellInfo, existingAura->GetCasterGUID() == casterGUID))
+                return true;
+        }
+
+        rankSpell = sSpellMgr->GetNextSpellInChain(rankSpell);
+    }
+
+    return false;
+}
+
 Aura* Unit::GetAuraOfRankedSpell(uint32 spellId, ObjectGuid casterGUID, ObjectGuid itemCasterGUID, uint8 reqEffMask) const
 {
     AuraApplication* aurApp = GetAuraApplicationOfRankedSpell(spellId, casterGUID, itemCasterGUID, reqEffMask);

@@ -2995,6 +2995,67 @@ bool SpellInfo::IsHighRankOf(SpellInfo const* spellInfo) const
     return false;
 }
 
+bool SpellInfo::CanStackFromDifferentCasters(SpellInfo const* existingSpellInfo) const
+{
+    // Channeled auras can stack if not forbidden by db or aura type
+    if (existingSpellInfo->IsChanneled())
+        return true;
+
+    if (HasAttribute(SPELL_ATTR3_DOT_STACKING_RULE))
+        return true;
+
+    // check same periodic auras
+    for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
+    {
+        switch (Effects[i].ApplyAuraName)
+        {
+            // DOT or HOT from different casters will stack
+            case SPELL_AURA_PERIODIC_DAMAGE:
+            case SPELL_AURA_PERIODIC_DUMMY:
+            case SPELL_AURA_PERIODIC_HEAL:
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+            case SPELL_AURA_PERIODIC_ENERGIZE:
+            case SPELL_AURA_PERIODIC_MANA_LEECH:
+            case SPELL_AURA_PERIODIC_LEECH:
+            case SPELL_AURA_POWER_BURN:
+            case SPELL_AURA_OBS_MOD_POWER:
+            case SPELL_AURA_OBS_MOD_HEALTH:
+            case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
+                // periodic auras which target areas are not allowed to stack this way (replenishment for example)
+                if (Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
+                    break;
+                return true;
+            default:
+                break;
+        }
+    }
+
+    return false;
+}
+
+bool SpellInfo::ReplacesAuraOfDifferentRank(SpellInfo const* existingSpellInfo, bool sameCaster) const
+{
+    // same spell rank chain only, and only across ranks - the same rank always refreshes
+    if (Id == existingSpellInfo->Id || !IsRankOf(existingSpellInfo))
+        return false;
+
+    if (SpellFamilyName != existingSpellInfo->SpellFamilyName)
+        return false;
+
+    // hunter exception, see Aura::CanStackWith
+    if (SpellFamilyName == SPELLFAMILY_HUNTER && SpellFamilyFlags[1] & 0x80000000)
+        return false;
+
+    if (!sameCaster && CanStackFromDifferentCasters(existingSpellInfo))
+        return false;
+
+    // passive auras (weapon imbues and the like) get their own slot instead of replacing
+    if (IsMultiSlotAura())
+        return false;
+
+    return true;
+}
+
 void SpellInfo::_InitializeExplicitTargetMask()
 {
     bool srcSet = false;

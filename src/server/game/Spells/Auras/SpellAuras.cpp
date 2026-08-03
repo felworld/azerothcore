@@ -1992,41 +1992,9 @@ bool Aura::CanStackWith(Aura const* existingAura) const
     if (m_spellInfo->SpellFamilyName != existingSpellInfo->SpellFamilyName)
         return true;
 
-    if (!sameCaster)
-    {
-        // Channeled auras can stack if not forbidden by db or aura type
-        if (existingAura->GetSpellInfo()->IsChanneled())
-            return true;
-
-        if (m_spellInfo->HasAttribute(SPELL_ATTR3_DOT_STACKING_RULE))
-            return true;
-
-        // check same periodic auras
-        for (uint32 i = 0; i < MAX_SPELL_EFFECTS; ++i)
-        {
-            switch (m_spellInfo->Effects[i].ApplyAuraName)
-            {
-                // DOT or HOT from different casters will stack
-                case SPELL_AURA_PERIODIC_DAMAGE:
-                case SPELL_AURA_PERIODIC_DUMMY:
-                case SPELL_AURA_PERIODIC_HEAL:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
-                case SPELL_AURA_PERIODIC_ENERGIZE:
-                case SPELL_AURA_PERIODIC_MANA_LEECH:
-                case SPELL_AURA_PERIODIC_LEECH:
-                case SPELL_AURA_POWER_BURN:
-                case SPELL_AURA_OBS_MOD_POWER:
-                case SPELL_AURA_OBS_MOD_HEALTH:
-                case SPELL_AURA_PERIODIC_TRIGGER_SPELL_WITH_VALUE:
-                    // periodic auras which target areas are not allowed to stack this way (replenishment for example)
-                    if (m_spellInfo->Effects[i].IsTargetingArea() || existingSpellInfo->Effects[i].IsTargetingArea())
-                        break;
-                    return true;
-                default:
-                    break;
-            }
-        }
-    }
+    // channeled and periodic auras from different casters coexist instead of replacing each other
+    if (!sameCaster && m_spellInfo->CanStackFromDifferentCasters(existingSpellInfo))
+        return true;
 
     uint8 VehicleAura1 = 0;
     uint8 VehicleAura2 = 0;
