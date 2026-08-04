@@ -924,6 +924,11 @@ public:
     void DoAction(uint32 action, ObjectGuid guid) override;
 
     [[nodiscard]] ICNodePoint const& GetICNodePoint(uint8 index) { return nodePoint[index]; }
+    // Reinforcements left and keep gate states, as shown on the players'
+    // battleground HUD. Isle of Conquest keeps its own reinforcement counter,
+    // so Battleground::GetTeamScore() is unset here.
+    [[nodiscard]] uint16 GetReinforcements(TeamId teamId) const { return factionReinforcements[teamId]; }
+    [[nodiscard]] BG_IC_GateState GetGateState(uint32 gateId) const { return GateStatus[gateId]; }
 
 private:
     uint32 closeFortressDoorsTimer;

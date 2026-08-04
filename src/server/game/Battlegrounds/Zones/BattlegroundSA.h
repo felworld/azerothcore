@@ -503,6 +503,13 @@ public:
     // Achievement: Not Even a Scratch
     bool notEvenAScratch(TeamId teamId) const { return _notEvenAScratch[teamId]; }
 
+    // Round state, as shown on the players' battleground HUD
+    [[nodiscard]] TeamId GetAttackerTeamId() const { return Attackers; }
+    [[nodiscard]] BG_SA_Status GetRoundStatus() const { return Status; }
+    [[nodiscard]] Milliseconds GetRoundTimeRemaining() const { return EndRoundTimer - TotalTime; }
+    [[nodiscard]] BG_SA_GateState GetGateState(uint32 gateId) const { return GateStatus[gateId]; }
+    [[nodiscard]] TeamId GetGraveyardOwner(uint32 graveyardId) const { return GraveyardStatus[graveyardId]; }
+
 private:
     /// Return gate id, relative to bg data, according to gameobject id
     uint32 GetGateIDFromEntry(uint32 id)

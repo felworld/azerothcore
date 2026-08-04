@@ -1792,6 +1792,9 @@ public:
     TeamId GetPrematureWinner() override;
 
     [[nodiscard]] BG_AV_NodeInfo const& GetAVNodeInfo(uint32 node) const { return m_Nodes[node]; }
+    // Reinforcements left, as shown on the players' battleground HUD. Alterac
+    // Valley keeps its own counter, so Battleground::GetTeamScore() is unset here.
+    [[nodiscard]] int32 GetReinforcements(TeamId teamId) const { return m_Team_Scores[teamId]; }
     [[nodiscard]] bool IsCaptainAlive(uint8 index) const { return m_CaptainAlive[index]; }
     [[nodiscard]] TeamId GetMineOwner(uint8 index) const { return m_Mine_Owner[index]; }
 
