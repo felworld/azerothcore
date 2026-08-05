@@ -453,7 +453,6 @@ void ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg msgtype, std::strin
         data << uint32(achievementId);
 }
 
-
 Player* ChatHandler::getSelectedPlayer() const
 {
     if (!m_session)

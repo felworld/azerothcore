@@ -1724,7 +1724,6 @@ void Map::SendObjectUpdates()
             continue;
         }
 
-
         iter->second.BuildPacket(packet);
         iter->first->SendDirectMessage(&packet);
         packet.clear();                                     // clean the string

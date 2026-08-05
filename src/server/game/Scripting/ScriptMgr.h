@@ -110,7 +110,7 @@ class PlayerbotScript : public ScriptObject
 {
 protected:
 
-    PlayerbotScript(const char* name);
+    PlayerbotScript(char const* name);
 
 public:
     bool IsDatabaseBound() const { return false; }
@@ -750,7 +750,7 @@ public: /* LootScript */
     void OnLootMoney(Player* player, uint32 gold);
 
 public: /* PlayerbotScript */
-    
+
     bool OnPlayerbotCheckLFGQueue(lfg::Lfg5Guids const& guidsList);
     void OnPlayerbotCheckKillTask(Player* player, Unit* victim);
     void OnPlayerbotCheckPetitionAccount(Player* player, bool& found);

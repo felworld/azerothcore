@@ -5094,7 +5094,7 @@ void Player::CleanupChannels()
     }
 }
 
-bool Player::IsInChannel(const Channel* c)
+bool Player::IsInChannel(Channel const* c)
 {
     // Compare the channel object itself: builtin channels share one
     // ChannelId per kind across zones (and all custom channels use 0), so
