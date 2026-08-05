@@ -46,7 +46,7 @@ already fetched):
 2. `git checkout -b upstream-sync/<date> origin/main`
 3. `git merge upstream/<branch> --no-edit`
 4. **On conflicts:** resolve them yourself. Follow the conventions in
-   `CLAUDE.md`; if the resolution touched C++, run
+   `AGENTS.md`; if the resolution touched C++, run
    `python apps/codestyle/codestyle-cpp.py` before committing. Keep a list of
    every conflicted file and a one-line rationale for how you resolved it —
    the PR body must surface these prominently.
