@@ -64,7 +64,7 @@ ARG CCACHE_LOGFILE=""
 
 RUN apt-get update                                                     \
     && apt-get install -y --no-install-recommends                         \
-        build-essential ccache libtool cmake-data make cmake clang    \
+        build-essential ccache libtool cmake-data ninja-build cmake clang    \
         git lsb-base curl unzip default-mysql-client openssl                  \
         default-libmysqlclient-dev libboost-all-dev libssl-dev libmysql++-dev \
         libreadline-dev zlib1g-dev libbz2-dev libncurses5-dev liblzma-dev  \
@@ -85,6 +85,7 @@ WORKDIR /azerothcore/build
 # probing git and stamp a placeholder revision string instead of reading .git.
 RUN --mount=type=cache,target=/ccache,sharing=locked \
     cmake /azerothcore \
+       -G Ninja \
        -DCMAKE_INSTALL_PREFIX="/azerothcore/env/dist"  \
        -DAPPS_BUILD="all"                              \
        -DTOOLS_BUILD="$CTOOLS_BUILD"                   \
@@ -255,7 +256,7 @@ LABEL description="AzerothCore client-data"
 ENV DATAPATH=/azerothcore/env/dist/data
 
 RUN apt-get update && \
-    apt-get install -y curl unzip && \
+    apt-get install -y curl unzip adduser && \
     rm -rf /var/lib/apt/lists/*
 
 COPY apps apps
