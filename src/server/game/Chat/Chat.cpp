@@ -191,7 +191,7 @@ void ChatHandler::SendSysMessage(std::string_view str, bool escapeCharacters)
     }
 }
 
-void ChatHandler::SendGlobalSysMessage(const char* str)
+void ChatHandler::SendGlobalSysMessage(char const* str)
 {
     WorldPacket data;
     for (std::string_view line : Acore::Tokenize(str, '\n', true))
@@ -201,7 +201,7 @@ void ChatHandler::SendGlobalSysMessage(const char* str)
     }
 }
 
-void ChatHandler::SendGlobalGMSysMessage(const char* str)
+void ChatHandler::SendGlobalGMSysMessage(char const* str)
 {
     WorldPacket data;
     for (std::string_view line : Acore::Tokenize(str, '\n', true))
@@ -452,7 +452,6 @@ void ChatHandler::BuildChatPacket(WorldPacket& data, ChatMsg msgtype, std::strin
     if (isAchievement)
         data << uint32(achievementId);
 }
-
 
 Player* ChatHandler::getSelectedPlayer() const
 {
@@ -1003,7 +1002,7 @@ bool CliHandler::needReportToTarget(Player* /*chr*/) const
     return true;
 }
 
-bool ChatHandler::GetPlayerGroupAndGUIDByName(const char* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline)
+bool ChatHandler::GetPlayerGroupAndGUIDByName(char const* cname, Player*& player, Group*& group, ObjectGuid& guid, bool offline)
 {
     player = nullptr;
     guid = ObjectGuid::Empty;

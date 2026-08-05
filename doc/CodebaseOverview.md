@@ -3,7 +3,7 @@
 A conceptual, high-level tour of this repository: AzerothCore itself (this is the
 **mod-playerbots fork**) plus the two bundled modules in `modules/`. It is written for
 someone familiar with WoW and hobby gamedev but new to this codebase. It favors mental
-models over file paths; for granular detail, read the code or the per-area `CLAUDE.md`
+models over file paths; for granular detail, read the code or the per-area `AGENTS.md`
 notes.
 
 ## What AzerothCore actually is
