@@ -18,6 +18,11 @@ where noted:
   XP-free, and gray-level victims give nothing.
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
+- `Rate.MoveSpeed.Ghost` — movement speed rate for dead player ghosts
+  (corpse runs), with a module hook to adjust it per player —
+  [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#corpse-run-pacing)
+  uses it so bot corpse runs can be paced separately from human ones. Our
+  configs double it for humans and cancel that back out for bots.
 
 ## Login and logout announcements
 

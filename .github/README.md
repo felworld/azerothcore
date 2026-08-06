@@ -177,7 +177,7 @@ FEATURES.md:
 
 - **Gameplay options** (opt-in via config) — XP from profession skill-ups,
   unsplit group kill XP, XP for open-world PvP kills, multi-drop quest
-  items.
+  items, faster corpse runs (for humans only, if you like).
 - **Login/logout announcements** — `ShowLoginLogoutInWorld` tells everyone
   online when a real player comes online or goes offline; bot sessions are
   never announced, so it stays a signal rather than spam.
