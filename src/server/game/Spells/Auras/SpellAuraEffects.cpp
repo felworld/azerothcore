@@ -1921,6 +1921,9 @@ void AuraEffect::HandleAuraGhost(AuraApplication const* aurApp, uint8 mode, bool
         target->m_serverSideVisibility.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
         target->m_serverSideVisibilityDetect.SetValue(SERVERSIDE_VISIBILITY_GHOST, GHOST_VISIBILITY_ALIVE);
     }
+
+    // Reapply Rate.MoveSpeed.Ghost when entering/leaving ghost form
+    target->UpdateSpeed(MOVE_RUN, true);
 }
 
 void AuraEffect::HandlePhase(AuraApplication const* aurApp, uint8 mode, bool apply) const

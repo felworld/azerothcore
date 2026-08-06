@@ -11297,6 +11297,14 @@ void Unit::UpdateSpeed(UnitMoveType mtype, bool forced)
     if (slow)
         AddPct(speed, slow);
 
+    // Rate for player ghosts running back to their corpse
+    if (mtype == MOVE_RUN && IsPlayer() && HasGhostAura())
+    {
+        float ghostRate = sWorld->getRate(RATE_MOVESPEED_GHOST);
+        sScriptMgr->OnPlayerGhostSpeedRate(ToPlayer(), ghostRate);
+        speed *= ghostRate;
+    }
+
     if (float minSpeedMod = (float)GetMaxPositiveAuraModifier(SPELL_AURA_MOD_MINIMUM_SPEED))
     {
         float base_speed = (IsCreature() ? ToCreature()->GetCreatureTemplate()->speed_run : 1.0f);

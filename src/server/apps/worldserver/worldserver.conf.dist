@@ -2180,6 +2180,14 @@ Rate.MoveSpeed.Player = 1
 Rate.MoveSpeed.NPC = 1
 
 #
+#    Rate.MoveSpeed.Ghost
+#        Description: Movement speed rate for dead player ghosts (corpse runs).
+#                     Modules can adjust this rate per player (e.g. AiPlayerbot.GhostMoveSpeedRate for playerbots).
+#        Default:     1
+
+Rate.MoveSpeed.Ghost = 1
+
+#
 #    Rate.Damage.Fall
 #        Description: Damage after fall rate.
 #        Default:     1
