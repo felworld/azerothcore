@@ -1,0 +1,117 @@
+{
+  "uid": "felworld-character-inspector",
+  "title": "Character Inspector",
+  "tags": ["felworld"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "",
+  "time": { "from": "now-7d", "to": "now" },
+  "editable": true,
+  "graphTooltip": 0,
+  "templating": {
+    "list": [
+      {
+        "name": "character",
+        "label": "Character",
+        "type": "query",
+        "datasource": { "type": "mysql", "uid": "characters-db" },
+        "query": "SELECT name FROM characters ORDER BY name",
+        "refresh": 1,
+        "includeAll": false,
+        "multi": false,
+        "sort": 0,
+        "options": [],
+        "current": {}
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "table",
+      "title": "Overview",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 5, "w": 24, "x": 0, "y": 0 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT c.name AS Name, c.level AS Level, CASE c.race WHEN 1 THEN 'Human' WHEN 2 THEN 'Orc' WHEN 3 THEN 'Dwarf' WHEN 4 THEN 'Night Elf' WHEN 5 THEN 'Undead' WHEN 6 THEN 'Tauren' WHEN 7 THEN 'Gnome' WHEN 8 THEN 'Troll' WHEN 10 THEN 'Blood Elf' WHEN 11 THEN 'Draenei' ELSE c.race END AS Race, CASE c.class WHEN 1 THEN 'Warrior' WHEN 2 THEN 'Paladin' WHEN 3 THEN 'Hunter' WHEN 4 THEN 'Rogue' WHEN 5 THEN 'Priest' WHEN 6 THEN 'Death Knight' WHEN 7 THEN 'Shaman' WHEN 8 THEN 'Mage' WHEN 9 THEN 'Warlock' WHEN 11 THEN 'Druid' ELSE c.class END AS Class, c.zone AS `Zone id`, ROUND(c.money / 10000) AS Gold, SEC_TO_TIME(c.totaltime) AS Played, IF(c.online, 'yes', 'no') AS Online FROM characters c WHERE c.name = '$character'"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "table",
+      "title": "Event history (felworld_events, newest first)",
+      "description": "WPvP lifecycle and LLM tool invocations recorded for this character. Retention: Felworld.Events.RetentionDays.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 5 },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Details" },
+            "properties": [{ "id": "custom.width", "value": 900 }]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT e.time AS Time, e.event_type AS Event, e.details AS Details FROM felworld_events e JOIN characters c ON c.guid = e.guid WHERE c.name = '$character' ORDER BY e.time DESC LIMIT 200"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "table",
+      "title": "Memories (mod-llm scratchpad)",
+      "description": "What this bot has remembered via its remember/forget tools, live from the DB.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 17 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT m.updated_at AS Updated, m.slug AS Memory, m.content AS Content, s.name AS About FROM mod_llm_memory m JOIN characters c ON c.guid = m.bot_guid LEFT JOIN characters s ON s.guid = m.subject_guid WHERE c.name = '$character' ORDER BY m.updated_at DESC"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "table",
+      "title": "Recent 1:1 conversations (mod-llm history)",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 17 },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Message" },
+            "properties": [{ "id": "custom.width", "value": 420 }]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT h.created_at AS Time, IF(h.speaker = 1, b.name, p.name) AS Speaker, IF(h.speaker = 1, p.name, b.name) AS `To`, h.message AS Message FROM mod_llm_history_pair h JOIN characters b ON b.guid = h.bot_guid JOIN characters p ON p.guid = h.player_guid WHERE b.name = '$character' OR p.name = '$character' ORDER BY h.id DESC LIMIT 100"
+        }
+      ]
+    }
+  ],
+  "annotations": { "list": [] }
+}
