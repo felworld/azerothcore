@@ -1,0 +1,76 @@
+{
+  "uid": "felworld-logs",
+  "title": "Logs",
+  "tags": ["felworld"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "editable": true,
+  "graphTooltip": 0,
+  "templating": {
+    "list": [
+      {
+        "name": "container",
+        "label": "Container",
+        "type": "custom",
+        "query": "ac-worldserver,ac-authserver,ac-database,ac-vllm,ac-db-import,ac-vector,ac-victoriametrics,ac-victorialogs,ac-grafana",
+        "current": { "text": "ac-worldserver", "value": "ac-worldserver" },
+        "includeAll": true,
+        "allValue": "*",
+        "options": []
+      },
+      {
+        "name": "search",
+        "label": "Search",
+        "type": "textbox",
+        "query": "*",
+        "current": { "text": "*", "value": "*" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "type": "logs",
+      "title": "Log stream",
+      "description": "LogsQL over everything Vector ships. Worldserver lines carry severity/category fields parsed from the console prefix; use the Search box for free-text (word or \"quoted phrase\").",
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victorialogs" },
+      "gridPos": { "h": 15, "w": 24, "x": 0, "y": 0 },
+      "targets": [
+        { "refId": "A", "expr": "container_name: $container $search" }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    },
+    {
+      "id": 2,
+      "type": "logs",
+      "title": "Warnings and errors (all containers)",
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victorialogs" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 15 },
+      "targets": [
+        { "refId": "A", "expr": "severity: (WARN OR ERROR OR FATAL)" }
+      ],
+      "options": {
+        "showTime": true,
+        "showLabels": false,
+        "showCommonLabels": false,
+        "wrapLogMessage": true,
+        "prettifyLogMessage": false,
+        "enableLogDetails": true,
+        "dedupStrategy": "none",
+        "sortOrder": "Descending"
+      }
+    }
+  ],
+  "annotations": { "list": [] }
+}

@@ -1,0 +1,271 @@
+{
+  "uid": "felworld-server-health",
+  "title": "Server Health",
+  "tags": ["felworld"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "10s",
+  "time": { "from": "now-1h", "to": "now" },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Players online",
+      "description": "Real players + logged-in bots (online_players, emitted every Metric.OverallStatusInterval).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "area",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [{ "refId": "A", "expr": "online_players_value", "legendFormat": "online" }]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Tick time (last)",
+      "description": "Latest world-update diff. <300ms good, >600ms bad (worldserver.conf guidance).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#0ca30c", "value": null },
+              { "color": "#fab219", "value": 300 },
+              { "color": "#d03b3b", "value": 600 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [{ "refId": "A", "expr": "update_time_diff_value", "legendFormat": "tick" }]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Tick p99 (5m)",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "#0ca30c", "value": null },
+              { "color": "#fab219", "value": 300 },
+              { "color": "#d03b3b", "value": 600 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        { "refId": "A", "expr": "quantile_over_time(0.99, update_time_diff_value[5m])", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "DB queue depth",
+      "description": "Pending async queries across the login/character/world pools.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "area",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "db_queue_login_value + db_queue_character_value + db_queue_world_value",
+          "legendFormat": "queued"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "timeseries",
+      "title": "World tick time percentiles (5m windows)",
+      "description": "Computed from the raw per-tick update_time_diff series — the same distribution .server info summarizes. Dashed guides at the 300ms/600ms health thresholds.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "custom": {
+            "drawStyle": "line",
+            "lineWidth": 2,
+            "fillOpacity": 0,
+            "showPoints": "never",
+            "thresholdsStyle": { "mode": "dashed" }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "transparent", "value": null },
+              { "color": "#fab219", "value": 300 },
+              { "color": "#d03b3b", "value": 600 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "p50" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#9ec5f4" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "p95" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "p99" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#184f95" } }]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        { "refId": "A", "expr": "quantile_over_time(0.50, update_time_diff_value[5m])", "legendFormat": "p50" },
+        { "refId": "B", "expr": "quantile_over_time(0.95, update_time_diff_value[5m])", "legendFormat": "p95" },
+        { "refId": "C", "expr": "quantile_over_time(0.99, update_time_diff_value[5m])", "legendFormat": "p99" }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "timeseries",
+      "title": "World update phases",
+      "description": "Per-phase timings inside World::Update (world_update_time, ~19 series). Identity via the sortable legend table and hover, not hue: sort by Mean to find what is slow.",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 13 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": ["mean", "max"],
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [{ "refId": "A", "expr": "world_update_time_value", "legendFormat": "{{type}}" }]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Map update time",
+      "description": "Map::Update duration per map (map_update_time_diff).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 23 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "showLegend": true,
+          "calcs": ["mean", "max"],
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [{ "refId": "A", "expr": "map_update_time_diff_value", "legendFormat": "map {{map_id}}" }]
+    },
+    {
+      "id": 8,
+      "type": "timeseries",
+      "title": "DB queue depths",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 23 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "login" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "characters" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#d95926" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "world" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#199e70" } }]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        { "refId": "A", "expr": "db_queue_login_value", "legendFormat": "login" },
+        { "refId": "B", "expr": "db_queue_character_value", "legendFormat": "characters" },
+        { "refId": "C", "expr": "db_queue_world_value", "legendFormat": "world" }
+      ]
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] }
+}

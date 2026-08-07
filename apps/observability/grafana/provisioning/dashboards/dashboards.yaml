@@ -1,0 +1,13 @@
+# Loads every dashboard JSON bind-mounted from apps/observability/grafana/
+# dashboards/ into a "Felworld" folder. Dashboards are code: edit the JSON in
+# the repo, not in the UI (anonymous access is Viewer-only anyway).
+
+apiVersion: 1
+
+providers:
+  - name: felworld
+    folder: Felworld
+    type: file
+    allowUiUpdates: false
+    options:
+      path: /var/lib/grafana/dashboards

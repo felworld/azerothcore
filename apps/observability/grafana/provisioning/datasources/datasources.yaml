@@ -1,0 +1,32 @@
+# Provisioned Grafana datasources for the Felworld obs stack.
+# DOCKER_DB_ROOT_PASSWORD is injected via the ac-grafana environment
+# (docker-compose.yml); pre-production root access on a LAN-only box.
+
+apiVersion: 1
+
+datasources:
+  - name: VictoriaMetrics
+    uid: victoriametrics
+    type: prometheus
+    access: proxy
+    url: http://ac-victoriametrics:8428
+    isDefault: true
+    jsonData:
+      # Metric.Interval=1 in worldserver.conf: points arrive every second.
+      timeInterval: 1s
+
+  - name: VictoriaLogs
+    uid: victorialogs
+    type: victoriametrics-logs-datasource
+    access: proxy
+    url: http://ac-victorialogs:9428
+
+  - name: Characters DB
+    uid: characters-db
+    type: mysql
+    access: proxy
+    url: ac-database:3306
+    database: acore_characters
+    user: root
+    secureJsonData:
+      password: $__env{DOCKER_DB_ROOT_PASSWORD}

@@ -117,6 +117,11 @@ services:
       # off — consistent with the ac-vllm container being profile-gated below.
       - AC_AI_PLAYERBOT_ENABLED=${AC_AI_PLAYERBOT_ENABLED:-1}
       - AC_LLM_ENABLE=${AC_LLM_ENABLE:-0}
+      # Observability: the .env.<mode> files set this to 1 alongside
+      # COMPOSE_PROFILES=obs, so metric emission and the VictoriaMetrics sink
+      # come up together; a bare `up -d` leaves both off. Where the metrics go
+      # is Metric.InfluxDB.Connection in env/dist/etc/worldserver.conf.
+      - AC_METRIC_ENABLE=${AC_METRIC_ENABLE:-0}
       # Playerbots' own canned chatter, which mod-llm replaces with LLM
       # output. Listed value-less: ONLY .env.llm sets them (to 0), forcing them
       # off in llm mode; in solo/dumbbots they stay unset here so the
@@ -294,6 +299,88 @@ services:
     devices:
       - nvidia.com/gpu=all
 
+  # ---------------------------------------------------------------------------
+  # Observability stack ("obs" profile): VictoriaMetrics ingests the
+  # worldserver's built-in metrics (Metric.Enable=1 speaks InfluxDB line
+  # protocol, which VM accepts on /write), Vector ships every container's
+  # stdout into VictoriaLogs, and Grafana serves the dashboards. The tracked
+  # .env.<mode> files all enable the profile (plus AC_METRIC_ENABLE=1) so the
+  # sink and the emission come up together; a bare `up -d` starts none of it.
+  # Config/provisioning lives in apps/observability/.
+  ac-victoriametrics:
+    container_name: ac-victoriametrics
+    image: victoriametrics/victoria-metrics:${VICTORIAMETRICS_IMAGE_TAG:-latest}
+    profiles: [obs]
+    networks:
+      - ac-network
+    command:
+      - -retentionPeriod=${OBS_METRICS_RETENTION:-90d}
+    # Loopback-only: worldserver reaches it over ac-network; this publish
+    # (VMUI + /write) exists only for host-side debugging. See the
+    # ac-database ports note.
+    ports:
+      - 127.0.0.1:${DOCKER_VICTORIAMETRICS_EXTERNAL_PORT:-8428}:8428
+    volumes:
+      - ac-victoriametrics:/victoria-metrics-data
+    restart: unless-stopped
+
+  ac-victorialogs:
+    container_name: ac-victorialogs
+    image: victoriametrics/victoria-logs:${VICTORIALOGS_IMAGE_TAG:-latest}
+    profiles: [obs]
+    networks:
+      - ac-network
+    command:
+      - -retentionPeriod=${OBS_LOGS_RETENTION:-90d}
+    # Loopback-only: Vector pushes over ac-network; host publish for debugging.
+    ports:
+      - 127.0.0.1:${DOCKER_VICTORIALOGS_EXTERNAL_PORT:-9428}:9428
+    volumes:
+      - ac-victorialogs:/victoria-logs-data
+    restart: unless-stopped
+
+  ac-vector:
+    container_name: ac-vector
+    image: timberio/vector:${VECTOR_IMAGE_TAG:-latest-alpine}
+    profiles: [obs]
+    networks:
+      - ac-network
+    # Reads container logs from the engine socket (Docker on the deployment
+    # box; override DOCKER_SOCK with the podman socket path for local podman
+    # testing). Buffers and retries if VictoriaLogs is down, so the game
+    # containers never depend on the obs stack.
+    volumes:
+      - ${DOCKER_SOCK:-/var/run/docker.sock}:/var/run/docker.sock:ro
+      - ./apps/observability/vector/vector.yaml:/etc/vector/vector.yaml:ro
+    restart: unless-stopped
+
+  ac-grafana:
+    container_name: ac-grafana
+    image: grafana/grafana-oss:${GRAFANA_IMAGE_TAG:-latest}
+    profiles: [obs]
+    networks:
+      - ac-network
+    # Published beyond loopback on purpose (like the game ports): dashboards
+    # are anonymous read-only; editing requires the admin login below.
+    ports:
+      - ${DOCKER_GRAFANA_EXTERNAL_PORT:-3000}:3000
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-admin}
+      # VictoriaLogs datasource plugin; installed at container start (needs
+      # network access on first start with a fresh ac-grafana volume).
+      GF_INSTALL_PLUGINS: victoriametrics-logs-datasource
+      # Consumed by provisioning/datasources/datasources.yaml ($__env
+      # interpolation) for the read-only MySQL panels (character inspector,
+      # felworld_events annotations).
+      DOCKER_DB_ROOT_PASSWORD: ${DOCKER_DB_ROOT_PASSWORD:-password}
+    volumes:
+      - ac-grafana:/var/lib/grafana
+      - ./apps/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./apps/observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    restart: unless-stopped
+
   ac-client-data-init:
     container_name: ac-client-data-init
     image: ghcr.io/felworld/ac-client-data:${DOCKER_IMAGE_TAG:-main}
@@ -382,6 +469,10 @@ volumes:
   ac-database:
   ac-client-data:
   ac-vllm:
+  # Observability stack (obs profile)
+  ac-victoriametrics:
+  ac-victorialogs:
+  ac-grafana:
   # Used for dev server
   ac-build-dev:
   ac-ccache-dev:

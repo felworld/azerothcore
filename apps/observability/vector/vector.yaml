@@ -1,0 +1,43 @@
+# Vector pipeline for the "obs" compose profile: tails every container's
+# stdout/stderr from the engine socket and ships it to VictoriaLogs. Buffers
+# and retries while VictoriaLogs is down, so game containers never notice.
+
+sources:
+  containers:
+    type: docker_logs
+
+transforms:
+  parse:
+    type: remap
+    inputs: [containers]
+    # AzerothCore appenders prefix console lines with "LEVEL [category] "
+    # (Appender.Console flags = 6 in env/dist/etc; timestamps come from the
+    # container engine). Lines from other containers pass through unparsed.
+    source: |
+      parsed, err = parse_regex(.message, r'^(?P<severity>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\s+\[(?P<category>[^\]]+)\]\s?(?P<msg>.*)$')
+      if err == null {
+        .severity = parsed.severity
+        .category = parsed.category
+        .message = parsed.msg
+      }
+
+sinks:
+  victorialogs:
+    # VictoriaLogs' documented Vector integration: its Elasticsearch-compatible
+    # bulk endpoint.
+    type: elasticsearch
+    inputs: [parse]
+    endpoints:
+      - http://ac-victorialogs:9428/insert/elasticsearch/
+    api_version: v8
+    compression: gzip
+    healthcheck:
+      enabled: false
+    query:
+      _msg_field: message
+      _time_field: timestamp
+      _stream_fields: container_name,category
+    request:
+      headers:
+        AccountID: "0"
+        ProjectID: "0"
