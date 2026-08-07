@@ -194,6 +194,49 @@ no one is selected) when no name is given. It complements upstream's
 `.lookup player account`, which does the same starting from an account
 name; both show each character's race, class, level, and online status.
 
+## Observability
+
+An optional monitoring stack (compose profile `obs`, on by default in every
+tracked session mode; a bare `up -d` starts none of it) gives the whole
+Felworld deployment a web dashboard on the host's LAN:
+
+- **VictoriaMetrics** ingests the worldserver's built-in metrics — the
+  stock AzerothCore metrics client speaks InfluxDB line protocol, which
+  VictoriaMetrics accepts natively, so no core changes were needed for the
+  transport. Emission is toggled per session mode via `AC_METRIC_ENABLE`
+  (all tracked `.env.<mode>` files set it alongside the profile).
+- **Vector + VictoriaLogs** persist and index every container's
+  stdout/stderr. The console appenders are configured to prefix lines with
+  `LEVEL [category]` so severity and category become queryable fields;
+  timestamps come from the container engine. Logs survive container
+  replacement and are searchable from the browser (LogsQL).
+- **Grafana** (port 3000, anonymous read-only viewer; admin login for
+  editing via `GRAFANA_ADMIN_PASSWORD`) serves dashboards provisioned from
+  [`apps/observability/`](apps/observability/) — dashboards are code, not
+  click-ops:
+  - **Server Health** — tick-time percentiles (the `.server info`
+    distribution, continuous), world-update phase timings, map update
+    times, DB queue depths, WPvP annotations.
+  - **Bot Census** — level histogram by faction, class/race/role splits,
+    engine and activity states, top zones, quest throughput.
+  - **Behavior** — chat sends by destination, broadcast sent-vs-suppressed
+    rolls, WPvP defense-board events and excursion outcomes.
+  - **LLM** — endpoint status, latency percentiles, request/failure and
+    token rates, queue depth, conversation-depth histogram, tool calls.
+  - **Character Inspector** — pick any character: their `felworld_events`
+    timeline, mod-llm memory scratchpad, and recent conversations, live
+    from the characters DB.
+  - **Logs** — full log search across all containers.
+
+Discrete per-character events (WPvP kills/deaths/callouts/excursions, LLM
+tool invocations) are recorded in a `felworld_events` table in the
+characters database via a small core helper (`Felworld::LogEvent`), purged
+after `Felworld.Events.RetentionDays` (default 30; 0 keeps everything).
+Metric and log retention default to 90 days (`OBS_METRICS_RETENTION` /
+`OBS_LOGS_RETENTION`). The metrics/logs stores publish only loopback ports
+for host-side debugging (VMUI on 8428, VictoriaLogs on 9428); Grafana is the
+only LAN-visible surface.
+
 ## Container / infrastructure
 
 Rootless-Podman compatibility, GPU passthrough to vLLM via CDI, module and

@@ -125,7 +125,10 @@ Notes:
   `VLLM_TOOL_PARSER` / `VLLM_REASONING_PARSER` to match the model family,
   and `VLLM_EXTRA_ARGS` for anything else — see `docker-compose.yml`.
 - A bare `docker compose up -d` (no `--env-file`) defaults to bots-on /
-  LLM-off.
+  LLM-off, and skips the observability stack. All three tracked modes start
+  it (`COMPOSE_PROFILES=obs`): Grafana dashboards on port 3000 — server
+  health, bot census/behavior, LLM activity, per-character history, and
+  full log search. See [FEATURES.md](../FEATURES.md#observability).
 - Switching *away* from LLM mode does not stop an already-running `ac-vllm` —
   stop it explicitly with `docker compose --profile llm stop ac-vllm` to
   free VRAM.
@@ -213,6 +216,10 @@ FEATURES.md:
   bots and LLM behaviour live; `.pause` freezes all gameplay while chat
   and GM commands keep working; `.modify xp` sets a per-player XP rate
   multiplier.
+- **Observability** — an optional Grafana + VictoriaMetrics/VictoriaLogs
+  stack (compose profile `obs`) with dashboards for server health, the bot
+  population and its behaviour, LLM activity, per-character event history,
+  and searchable container logs.
 - **Account lookup by character** — `.lookup player character <name>`
   lists every character on the account a character belongs to.
 - **Container/infra** — prebuilt multi-arch images on GHCR, rootless
