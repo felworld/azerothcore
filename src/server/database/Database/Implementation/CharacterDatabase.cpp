@@ -635,6 +635,10 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // world_state
     PrepareStatement(CHAR_SEL_WORLD_STATE, "SELECT Id, Data FROM world_state", CONNECTION_SYNCH);
     PrepareStatement(CHAR_REP_WORLD_STATE, "REPLACE INTO world_state (Id, Data) VALUES(?, ?)", CONNECTION_ASYNC);
+
+    // felworld_events (per-character event history for observability)
+    PrepareStatement(CHAR_INS_FELWORLD_EVENT, "INSERT INTO felworld_events (guid, event_type, details) VALUES (?, ?, ?)", CONNECTION_ASYNC);
+    PrepareStatement(CHAR_DEL_FELWORLD_EVENTS_OLD, "DELETE FROM felworld_events WHERE time < NOW() - INTERVAL ? DAY", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)

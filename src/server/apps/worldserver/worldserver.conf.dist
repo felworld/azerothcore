@@ -561,6 +561,16 @@ LogDB.Opt.ClearInterval = 10
 LogDB.Opt.ClearTime = 1209600
 
 #
+#    Felworld.Events.RetentionDays
+#        Description: Days to keep rows in the characters DB `felworld_events` table
+#                     (per-character event history shown in the observability dashboards).
+#                     Purged on the LogDB.Opt.ClearInterval timer.
+#        Default:     30 - (30 days)
+#                     0  - (Disabled, keep all entries)
+
+Felworld.Events.RetentionDays = 30
+
+#
 #    RecordUpdateTimeDiffInterval
 #        Description: Time (in milliseconds) update time diff is written to the log file.
 #                     Update diff can be used as a performance indicator. Diff < 300: good

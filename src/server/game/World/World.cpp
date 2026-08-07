@@ -45,6 +45,7 @@
 #include "DatabaseEnv.h"
 #include "DisableMgr.h"
 #include "DynamicVisibility.h"
+#include "FelworldEvents.h"
 #include "GameEventMgr.h"
 #include "GameGraveyard.h"
 #include "GameTime.h"
@@ -1205,19 +1206,21 @@ void World::Update(uint32 diff)
     }
 
     /// <li> Clean logs table
-    if (getIntConfig(CONFIG_LOGDB_CLEARTIME) > 0) // if not enabled, ignore the timer
+    if (_timers[WUPDATE_CLEANDB].Passed())
     {
-        if (_timers[WUPDATE_CLEANDB].Passed())
+        METRIC_TIMER("world_update_time", METRIC_TAG("type", "Clean logs table"));
+
+        _timers[WUPDATE_CLEANDB].Reset();
+
+        if (getIntConfig(CONFIG_LOGDB_CLEARTIME) > 0) // if not enabled, keep old entries
         {
-            METRIC_TIMER("world_update_time", METRIC_TAG("type", "Clean logs table"));
-
-            _timers[WUPDATE_CLEANDB].Reset();
-
             LoginDatabasePreparedStatement* stmt = LoginDatabase.GetPreparedStatement(LOGIN_DEL_OLD_LOGS);
             stmt->SetData(0, getIntConfig(CONFIG_LOGDB_CLEARTIME));
             stmt->SetData(1, uint32(currentGameTime.count()));
             LoginDatabase.Execute(stmt);
         }
+
+        Felworld::PurgeOldEvents();
     }
 
     // GM ".pause": all gameplay subsystems are gated here in one place. Sessions (chat,

@@ -310,6 +310,7 @@ void WorldConfig::BuildConfigCache()
     // log db cleanup interval
     SetConfigValue<uint32>(CONFIG_LOGDB_CLEARINTERVAL, "LogDB.Opt.ClearInterval", 10, ConfigValueCache::Reloadable::Yes, [](uint32 const& value) { return value > 0; }, "> 0");
     SetConfigValue<uint32>(CONFIG_LOGDB_CLEARTIME, "LogDB.Opt.ClearTime", 1209600);
+    SetConfigValue<uint32>(CONFIG_FELWORLD_EVENTS_RETENTION_DAYS, "Felworld.Events.RetentionDays", 30);
 
     SetConfigValue<uint32>(CONFIG_MAX_ALLOWED_MMR_DROP, "MaxAllowedMMRDrop", 500);
     SetConfigValue<bool>(CONFIG_ENABLE_LOGIN_AFTER_DC, "EnableLoginAfterDC", true);
