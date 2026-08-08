@@ -374,8 +374,62 @@
           "legendFormat": "{{tool}}"
         }
       ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Exchanges saying \"$phrase\" (dashboard range)",
+      "description": "Full-fidelity exchange trace (mod_llm_trace), filtered to outputs containing the phrase typed in the 'Find utterance' box above (empty shows everything). Saw a bot say something odd in playtesting? Type the phrase here, then inspect the Request cell to read the exact prompt that produced it.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 40 },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Said" },
+            "properties": [
+              { "id": "custom.width", "value": 300 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Request" },
+            "properties": [
+              { "id": "custom.width", "value": 260 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Response" },
+            "properties": [
+              { "id": "custom.width", "value": 260 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT t.time AS Time, c.name AS Bot, t.kind AS Kind, t.trigger_kind AS `Trigger`, t.chain_depth AS Depth, t.status AS Status, t.said AS Said, t.request AS Request, t.response AS Response FROM mod_llm_trace t LEFT JOIN characters c ON c.guid = t.bot_guid WHERE t.said LIKE CONCAT('%', '$phrase', '%') AND $__timeFilter(t.time) ORDER BY t.time DESC LIMIT 100"
+        }
+      ]
     }
   ],
-  "templating": { "list": [] },
+  "templating": {
+    "list": [
+      {
+        "name": "phrase",
+        "label": "Find utterance",
+        "type": "textbox",
+        "query": "",
+        "current": { "text": "", "value": "" },
+        "options": []
+      }
+    ]
+  },
   "annotations": { "list": [] }
 }

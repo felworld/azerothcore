@@ -222,10 +222,13 @@ Felworld deployment a web dashboard on the host's LAN:
   - **Behavior** — chat sends by destination, broadcast sent-vs-suppressed
     rolls, WPvP defense-board events and excursion outcomes.
   - **LLM** — endpoint status, latency percentiles, request/failure and
-    token rates, queue depth, conversation-depth histogram, tool calls.
+    token rates, queue depth, conversation-depth histogram, tool calls,
+    and a *find utterance* search over the full exchange trace: type a
+    phrase a bot said and read the exact prompt that produced it
+    ([details](https://github.com/felworld/mod-llm/blob/main/FEATURES.md#exchange-trace)).
   - **Character Inspector** — pick any character: their `felworld_events`
-    timeline, mod-llm memory scratchpad, and recent conversations, live
-    from the characters DB.
+    timeline, mod-llm memory scratchpad, recent conversations, and recent
+    LLM exchanges (full prompt and response), live from the characters DB.
   - **Logs** — full log search across all containers.
 
 Discrete per-character events (WPvP kills/deaths/callouts/excursions, LLM

@@ -111,6 +111,49 @@
           "rawSql": "SELECT h.created_at AS Time, IF(h.speaker = 1, b.name, p.name) AS Speaker, IF(h.speaker = 1, p.name, b.name) AS `To`, h.message AS Message FROM mod_llm_history_pair h JOIN characters b ON b.guid = h.bot_guid JOIN characters p ON p.guid = h.player_guid WHERE b.name = '$character' OR p.name = '$character' ORDER BY h.id DESC LIMIT 100"
         }
       ]
+    },
+    {
+      "id": 5,
+      "type": "table",
+      "title": "Recent LLM exchanges (mod_llm_trace)",
+      "description": "Every LLM request made for this bot, newest first: the exact prompt sent and the raw response. Hover the Request/Response cells and click the inspect icon to read the full JSON. Retention: LLM.Trace.RetentionDays.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 27 },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "Said" },
+            "properties": [
+              { "id": "custom.width", "value": 300 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Request" },
+            "properties": [
+              { "id": "custom.width", "value": 260 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "Response" },
+            "properties": [
+              { "id": "custom.width", "value": 260 },
+              { "id": "custom.inspect", "value": true }
+            ]
+          }
+        ]
+      },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT t.time AS Time, t.kind AS Kind, t.trigger_kind AS `Trigger`, t.chain_depth AS Depth, t.round AS Round, t.status AS Status, t.latency_ms AS `Latency (ms)`, t.said AS Said, t.request AS Request, t.response AS Response FROM mod_llm_trace t JOIN characters c ON c.guid = t.bot_guid WHERE c.name = '$character' ORDER BY t.id DESC LIMIT 100"
+        }
+      ]
     }
   ],
   "annotations": { "list": [] }
