@@ -63,7 +63,7 @@
     {
       "id": 3,
       "type": "stat",
-      "title": "Completions (1h)",
+      "title": "Completions (15m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 4, "w": 6, "x": 12, "y": 0 },
       "fieldConfig": {
@@ -83,7 +83,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "increase(llm_requests_total_value{result=\"completed\"}[1h])",
+          "expr": "increase(llm_requests_total_value{result=\"completed\"}[15m])",
           "legendFormat": "completed"
         }
       ]
@@ -91,7 +91,7 @@
     {
       "id": 4,
       "type": "stat",
-      "title": "Failures (1h)",
+      "title": "Failures (15m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 4, "w": 6, "x": 18, "y": 0 },
       "fieldConfig": {
@@ -117,7 +117,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "increase(llm_requests_total_value{result=\"failed\"}[1h])",
+          "expr": "increase(llm_requests_total_value{result=\"failed\"}[15m])",
           "legendFormat": "failed"
         }
       ]
@@ -125,7 +125,7 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "Request latency (successful, 15m windows)",
+      "title": "Request latency (successful, 5m windows)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 4 },
       "fieldConfig": {
@@ -152,12 +152,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "quantile_over_time(0.50, llm_request_time_value{status=\"ok\"}[15m])",
+          "expr": "quantile_over_time(0.50, llm_request_time_value{status=\"ok\"}[5m])",
           "legendFormat": "p50"
         },
         {
           "refId": "B",
-          "expr": "quantile_over_time(0.95, llm_request_time_value{status=\"ok\"}[15m])",
+          "expr": "quantile_over_time(0.95, llm_request_time_value{status=\"ok\"}[5m])",
           "legendFormat": "p95"
         }
       ]
@@ -165,7 +165,7 @@
     {
       "id": 6,
       "type": "timeseries",
-      "title": "Requests by status (per 15m)",
+      "title": "Requests by status (per 5m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 4 },
       "fieldConfig": {
@@ -196,7 +196,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (status) (count_over_time(llm_request_time_value[15m]))",
+          "expr": "sum by (status) (count_over_time(llm_request_time_value[5m]))",
           "legendFormat": "{{status}}"
         }
       ]
@@ -204,7 +204,7 @@
     {
       "id": 7,
       "type": "timeseries",
-      "title": "Token usage (per 15m)",
+      "title": "Token usage (per 5m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 13 },
       "fieldConfig": {
@@ -231,7 +231,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (kind) (sum_over_time(llm_tokens_value[15m]))",
+          "expr": "sum by (kind) (sum_over_time(llm_tokens_value[5m]))",
           "legendFormat": "{{kind}}"
         }
       ]
@@ -255,7 +255,7 @@
             "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }]
           },
           {
-            "matcher": { "id": "byName", "options": "dropped (15m)" },
+            "matcher": { "id": "byName", "options": "dropped (5m)" },
             "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#d03b3b" } }]
           }
         ]
@@ -268,8 +268,8 @@
         { "refId": "A", "expr": "llm_queue_size_value", "legendFormat": "queued" },
         {
           "refId": "B",
-          "expr": "count_over_time(llm_dropped_value[15m])",
-          "legendFormat": "dropped (15m)"
+          "expr": "count_over_time(llm_dropped_value[5m])",
+          "legendFormat": "dropped (5m)"
         }
       ]
     },
@@ -344,7 +344,7 @@
     {
       "id": 11,
       "type": "timeseries",
-      "title": "Tool errors by tool (per 30m)",
+      "title": "Tool errors by tool (per 10m)",
       "description": "Identity via the legend table and hover.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 24, "x": 0, "y": 31 },
@@ -370,7 +370,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (tool) (count_over_time(llm_tool_calls_value{outcome=\"error\"}[30m]))",
+          "expr": "sum by (tool) (count_over_time(llm_tool_calls_value{outcome=\"error\"}[10m]))",
           "legendFormat": "{{tool}}"
         }
       ]

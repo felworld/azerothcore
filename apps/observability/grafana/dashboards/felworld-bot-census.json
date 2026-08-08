@@ -377,7 +377,7 @@
     {
       "id": 13,
       "type": "timeseries",
-      "title": "Quests per hour",
+      "title": "Quests (per 15m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 10, "w": 8, "x": 16, "y": 32 },
       "fieldConfig": {
@@ -408,7 +408,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "increase(playerbots_quests_value[1h])",
+          "expr": "increase(playerbots_quests_value[15m])",
           "legendFormat": "{{event}}"
         }
       ]

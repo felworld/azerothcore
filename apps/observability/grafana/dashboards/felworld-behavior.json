@@ -12,7 +12,7 @@
     {
       "id": 1,
       "type": "timeseries",
-      "title": "Bot chat by destination (per 15m)",
+      "title": "Bot chat by destination (per 5m)",
       "description": "Every outbound bot message, counted where it landed: /say, yell, whisper, party, raid, guild, and the public channels. Identity via the legend table and hover.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 24, "x": 0, "y": 0 },
@@ -38,7 +38,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (channel) (count_over_time(playerbots_chat_value[15m]))",
+          "expr": "sum by (channel) (count_over_time(playerbots_chat_value[5m]))",
           "legendFormat": "{{channel}}"
         }
       ]
@@ -46,7 +46,7 @@
     {
       "id": 2,
       "type": "timeseries",
-      "title": "Broadcast rolls: sent vs suppressed (per 15m)",
+      "title": "Broadcast rolls: sent vs suppressed (per 5m)",
       "description": "Sent = broadcasts that passed their channel roll and landed in a public channel or guild chat; suppressed = a message wanted out but every roll failed.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 9 },
@@ -74,12 +74,12 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum(count_over_time(playerbots_chat_value{channel=~\"guild|world|general|trade|lfg|local_defense|world_defense|guild_recruitment\"}[15m]))",
+          "expr": "sum(count_over_time(playerbots_chat_value{channel=~\"guild|world|general|trade|lfg|local_defense|world_defense|guild_recruitment\"}[5m]))",
           "legendFormat": "sent"
         },
         {
           "refId": "B",
-          "expr": "count_over_time(playerbots_broadcast_suppressed_value[15m])",
+          "expr": "count_over_time(playerbots_broadcast_suppressed_value[5m])",
           "legendFormat": "suppressed"
         }
       ]
@@ -87,7 +87,7 @@
     {
       "id": 3,
       "type": "timeseries",
-      "title": "WPvP defense-board events (per 30m)",
+      "title": "WPvP defense-board events (per 10m)",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 9 },
       "fieldConfig": {
@@ -126,7 +126,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (event) (count_over_time(playerbots_wpvp_value[30m]))",
+          "expr": "sum by (event) (count_over_time(playerbots_wpvp_value[10m]))",
           "legendFormat": "{{event}}"
         }
       ]
@@ -134,7 +134,7 @@
     {
       "id": 4,
       "type": "timeseries",
-      "title": "WPvP excursions started (per 1h)",
+      "title": "WPvP excursions started (per 15m)",
       "description": "roll = the bot's own RPG roll sent it raiding; defense = it answered a defense callout.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 0, "y": 18 },
@@ -162,7 +162,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (origin) (count_over_time(playerbots_wpvp_excursion_start_value[1h]))",
+          "expr": "sum by (origin) (count_over_time(playerbots_wpvp_excursion_start_value[15m]))",
           "legendFormat": "{{origin}}"
         }
       ]
@@ -170,7 +170,7 @@
     {
       "id": 5,
       "type": "timeseries",
-      "title": "WPvP excursions ended, by outcome (per 1h)",
+      "title": "WPvP excursions ended, by outcome (per 15m)",
       "description": "Identity via the legend table and hover.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
       "gridPos": { "h": 9, "w": 12, "x": 12, "y": 18 },
@@ -196,7 +196,7 @@
       "targets": [
         {
           "refId": "A",
-          "expr": "sum by (outcome) (count_over_time(playerbots_wpvp_excursion_value[1h]))",
+          "expr": "sum by (outcome) (count_over_time(playerbots_wpvp_excursion_value[15m]))",
           "legendFormat": "{{outcome}}"
         }
       ]
