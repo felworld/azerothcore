@@ -347,7 +347,7 @@
       "title": "Tool errors by tool (per 10m)",
       "description": "Identity via the legend table and hover.",
       "datasource": { "type": "prometheus", "uid": "victoriametrics" },
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 31 },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 31 },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -372,6 +372,40 @@
           "refId": "A",
           "expr": "sum by (tool) (count_over_time(llm_tool_calls_value{outcome=\"error\"}[10m]))",
           "legendFormat": "{{tool}}"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "timeseries",
+      "title": "Chat routing decisions (per 5m)",
+      "description": "One point per real-player message: how it was routed toward bots and what came of it. 'no_candidates' means nobody eligible heard it; 'router_silent' means the router chose to answer with nobody. Pair with the module.llm 'Route ...' log lines for the per-message story (felworld/mod-llm#37).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 31 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 1, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "right",
+          "showLegend": true,
+          "calcs": ["mean", "max"],
+          "sortBy": "Mean",
+          "sortDesc": true
+        },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (trigger, outcome) (count_over_time(llm_route_value[5m]))",
+          "legendFormat": "{{trigger}} {{outcome}}"
         }
       ]
     },
