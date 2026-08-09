@@ -216,7 +216,7 @@ Felworld deployment a web dashboard on the host's LAN:
   click-ops:
   - **Server Health** — tick-time percentiles (the `.server info`
     distribution, continuous), world-update phase timings, map update
-    times, DB queue depths, WPvP annotations.
+    times, DB queue depths, WPvP callout annotations.
   - **Bot Census** — level histogram by faction, class/race/role splits,
     engine and activity states, top zones, quest throughput.
   - **Behavior** — chat sends by destination, broadcast sent-vs-suppressed

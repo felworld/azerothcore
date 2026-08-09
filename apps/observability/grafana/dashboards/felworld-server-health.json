@@ -278,7 +278,7 @@
         "target": {
           "format": "table",
           "rawQuery": true,
-          "rawSql": "SELECT UNIX_TIMESTAMP(e.time) * 1000 AS time, CONCAT(COALESCE(c.name, 'unknown'), ': ', e.event_type) AS text FROM felworld_events e LEFT JOIN characters c ON c.guid = e.guid WHERE e.event_type IN ('wpvp_callout', 'wpvp_excursion_start') AND $__timeFilter(e.time)"
+          "rawSql": "SELECT UNIX_TIMESTAMP(e.time) * 1000 AS time, CONCAT(COALESCE(c.name, 'unknown'), ': ', e.event_type) AS text FROM felworld_events e LEFT JOIN characters c ON c.guid = e.guid WHERE e.event_type = 'wpvp_callout' AND $__timeFilter(e.time)"
         }
       }
     ]
