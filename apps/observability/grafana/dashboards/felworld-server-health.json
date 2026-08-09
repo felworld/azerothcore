@@ -264,6 +264,69 @@
         { "refId": "B", "expr": "db_queue_character_value", "legendFormat": "characters" },
         { "refId": "C", "expr": "db_queue_world_value", "legendFormat": "world" }
       ]
+    },
+    {
+      "id": 9,
+      "type": "timeseries",
+      "title": "Logins and logouts (per 15m)",
+      "description": "Session churn: character logins/logouts, bots and real players separately (player_session_events).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 32 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "sum by (event, who) (count_over_time(player_session_events_value[15m]))",
+          "legendFormat": "{{who}} {{event}}"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "timeseries",
+      "title": "Worldserver warnings and errors",
+      "description": "WARN/ERROR/FATAL log lines from the worldserver container, bucketed by the panel step (VictoriaLogs stats query). The Logs dashboard has the lines themselves.",
+      "datasource": { "type": "victoriametrics-logs-datasource", "uid": "victorialogs" },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 32 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 20, "showPoints": "never" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "WARN" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#fab219" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "ERROR" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#d03b3b" } }]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "container_name:ac-worldserver AND severity:(WARN OR ERROR OR FATAL) | stats by (severity) count() rows",
+          "queryType": "statsRange"
+        }
+      ]
     }
   ],
   "templating": { "list": [] },

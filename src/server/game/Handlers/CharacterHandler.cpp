@@ -1125,6 +1125,10 @@ void WorldSession::HandlePlayerLoginFromDB(LoginQueryHolder const& holder)
     }
 
     METRIC_EVENT("player_events", "Login", pCurrChar->GetName());
+    // The string event above is not ingestible by a numeric TSDB; this
+    // counter is what the dashboards read.
+    METRIC_VALUE("player_session_events", 1, METRIC_TAG("event", "login"),
+                 METRIC_TAG("who", IsBot() ? "bot" : "player"));
 }
 
 void WorldSession::HandlePlayerLoginToCharInWorld(Player* pCurrChar)

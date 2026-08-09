@@ -871,6 +871,10 @@ void WorldSession::LogoutPlayer(bool save)
         sScriptMgr->OnPlayerLogout(_player);
 
         METRIC_EVENT("player_events", "Logout", _player->GetName());
+        // The string event above is not ingestible by a numeric TSDB; this
+        // counter is what the dashboards read.
+        METRIC_VALUE("player_session_events", 1, METRIC_TAG("event", "logout"),
+                     METRIC_TAG("who", IsBot() ? "bot" : "player"));
 
         LOG_INFO("entities.player", "Account: {} (IP: {}) Logout Character:[{}] ({}) Level: {}",
             GetAccountId(), GetRemoteAddress(), _player->GetName(), _player->GetGUID().ToString(), _player->GetLevel());

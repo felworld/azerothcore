@@ -1,0 +1,358 @@
+{
+  "uid": "felworld-economy",
+  "title": "Economy",
+  "tags": ["felworld"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "1m",
+  "time": { "from": "now-6h", "to": "now" },
+  "editable": true,
+  "graphTooltip": 1,
+  "panels": [
+    {
+      "id": 1,
+      "type": "stat",
+      "title": "Characters",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS characters FROM characters"
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "type": "stat",
+      "title": "Total gold",
+      "description": "Sum across every character, in gold.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 4, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#e5b636" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#e5b636", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT ROUND(SUM(money) / 10000) AS gold FROM characters"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "type": "stat",
+      "title": "Auctions live",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 8, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS auctions FROM auctionhouse"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "type": "stat",
+      "title": "Mail in transit",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 12, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS mail FROM mail"
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "type": "stat",
+      "title": "Guilds",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 16, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS guilds FROM guild"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "stat",
+      "title": "Parties and raids",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 4, "w": 4, "x": 20, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "graphMode": "none",
+        "colorMode": "value",
+        "textMode": "value"
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COUNT(*) AS grps FROM `groups`"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "type": "timeseries",
+      "title": "Bot gold by faction",
+      "description": "Total gold held by the random-bot population, from the 300s census (playerbots_gold).",
+      "datasource": { "type": "prometheus", "uid": "victoriametrics" },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0, "showPoints": "never" }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "alliance" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#3987e5" } }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "horde" },
+            "properties": [{ "id": "color", "value": { "mode": "fixed", "fixedColor": "#d03b3b" } }]
+          }
+        ]
+      },
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "expr": "playerbots_gold_value / 10000",
+          "legendFormat": "{{faction}}"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "type": "bargauge",
+      "title": "Auctions by house",
+      "description": "Live listings per auction house.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 9, "w": 6, "x": 12, "y": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": { "mode": "fixed", "fixedColor": "#3987e5" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#3987e5", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE houseid WHEN 2 THEN 'Alliance' WHEN 6 THEN 'Horde' WHEN 7 THEN 'Neutral' ELSE CONCAT('house ', houseid) END AS house, COUNT(*) AS auctions FROM auctionhouse GROUP BY houseid"
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "type": "bargauge",
+      "title": "Average gold by level bracket",
+      "description": "How wealth scales with level across all characters.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 9, "w": 6, "x": 18, "y": 4 },
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0,
+          "color": { "mode": "fixed", "fixedColor": "#e5b636" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "#e5b636", "value": null }] }
+        },
+        "overrides": []
+      },
+      "options": {
+        "displayMode": "basic",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": true },
+        "showUnfilled": true
+      },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT CASE WHEN level >= 80 THEN '80' ELSE CONCAT(LPAD(FLOOR(level / 10) * 10, 2, '0'), '-', LPAD(FLOOR(level / 10) * 10 + 9, 2, '0')) END AS bracket, ROUND(AVG(money) / 10000, 1) AS avg_gold FROM characters GROUP BY bracket ORDER BY bracket"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "type": "table",
+      "title": "Top listed items",
+      "description": "Most-listed items on the auction houses right now, with the cheapest per-unit buyout.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 11, "w": 12, "x": 0, "y": 13 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT it.name AS Item, COUNT(*) AS Listings, SUM(ii.count) AS Qty, ROUND(MIN(NULLIF(ah.buyoutprice, 0) / ii.count) / 10000, 2) AS `Min buyout (g)` FROM auctionhouse ah JOIN item_instance ii ON ii.guid = ah.itemguid JOIN acore_world.item_template it ON it.entry = ii.itemEntry GROUP BY it.entry, it.name ORDER BY Listings DESC LIMIT 15"
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "type": "table",
+      "title": "Richest characters",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 11, "w": 12, "x": 12, "y": 13 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT c.name AS Name, c.level AS Level, ROUND(c.money / 10000) AS Gold FROM characters c ORDER BY c.money DESC LIMIT 15"
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "type": "table",
+      "title": "Largest guilds",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 10, "w": 12, "x": 0, "y": 24 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT g.name AS Guild, COUNT(*) AS Members FROM guild g JOIN guild_member gm ON gm.guildid = g.guildid GROUP BY g.guildid, g.name ORDER BY Members DESC LIMIT 15"
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "type": "table",
+      "title": "Newest listings",
+      "description": "Most recently posted auctions (freshest expiry times), with the seller.",
+      "datasource": { "type": "mysql", "uid": "characters-db" },
+      "gridPos": { "h": 10, "w": 12, "x": 12, "y": 24 },
+      "fieldConfig": { "defaults": {}, "overrides": [] },
+      "options": { "showHeader": true, "cellHeight": "sm" },
+      "targets": [
+        {
+          "refId": "A",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT it.name AS Item, c.name AS Seller, ROUND(ah.buyoutprice / 10000, 2) AS `Buyout (g)`, FROM_UNIXTIME(ah.time) AS Expires FROM auctionhouse ah JOIN item_instance ii ON ii.guid = ah.itemguid JOIN acore_world.item_template it ON it.entry = ii.itemEntry LEFT JOIN characters c ON c.guid = ah.itemowner ORDER BY ah.time DESC LIMIT 15"
+        }
+      ]
+    }
+  ],
+  "templating": { "list": [] },
+  "annotations": { "list": [] }
+}

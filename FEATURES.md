@@ -216,11 +216,18 @@ Felworld deployment a web dashboard on the host's LAN:
   click-ops:
   - **Server Health** — tick-time percentiles (the `.server info`
     distribution, continuous), world-update phase timings, map update
-    times, DB queue depths, WPvP callout annotations.
+    times, DB queue depths, login/logout churn, worldserver warn/error
+    log rate, WPvP callout annotations.
   - **Bot Census** — level histogram by faction, class/race/role splits,
-    engine and activity states, top zones, quest throughput.
+    engine and activity states, top zones, quest throughput, deaths (by
+    world/BG/arena context, plus a deadliest-zones ranking), level-ups.
   - **Behavior** — chat sends by destination, broadcast sent-vs-suppressed
-    rolls, WPvP defense-board events and excursion outcomes.
+    rolls, WPvP defense-board events and excursion outcomes, battleground
+    matches and wins by faction.
+  - **Economy** — total and per-faction bot gold, wealth by level
+    bracket, richest characters, live auction-house listings (per house,
+    top items, newest posts), mail in transit, guild and party counts —
+    straight from the characters DB plus the census gold series.
   - **LLM** — endpoint status, latency percentiles, request/failure and
     token rates, queue depth, conversation-depth histogram, tool calls,
     and a *find utterance* search over the full exchange trace: type a
@@ -231,8 +238,9 @@ Felworld deployment a web dashboard on the host's LAN:
     LLM exchanges (full prompt and response), live from the characters DB.
   - **Logs** — full log search across all containers.
 
-Discrete per-character events (WPvP kills/deaths/callouts/excursions, LLM
-tool invocations) are recorded in a `felworld_events` table in the
+Discrete per-character events (WPvP kills/deaths/callouts/excursions,
+deaths, level-ups, LLM tool invocations) are recorded in a
+`felworld_events` table in the
 characters database via a small core helper (`Felworld::LogEvent`), purged
 after `Felworld.Events.RetentionDays` (default 30; 0 keeps everything).
 Metric and log retention default to 90 days (`OBS_METRICS_RETENTION` /
