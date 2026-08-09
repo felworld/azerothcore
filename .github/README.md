@@ -201,7 +201,9 @@ FEATURES.md:
   defenders, stealthy approaches, incoming callouts.
 - **World PvP** — bots travel to enemy towns to lurk and pick fights;
   defenders call out and hunt gankers, and beaten gankers pull
-  reinforcements — real players included, on both ends.
+  reinforcements — real players included, on both ends. Fights feel
+  human: bots give up on chasing a target that cleanly escapes, and
+  switch to fresh threats instead of tunneling on their first pick.
 - **Social behaviours** — bots rescue strangers about to die, buff
   passers-by, group up over quest-spawn competition, and end emote
   exchanges instead of looping them.
