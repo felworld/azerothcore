@@ -61,8 +61,13 @@ When landing a user-visible change — gameplay/QOL option, GM command, compose/
 ## Agent rules
 
 - **Do not configure or build unless explicitly asked.** Builds are slow (CMake + compile of a large C++ codebase) and rarely needed to make code changes.
+- **Discuss design questions before implementing.** When the user poses a design question or proposal ("what do you think?", "an alternative idea…"), answer with a recommendation and trade-offs and wait for agreement — don't jump to implementation, builds, or commits. The commit-after-change rule below applies to agreed work, not to drafts produced mid-discussion.
 - **Never edit SQL files outside `data/sql/updates/pending_db_*/`.** `data/sql/base/`, `data/sql/archive/`, and `data/sql/updates/db_*/` are immutable (do not modify).
 - **Commit after every completed change, without being asked.** Don't wait for a running build/test to finish — commit as soon as the change is done; if the build later fails, fix forward with a follow-up commit. `modules/*` and `env/dist/etc` are git submodules with their own history: commit inside the submodule, then bump the pointer in the parent repo as a separate commit (both commit directly to `main`). Stage only the files you changed — never sweep in unrelated dirty files; if a pointer bump would pull in earlier submodule commits you didn't author, flag it and let the user decide. **Push only when asked.**
+- **Close issues from commit messages.** When a commit resolves a GitHub issue, add one line per issue in the commit body: `Fixes <owner>/<repo>#<n>`. The keyword must directly precede each reference — prose like "fixes a family of bugs (#12, #13)" does not match GitHub's auto-close syntax. Use the full `owner/repo#n` form when committing in a submodule whose issues live in another repo; bare `#n` only works within the same repo.
+- **Read GitHub issues/PRs with `gh`** (`gh issue view` / `gh pr view`, add `--comments` when needed), not WebFetch — the rendered-page fetch costs far more tokens for the same content.
+- **Track in-flight work on the GitHub issue, not in notes or agent memory.** Post findings and status on the issue via `gh`; reserve memory for durable preferences, workflows, and environment facts.
+- **Run long-running commands (builds, etc.) bare** — no `| tail` / `| head` pipes, which buffer the output so nothing is visible until the command finishes; the user follows the live output. If only the end matters, tail the output file after completion.
 
 ## Build
 
