@@ -242,6 +242,7 @@ public: /* CreatureScript */
     void OnCreatureAddWorld(Creature* creature);
     void OnCreatureRemoveWorld(Creature* creature);
     void OnFfaPvpStateUpdate(Creature* creature, bool InPvp);
+    void OnZoneUnderAttack(Creature* creature, Player* attacker);
 
 public: /* GameObjectScript */
     bool OnGossipHello(Player* player, GameObject* go);

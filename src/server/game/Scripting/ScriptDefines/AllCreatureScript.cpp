@@ -65,6 +65,17 @@ void ScriptMgr::OnCreatureSelectLevel(CreatureTemplate const* cinfo, Creature* c
     });
 }
 
+void ScriptMgr::OnZoneUnderAttack(Creature* creature, Player* attacker)
+{
+    ASSERT(creature);
+    ASSERT(attacker);
+
+    ExecuteScript<AllCreatureScript>([&](AllCreatureScript* script)
+    {
+        script->OnZoneUnderAttack(creature, attacker);
+    });
+}
+
 //bool ScriptMgr::CanCreatureSendListInventory(Player* player, Creature* creature, uint32 vendorEntry)
 //{
 //    auto ret = IsValidBoolScript<AllCreatureScript>([&](AllCreatureScript* script)

@@ -102,6 +102,15 @@ public:
 
     //Called Whenever the UNIT_BYTE2_FLAG_FFA_PVP Bit is set on the creature
     virtual void OnFfaPvpStateUpdate(Creature* /*creature*/, bool /*InPvp*/) {}
+
+    /**
+     * @brief This hook runs when a creature broadcasts the zone-under-attack defense
+     * message (guard death, SMART_ACTION_ZONE_UNDER_ATTACK)
+     *
+     * @param creature The creature whose attack triggered the broadcast
+     * @param attacker The player (or pet owner) responsible
+     */
+    virtual void OnZoneUnderAttack(Creature* /*creature*/, Player* /*attacker*/) { }
 };
 
 #endif
