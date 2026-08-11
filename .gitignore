@@ -63,6 +63,7 @@ CMakeLists.txt.user
 # Claude
 #
 .claude/worktrees
+.claude/settings.json
 .claude/settings.local.json
 .claude/plans/**
 
