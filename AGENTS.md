@@ -60,7 +60,7 @@ When landing a user-visible change — gameplay/QOL option, GM command, compose/
 
 ## Agent rules
 
-- **Do not configure or build unless explicitly asked.** Builds are slow (CMake + compile of a large C++ codebase) and rarely needed to make code changes.
+- **Always build after completing code changes** with `docker compose build` (see Build section) — containerized only, never native cmake/make. Commit first (per the rule below), then build; if the build fails, fix forward with a follow-up commit.
 - **Discuss design questions before implementing.** When the user poses a design question or proposal ("what do you think?", "an alternative idea…"), answer with a recommendation and trade-offs and wait for agreement — don't jump to implementation, builds, or commits. The commit-after-change rule below applies to agreed work, not to drafts produced mid-discussion.
 - **Never edit SQL files outside `data/sql/updates/pending_db_*/`.** `data/sql/base/`, `data/sql/archive/`, and `data/sql/updates/db_*/` are immutable (do not modify).
 - **Commit after every completed change, without being asked.** Don't wait for a running build/test to finish — commit as soon as the change is done; if the build later fails, fix forward with a follow-up commit. `modules/*` and `env/dist/etc` are git submodules with their own history: commit inside the submodule, then bump the pointer in the parent repo as a separate commit (both commit directly to `main`). Stage only the files you changed — never sweep in unrelated dirty files; if a pointer bump would pull in earlier submodule commits you didn't author, flag it and let the user decide. **Push only when asked.**
