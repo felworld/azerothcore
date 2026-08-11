@@ -23,6 +23,9 @@ where noted:
   [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#corpse-run-pacing)
   uses it so bot corpse runs can be paced separately from human ones. Our
   configs double it for humans and cancel that back out for bots.
+- `Death.CorpseReclaimDelay.Steps` — the three escalating corpse reclaim
+  delays for deaths in quick succession, hardcoded upstream as 30/60/120
+  seconds. Our configs halve them to 15/30/60 so death chains sting less.
 
 ## Login and logout announcements
 

@@ -2214,6 +2214,7 @@ public:
 
     [[nodiscard]] uint32 GetDeathTimer() const { return m_deathTimer; }
     [[nodiscard]] uint32 GetCorpseReclaimDelay(bool pvp) const;
+    static void LoadCorpseReclaimDelaySteps();
     void UpdateCorpseReclaimDelay();
     int32 CalculateCorpseReclaimDelay(bool load = false);
     void SendCorpseReclaimDelay(uint32 delay);

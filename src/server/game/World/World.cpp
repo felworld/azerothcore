@@ -193,6 +193,8 @@ void World::LoadConfigSettings(bool reload)
 
     _worldConfig.Initialize(reload);
 
+    Player::LoadCorpseReclaimDelaySteps();
+
     for (uint8 i = 0; i < MAX_MOVE_TYPE; ++i)
         playerBaseMoveSpeed[i] = baseMoveSpeed[i] * getRate(RATE_MOVESPEED_PLAYER);
 

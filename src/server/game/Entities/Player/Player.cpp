@@ -13230,6 +13230,33 @@ void Player::SetMover(Unit* target)
         m_mover->GetMotionMaster()->Initialize();
 }
 
+void Player::LoadCorpseReclaimDelaySteps()
+{
+    std::string const steps = sConfigMgr->GetOption<std::string>("Death.CorpseReclaimDelay.Steps", "30 60 120");
+    std::vector<std::string_view> const tokens = Acore::Tokenize(steps, ' ', false);
+
+    if (tokens.size() != MAX_DEATH_COUNT)
+    {
+        LOG_ERROR("server.loading", "Death.CorpseReclaimDelay.Steps (\"{}\") must contain exactly {} values, keeping current values.", steps, MAX_DEATH_COUNT);
+        return;
+    }
+
+    uint32 parsed[MAX_DEATH_COUNT];
+    for (std::size_t i = 0; i < MAX_DEATH_COUNT; ++i)
+    {
+        Optional<uint32> value = Acore::StringTo<uint32>(tokens[i]);
+        if (!value)
+        {
+            LOG_ERROR("server.loading", "Death.CorpseReclaimDelay.Steps (\"{}\") contains non-numeric value \"{}\", keeping current values.", steps, tokens[i]);
+            return;
+        }
+
+        parsed[i] = *value;
+    }
+
+    std::copy(std::begin(parsed), std::end(parsed), std::begin(copseReclaimDelay));
+}
+
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const
 {
     if (pvp)

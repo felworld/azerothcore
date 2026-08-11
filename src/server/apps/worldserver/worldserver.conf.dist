@@ -2796,6 +2796,15 @@ Death.CorpseReclaimDelay.PvP = 1
 Death.CorpseReclaimDelay.PvE = 1
 
 #
+#    Death.CorpseReclaimDelay.Steps
+#        Description: Corpse reclaim delays in seconds, escalating one step per death in quick
+#                     succession (the escalation decays one step per 5 minutes alive).
+#                     Exactly three space-separated values.
+#        Default:     "30 60 120"
+
+Death.CorpseReclaimDelay.Steps = "30 60 120"
+
+#
 #    Death.Bones.World
 #    Death.Bones.BattlegroundOrArena
 #        Description: Create bones instead of corpses at resurrection in normal zones, instances,
