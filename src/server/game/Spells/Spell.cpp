@@ -1653,6 +1653,20 @@ void Spell::SelectImplicitCasterDestTargets(SpellEffIndex effIndex, SpellImplici
                         // we have correct destz now
                     }
 
+                    // Every height probe above can come back empty-handed
+                    // (INVALID_HEIGHT / VMAP_INVALID_HEIGHT_VALUE) - e.g. a
+                    // leap cut short against a wall whose foot has no mapped
+                    // ground within the probes' search range. Such a "height"
+                    // is 100k+ yards below the world and TeleportTo would
+                    // reject the destination outright; land the leap in
+                    // place instead.
+                    if (destz <= INVALID_HEIGHT)
+                    {
+                        destx = startx;
+                        desty = starty;
+                        destz = startz;
+                    }
+
                     lastpos.Relocate(destx, desty, destz, pos.GetOrientation());
                     dest = SpellDestination(lastpos);
                 }
