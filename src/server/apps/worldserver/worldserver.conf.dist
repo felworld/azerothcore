@@ -2786,6 +2786,16 @@ DurabilityLossChance.Block = 0.05
 Death.SicknessLevel = 11
 
 #
+#    Death.SicknessRealPlayers
+#        Description: Apply resurrection sickness to real (human) players when resurrecting at a
+#                     spirit healer. Playerbots always follow Death.SicknessLevel regardless of
+#                     this setting.
+#        Default:     1 - (Enabled)
+#                     0 - (Disabled, only bots receive resurrection sickness)
+
+Death.SicknessRealPlayers = 1
+
+#
 #    Death.CorpseReclaimDelay.PvP
 #    Death.CorpseReclaimDelay.PvE
 #        Description: Increase corpse reclaim delay at PvP/PvE deaths.

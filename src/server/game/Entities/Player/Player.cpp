@@ -4609,6 +4609,12 @@ void Player::ResurrectPlayer(float restore_percent, bool applySickness)
         return;
     }
 
+    // resurrection sickness can be limited to bots, sparing real players
+    if (!sWorld->getBoolConfig(CONFIG_DEATH_SICKNESS_REAL_PLAYERS) && !GetSession()->IsBot())
+    {
+        return;
+    }
+
     //Characters from level 1-10 are not affected by resurrection sickness.
     //Characters from level 11-19 will suffer from one minute of sickness
     //for each level they are above 10.

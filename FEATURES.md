@@ -26,6 +26,10 @@ where noted:
 - `Death.CorpseReclaimDelay.Steps` — the three escalating corpse reclaim
   delays for deaths in quick succession, hardcoded upstream as 30/60/120
   seconds. Our configs halve them to 15/30/60 so death chains sting less.
+- `Death.SicknessRealPlayers` — set to `0` to spare real (human) players
+  the resurrection sickness debuff at spirit healers; playerbots still
+  follow `Death.SicknessLevel`, so instant bot rezzes keep their cost. Our
+  configs disable it for humans.
 
 ## Login and logout announcements
 

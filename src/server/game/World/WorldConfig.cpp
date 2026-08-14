@@ -419,6 +419,7 @@ void WorldConfig::BuildConfigCache()
     SetConfigValue<uint32>(CONFIG_CORPSE_DECAY_WORLDBOSS, "Corpse.Decay.WORLDBOSS", 3600);
 
     SetConfigValue<uint32>(CONFIG_DEATH_SICKNESS_LEVEL, "Death.SicknessLevel", 11);
+    SetConfigValue<bool>(CONFIG_DEATH_SICKNESS_REAL_PLAYERS, "Death.SicknessRealPlayers", true);
     SetConfigValue<bool>(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVP, "Death.CorpseReclaimDelay.PvP", true);
     SetConfigValue<bool>(CONFIG_DEATH_CORPSE_RECLAIM_DELAY_PVE, "Death.CorpseReclaimDelay.PvE", true);
     SetConfigValue<bool>(CONFIG_DEATH_BONES_WORLD, "Death.Bones.World", true);
