@@ -147,6 +147,11 @@ void ScriptMgr::OnPlayerGhostSpeedRate(Player* player, float& rate)
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_GHOST_SPEED_RATE, script->OnPlayerGhostSpeedRate(player, rate));
 }
 
+void ScriptMgr::OnPlayerResurrectSicknessLevel(Player* player, int32& startLevel)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_RESURRECT_SICKNESS_LEVEL, script->OnPlayerResurrectSicknessLevel(player, startLevel));
+}
+
 bool ScriptMgr::OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
 {
     CALL_ENABLED_BOOLEAN_HOOKS(PlayerScript, PLAYERHOOK_ON_REPUTATION_CHANGE, !script->OnPlayerReputationChange(player, factionID, standing, incremental));

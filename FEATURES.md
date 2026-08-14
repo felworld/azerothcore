@@ -26,10 +26,12 @@ where noted:
 - `Death.CorpseReclaimDelay.Steps` — the three escalating corpse reclaim
   delays for deaths in quick succession, hardcoded upstream as 30/60/120
   seconds. Our configs halve them to 15/30/60 so death chains sting less.
-- `Death.SicknessRealPlayers` — set to `0` to spare real (human) players
-  the resurrection sickness debuff at spirit healers; playerbots still
-  follow `Death.SicknessLevel`, so instant bot rezzes keep their cost. Our
-  configs disable it for humans.
+- Per-player resurrection sickness — a module hook to adjust the
+  `Death.SicknessLevel` threshold per player —
+  [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#resurrection-sickness-for-bots)
+  uses it to give bots their own threshold. Our configs disable sickness
+  server-wide and restore it for bots, so humans skip the debuff while
+  instant bot rezzes keep their cost.
 
 ## Login and logout announcements
 

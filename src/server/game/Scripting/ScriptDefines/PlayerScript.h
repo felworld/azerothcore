@@ -222,6 +222,7 @@ enum PlayerHook
     PLAYERHOOK_ON_LEARN_TAXI_NODE,
     PLAYERHOOK_ON_BEFORE_GET_LEVEL_FOR_XP_GAIN,
     PLAYERHOOK_ON_GHOST_SPEED_RATE,
+    PLAYERHOOK_ON_RESURRECT_SICKNESS_LEVEL,
     PLAYERHOOK_END
 };
 
@@ -298,6 +299,9 @@ public:
 
     // Called when the movement speed rate of a dead ghost (corpse run) is computed, after Rate.MoveSpeed.Ghost is applied
     virtual void OnPlayerGhostSpeedRate(Player* /*player*/, float& /*rate*/) { }
+
+    // Called when the resurrection sickness starting level is computed, after Death.SicknessLevel is applied
+    virtual void OnPlayerResurrectSicknessLevel(Player* /*player*/, int32& /*startLevel*/) { }
 
     // Called when a player's reputation changes (before it is actually changed)
     virtual bool OnPlayerReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { return true; }
