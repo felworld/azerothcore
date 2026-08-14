@@ -22,11 +22,10 @@ where noted:
 - `Rate.MoveSpeed.Ghost` — movement speed rate for dead player ghosts
   (corpse runs), with a module hook to adjust it per player —
   [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#corpse-run-pacing)
-  uses it so bot corpse runs can be paced separately from human ones. Our
-  configs double it for humans and cancel that back out for bots.
+  uses it so bot corpse runs can be paced separately from human ones.
 - `Death.CorpseReclaimDelay.Steps` — the three escalating corpse reclaim
   delays for deaths in quick succession, hardcoded upstream as 30/60/120
-  seconds. Our configs halve them to 15/30/60 so death chains sting less.
+  seconds. Our configs shorten them so death chains sting less.
 - Per-player resurrection sickness — a module hook to adjust the
   `Death.SicknessLevel` threshold per player —
   [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#resurrection-sickness-for-bots)
@@ -49,7 +48,7 @@ editable in the world DB.
 Bot sessions are never announced — with 1500+ playerbots rotating in and out
 the channel would be nothing but login spam, so only real client sessions
 count. That makes this a "who else is actually here" signal rather than a
-population ticker. Default `0` upstream, `1` in
+population ticker. Off by default upstream, enabled in
 [our configs](https://github.com/felworld/configs).
 
 ## Joinable WorldDefense channel
