@@ -2575,6 +2575,16 @@ Rate.XP.BattlegroundKillSOTA = 1
 Rate.XP.BattlegroundKillIC   = 1
 
 #
+#    Rate.XP.WorldPvPKill
+#        Description: Experience rate for player kills in the open world (outside
+#                     battlegrounds and arenas). Stacks with Rate.XP.Kill; kills of
+#                     gray-level players give no experience.
+#        Default:     0 - (Disabled)
+#                     1 - (Same experience as a battleground kill)
+
+Rate.XP.WorldPvPKill = 0
+
+#
 #    Rate.XP.BattlegroundBonus
 #        Description: Experience rate multiplier for battleground objectives (flag captures, base assaults, etc.).
 #        Default:     1
@@ -3957,17 +3967,6 @@ Battleground.PremadeGroupWaitForMatch = 1800000
 #                     1 - (Enabled)
 
 Battleground.GiveXPForKills = 0
-
-#
-#    WorldPvP.GiveXPForKills
-#        Description: Give experience for player kills in the open world (outside
-#                     battlegrounds and arenas), like Battleground.GiveXPForKills does
-#                     for battlegrounds. Affected by Rate.XP.Kill; kills of gray-level
-#                     players give no experience.
-#        Default:     0 - (Disabled)
-#                     1 - (Enabled)
-
-WorldPvP.GiveXPForKills = 0
 
 #
 #    Battleground.Random.ResetHour

@@ -79,12 +79,12 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
     else if (victim->GetCharmerOrOwnerGUID().IsPlayer())
         _isPvP = !victim->IsVehicle();
 
-    // WorldPvP.GiveXPForKills: player kills in the open world reward XP like battleground
+    // Rate.XP.WorldPvPKill: player kills in the open world reward XP like battleground
     // kills do. Killer must not be on a battleground/arena map - those kills reach this
     // rewarder too (with isBattleGround = false), and battlegrounds already reward XP
     // through their own Battleground::RewardXPAtKill call.
     _isWorldPvPXP = !_isBattleGround && victim->IsPlayer() && !killer->InBattleground()
-        && sWorld->getBoolConfig(CONFIG_WORLD_PVP_XP_FOR_KILL);
+        && sWorld->getRate(RATE_XP_WORLD_PVP_KILL) > 0.0f;
 
     _InitGroupData();
 }
@@ -143,6 +143,9 @@ uint32 KillRewarder::_CalculateXP(Player* player)
 {
     uint32 xp = Acore::XP::Gain(player, _victim, _isBattleGround);
 
+    if (_isWorldPvPXP)
+        xp = uint32(xp * sWorld->getRate(RATE_XP_WORLD_PVP_KILL));
+
     if (xp && !_isBattleGround && _victim) // pussywizard: npcs with relatively low hp give lower exp
         if (_victim->IsCreature())
             if (CreatureTemplate const* ct = _victim->ToCreature()->GetCreatureTemplate())
@@ -157,7 +160,7 @@ void KillRewarder::_InitXP(Player* player)
     // Get initial value of XP for kill.
     // XP is given:
     // * on battlegrounds;
-    // * for world PvP kills, if WorldPvP.GiveXPForKills is enabled;
+    // * for world PvP kills, if Rate.XP.WorldPvPKill is above zero;
     // * otherwise, not in PvP;
     // * not if killer is on vehicle.
     if (_victim && (_isBattleGround || _isWorldPvPXP || (!_isPvP && !_killer->GetVehicle())))
