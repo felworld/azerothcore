@@ -112,6 +112,9 @@ void PlayerbotsDatabaseConnection::DoPrepareStatements()
             "scale_16, scale_17, scale_18, scale_19, scale_20, scale_21, scale_22, scale_23, scale_24, scale_25, scale_26, scale_27, scale_28, scale_29, scale_30, scale_31, scale_32) "
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(PLAYERBOTS_DEL_EQUIP_CACHE_NEW, "DELETE FROM playerbots_item_info_cache WHERE id = ?", CONNECTION_ASYNC);
+
+    PrepareStatement(PLAYERBOTS_SEL_WPVP_VENDETTA, "SELECT victim_guid, killer_guid, ganks, camps, last_gank_at, settled FROM playerbots_wpvp_vendetta", CONNECTION_SYNCH);
+    PrepareStatement(PLAYERBOTS_REP_WPVP_VENDETTA, "REPLACE INTO playerbots_wpvp_vendetta (victim_guid, killer_guid, ganks, camps, last_gank_at, settled) VALUES (?, ?, ?, ?, ?, ?)", CONNECTION_ASYNC);
 }
 
 PlayerbotsDatabaseConnection::PlayerbotsDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
