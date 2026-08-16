@@ -60,6 +60,11 @@ CMakeLists.txt.user
 *.LOCAL.*
 
 #
+# Agents
+#
+.agents/plans/**
+
+#
 # Claude
 #
 .claude/worktrees

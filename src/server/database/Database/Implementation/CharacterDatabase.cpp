@@ -639,6 +639,13 @@ void CharacterDatabaseConnection::DoPrepareStatements()
     // felworld_events (per-character event history for observability)
     PrepareStatement(CHAR_INS_FELWORLD_EVENT, "INSERT INTO felworld_events (guid, event_type, details) VALUES (?, ?, ?)", CONNECTION_ASYNC);
     PrepareStatement(CHAR_DEL_FELWORLD_EVENTS_OLD, "DELETE FROM felworld_events WHERE time < NOW() - INTERVAL ? DAY", CONNECTION_ASYNC);
+
+    // CHAR_NO_OP_PROVIDE_REALM_CONTEXT is a no-op query that accepts a single parameter: the realm ID.
+    // This query is used specifically in cross-realm scenarios when the database transaction
+    // lacks sufficient context to determine which realm's database the query should target.
+    // By providing the realm ID explicitly, this ensures that mysql reverse proxy will use
+    // correct realm database for the transaction.
+    PrepareStatement(CHAR_NO_OP_PROVIDE_REALM_CONTEXT, "SELECT ? AS no_op", CONNECTION_ASYNC);
 }
 
 CharacterDatabaseConnection::CharacterDatabaseConnection(MySQLConnectionInfo& connInfo) : MySQLConnection(connInfo)
