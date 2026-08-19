@@ -18,6 +18,7 @@
 #include "AuctionHouseMgr.h"
 #include "AuctionHouseSearcher.h"
 #include "Common.h"
+#include "Config.h"
 #include "DBCStores.h"
 #include "DatabaseEnv.h"
 #include "GameTime.h"
@@ -29,6 +30,7 @@
 #include "UpdateTime.h"
 #include "World.h"
 #include "WorldPacket.h"
+#include "WorldState.h"
 #include <vector>
 
 constexpr auto AH_MINIMUM_DEPOSIT = 100;
@@ -438,11 +440,46 @@ bool AuctionHouseMgr::RemoveAItem(ObjectGuid itemGuid, bool deleteFromDB, Charac
     return true;
 }
 
+// With AuctionHouse.CompensateDowntime enabled, time the realm spent offline (or
+// gameplay-paused, which gates AuctionHouseMgr::Update) does not count against auction
+// durations. The updater keeps a once-a-minute "last alive" heartbeat in worldstates;
+// a gap well beyond the update interval means the clock advanced without gameplay, so
+// every active auction's expiration is pushed forward by that gap. The heartbeat is
+// maintained even while the option is off, so it can be enabled across a downtime.
+void AuctionHouseMgr::CompensateDowntime()
+{
+    time_t const now = GameTime::GetGameTime().count();
+    uint64 const lastAlive = sWorldState->getWorldState(WORLD_STATE_CUSTOM_AUCTION_LAST_ALIVE_TIME);
+
+    if (lastAlive && now > time_t(lastAlive) + time_t(5 * MINUTE) &&
+        sConfigMgr->GetOption<bool>("AuctionHouse.CompensateDowntime", false))
+    {
+        time_t const offset = now - time_t(lastAlive);
+
+        for (AuctionHouseObject* house : { &_hordeAuctions, &_allianceAuctions, &_neutralAuctions })
+            for (auto const& [id, auction] : house->GetAuctions())
+                auction->expire_time += offset;
+
+        _auctionHouseSearcher->ShiftExpireTimes(offset);
+
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_UPD_AUCTION_EXPIRATION_OFFSET);
+        stmt->SetData(0, uint32(offset));
+        CharacterDatabase.Execute(stmt);
+
+        LOG_INFO("entities.player.auctionhouse", "AuctionHouse: extended {} auctions by {}s of downtime",
+            _hordeAuctions.Getcount() + _allianceAuctions.Getcount() + _neutralAuctions.Getcount(), offset);
+    }
+
+    sWorldState->setWorldState(WORLD_STATE_CUSTOM_AUCTION_LAST_ALIVE_TIME, uint64(now));
+}
+
 void AuctionHouseMgr::Update(uint32 const diff)
 {
     _updateIntervalTimer.Update(diff);
     if (_updateIntervalTimer.Passed())
     {
+        CompensateDowntime();
+
         sScriptMgr->OnBeforeAuctionHouseMgrUpdate();
 
         _hordeAuctions.Update();

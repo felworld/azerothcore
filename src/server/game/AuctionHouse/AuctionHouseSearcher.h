@@ -190,7 +190,8 @@ struct AuctionSearcherUpdate
     {
         ADD,
         REMOVE,
-        UPDATE_BID
+        UPDATE_BID,
+        SHIFT_EXPIRE
     };
 
     AuctionSearcherUpdate(Type const _updateType, AuctionHouseFaction _listFaction) : updateType(_updateType), listFaction(_listFaction) { }
@@ -214,6 +215,16 @@ struct AuctionSearchRemove : AuctionSearcherUpdate
         : AuctionSearcherUpdate(AuctionSearcherUpdate::Type::REMOVE, _listFaction), auctionId(_auctionId) { }
 
     uint32 auctionId;
+};
+
+struct AuctionSearchShiftExpire : AuctionSearcherUpdate
+{
+    // Applies to every auction house; listFaction is unused (entries are shared
+    // between workers, so like UPDATE_BID this goes to a single worker).
+    AuctionSearchShiftExpire(time_t _offset)
+        : AuctionSearcherUpdate(AuctionSearcherUpdate::Type::SHIFT_EXPIRE, AuctionHouseFaction::Neutral), offset(_offset) { }
+
+    time_t offset;
 };
 
 struct AuctionSearchUpdateBid : AuctionSearcherUpdate
@@ -256,6 +267,7 @@ private:
     void SearchUpdateAdd(AuctionSearchAdd const& auctionAdd);
     void SearchUpdateRemove(AuctionSearchRemove const& auctionRemove);
     void SearchUpdateBid(AuctionSearchUpdateBid const& auctionUpdateBid);
+    void SearchUpdateShiftExpire(AuctionSearchShiftExpire const& auctionShiftExpire);
 
     void ProcessSearchRequests();
     void SearchListRequest(AuctionSearchListRequest const& searchListRequest);
@@ -289,6 +301,7 @@ public:
     void AddAuction(AuctionEntry const* auctionEntry);
     void RemoveAuction(AuctionEntry const* auctionEntry);
     void UpdateBid(AuctionEntry const* auctionEntry);
+    void ShiftExpireTimes(time_t offset);
 
     void NotifyAllWorkers(std::shared_ptr<AuctionSearcherUpdate> const auctionSearchUpdate);
     void NotifyOneWorker(std::shared_ptr<AuctionSearcherUpdate> const auctionSearchUpdate);

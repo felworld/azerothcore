@@ -26,6 +26,14 @@ where noted:
 - `Death.CorpseReclaimDelay.Steps` — the three escalating corpse reclaim
   delays for deaths in quick succession, hardcoded upstream as 30/60/120
   seconds. Our configs shorten them so death chains sting less.
+- `AuctionHouse.CompensateDowntime` — extend active auction durations by
+  any time the realm spent offline (or gameplay-paused via GM `.pause`), so
+  listings only run down while gameplay runs. Upstream auction expirations
+  are wall-clock timestamps, which on a not-always-on server means a
+  multi-day break mass-expires every auction at the next boot; with this
+  on, a 24-hour listing gets 24 hours of actual play time. The auction
+  updater keeps a once-a-minute heartbeat in `worldstates`; gaps under 5
+  minutes are not compensated.
 - Per-player resurrection sickness — a module hook to adjust the
   `Death.SicknessLevel` threshold per player —
   [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#resurrection-sickness-for-bots)

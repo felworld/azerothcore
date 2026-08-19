@@ -4771,6 +4771,17 @@ ScourgeInvasion.CounterThird  = 150
 AuctionHouse.WorkerThreads = 1
 
 #
+#    AuctionHouse.CompensateDowntime
+#        Description: Extend active auction durations by any time the realm spent offline
+#                     (or gameplay-paused), so listings only run down while gameplay runs.
+#                     Detection granularity is about a minute; gaps under 5 minutes are
+#                     not compensated.
+#        Default:     0 - (Disabled, auctions expire in real time as usual)
+#                     1 - (Enabled)
+
+AuctionHouse.CompensateDowntime = 0
+
+#
 #    LevelReq.Auction
 #        Description: Level requirement for characters to be able to use the auction house.
 #        Default:     1

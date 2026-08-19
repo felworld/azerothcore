@@ -77,6 +77,12 @@ void AuctionHouseWorkerThread::ProcessSearchUpdates()
             SearchUpdateBid(*auctionUpdateBid.get());
             break;
         }
+        case AuctionSearcherUpdate::Type::SHIFT_EXPIRE:
+        {
+            std::shared_ptr<AuctionSearchShiftExpire> const auctionShiftExpire = std::static_pointer_cast<AuctionSearchShiftExpire>(auctionSearchUpdate);
+            SearchUpdateShiftExpire(*auctionShiftExpire.get());
+            break;
+        }
         default:
             break;
         }
@@ -104,6 +110,13 @@ void AuctionHouseWorkerThread::SearchUpdateBid(AuctionSearchUpdateBid const& auc
         itr->second->bid = auctionUpdateBid.bid;
         itr->second->bidderGuid = auctionUpdateBid.bidderGuid;
     }
+}
+
+void AuctionHouseWorkerThread::SearchUpdateShiftExpire(AuctionSearchShiftExpire const& auctionShiftExpire)
+{
+    for (uint8 faction = 0; faction < MAX_AUCTION_HOUSE_FACTIONS; ++faction)
+        for (auto const& itr : _searchableAuctionMap[faction])
+            itr.second->expire_time += auctionShiftExpire.offset;
 }
 
 void AuctionHouseWorkerThread::ProcessSearchRequests()
@@ -417,6 +430,13 @@ void AuctionHouseSearcher::UpdateBid(AuctionEntry const* auctionEntry)
     // Updating bids is a bit unique, we really only need to update a single worker as every worker thread contains
     // a map of shared pointers to the same SearchableAuctionEntry's, so updating one will update them all.
     NotifyOneWorker(std::make_shared<AuctionSearchUpdateBid>(auctionEntry->Id, auctionEntry->GetFactionId(), auctionEntry->bid, auctionEntry->bidder));
+}
+
+void AuctionHouseSearcher::ShiftExpireTimes(time_t offset)
+{
+    // Like UpdateBid: every worker holds shared pointers to the same
+    // SearchableAuctionEntry's, so shifting them in one worker updates them all.
+    NotifyOneWorker(std::make_shared<AuctionSearchShiftExpire>(offset));
 }
 
 void AuctionHouseSearcher::NotifyAllWorkers(std::shared_ptr<AuctionSearcherUpdate> const auctionSearchUpdate)

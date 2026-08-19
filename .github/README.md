@@ -182,7 +182,7 @@ FEATURES.md:
   unsplit group kill XP, XP for open-world PvP kills, multi-drop quest
   items, faster corpse runs (for humans only, if you like), gentler
   repeat-death reclaim delays, no rez sickness for humans (bots still
-  pay full price).
+  pay full price), auction clocks that pause while the realm is offline.
 - **Login/logout announcements** — `ShowLoginLogoutInWorld` tells everyone
   online when a real player comes online or goes offline; bot sessions are
   never announced, so it stays a signal rather than spam.

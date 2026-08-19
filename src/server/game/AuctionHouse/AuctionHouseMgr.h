@@ -210,6 +210,8 @@ public:
     void Update(uint32 const diff);
 
 private:
+    void CompensateDowntime();
+
     AuctionHouseObject _hordeAuctions;
     AuctionHouseObject _allianceAuctions;
     AuctionHouseObject _neutralAuctions;
