@@ -57,6 +57,7 @@
 #include "World.h"
 #include "WorldGlobals.h"
 #include "WorldPacket.h"
+#include "WorldSessionMgr.h"
 #include "WorldSocket.h"
 #include "WorldState.h"
 #include <zlib.h>
@@ -607,9 +608,7 @@ bool WorldSession::Update(uint32 diff, PacketFilter& updater)
 
     _recvQueue.readd(requeuePackets.begin(), requeuePackets.end());
 
-    METRIC_VALUE("processed_packets", processedPackets);
-    METRIC_VALUE("addon_messages", _addonMessageReceiveCount.load());
-    _addonMessageReceiveCount = 0;
+    sWorldSessionMgr->AddPacketMetrics(processedPackets, _addonMessageReceiveCount.exchange(0));
 
     if (!updater.ProcessUnsafe()) // <=> updater is of type MapSessionFilter
     {

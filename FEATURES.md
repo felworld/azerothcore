@@ -221,7 +221,13 @@ Felworld deployment a web dashboard on the host's LAN:
   stock AzerothCore metrics client speaks InfluxDB line protocol, which
   VictoriaMetrics accepts natively, so no core changes were needed for the
   transport. Emission is toggled per session mode via `AC_METRIC_ENABLE`
-  (all tracked `.env.<mode>` files set it alongside the profile).
+  (all tracked `.env.<mode>` files set it alongside the profile). One
+  core-side tweak: `processed_packets` / `addon_messages` are summed across
+  sessions and emitted once per world tick instead of once per session per
+  tick — with ~1800 bot sessions the stock behaviour was ~400k rows/s, 98%
+  of all ingest, and pinned VictoriaMetrics at a full core. The upstream
+  Network dashboard's `sum()` panels read identically; `mean()` is now
+  "per tick" rather than "per session".
 - **Vector + VictoriaLogs** persist and index every container's
   stdout/stderr. The console appenders are configured to prefix lines with
   `LEVEL [category]` so severity and category become queryable fields;

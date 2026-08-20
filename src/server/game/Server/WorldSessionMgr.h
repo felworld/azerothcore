@@ -23,6 +23,7 @@
 #include "IWorld.h"
 #include "LockedQueue.h"
 #include "ObjectGuid.h"
+#include <atomic>
 #include <list>
 #include <map>
 #include <unordered_map>
@@ -50,6 +51,14 @@ public:
     WorldSession* FindOfflineSessionForCharacterGUID(ObjectGuid::LowType guidLow) const;
 
     void UpdateSessions(uint32 const diff);
+
+    /// Packet-throughput counters, summed across all sessions (and map threads) and emitted as a single
+    /// metric sample per world tick from UpdateSessions. Thread-safe: also called from Map::Update.
+    void AddPacketMetrics(uint32 processedPackets, uint32 addonMessages)
+    {
+        _processedPacketsThisTick.fetch_add(processedPackets, std::memory_order_relaxed);
+        _addonMessagesThisTick.fetch_add(addonMessages, std::memory_order_relaxed);
+    }
 
     bool KickSession(uint32 id);
     void KickAll();
@@ -113,6 +122,8 @@ private:
     uint32 _playerCount;
     uint32 _maxPlayerCount;
     uint32 _accountsPlayHistoryPruneTimer;
+    std::atomic<uint32> _processedPacketsThisTick{0};
+    std::atomic<uint32> _addonMessagesThisTick{0};
 };
 
 #define sWorldSessionMgr WorldSessionMgr::Instance()

@@ -197,6 +197,11 @@ void WorldSessionMgr::UpdateSessions(uint32 const diff)
         }
     }
 
+    // One sample per tick for the whole server. Emitting these from WorldSession::Update (upstream) costs
+    // sessions x ticks/s rows — ~400k/s with ~1800 bots online — which is most of the metrics store's ingest.
+    METRIC_VALUE("processed_packets", _processedPacketsThisTick.exchange(0, std::memory_order_relaxed));
+    METRIC_VALUE("addon_messages", _addonMessagesThisTick.exchange(0, std::memory_order_relaxed));
+
     // pussywizard:
     if (_offlineSessions.empty())
         return;
