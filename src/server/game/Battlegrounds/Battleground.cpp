@@ -1106,9 +1106,14 @@ void Battleground::RemovePlayerAtLeave(Player* player)
         SendPacketToTeam(teamId, &data, player, false);
 
         // cast deserter
-        if (isBattleground() && !player->GetSession()->HasPermission(rbac::RBAC_PERM_NO_BATTLEGROUND_DESERTER_DEBUFF) && sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER))
+        if (isBattleground() && !player->GetSession()->HasPermission(rbac::RBAC_PERM_NO_BATTLEGROUND_DESERTER_DEBUFF))
             if (status == STATUS_IN_PROGRESS || status == STATUS_WAIT_JOIN)
-                player->ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
+            {
+                bool castDeserter = sWorld->getBoolConfig(CONFIG_BATTLEGROUND_CAST_DESERTER);
+                sScriptMgr->OnPlayerBattlegroundDeserterDebuff(player, this, castDeserter);
+                if (castDeserter)
+                    player->ScheduleDelayedOperation(DELAYED_SPELL_CAST_DESERTER);
+            }
 
         DecreaseInvitedCount(teamId);
 

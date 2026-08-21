@@ -152,6 +152,16 @@ void ScriptMgr::OnPlayerResurrectSicknessLevel(Player* player, int32& startLevel
     CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_RESURRECT_SICKNESS_LEVEL, script->OnPlayerResurrectSicknessLevel(player, startLevel));
 }
 
+void ScriptMgr::OnPlayerBattlegroundDeserterDebuff(Player* player, Battleground* bg, bool& castDeserter)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_BATTLEGROUND_DESERTER_DEBUFF, script->OnPlayerBattlegroundDeserterDebuff(player, bg, castDeserter));
+}
+
+void ScriptMgr::OnPlayerDungeonDeserterDebuff(Player* player, Group* group, bool& castDeserter)
+{
+    CALL_ENABLED_HOOKS(PlayerScript, PLAYERHOOK_ON_DUNGEON_DESERTER_DEBUFF, script->OnPlayerDungeonDeserterDebuff(player, group, castDeserter));
+}
+
 bool ScriptMgr::OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental)
 {
     CALL_ENABLED_BOOLEAN_HOOKS(PlayerScript, PLAYERHOOK_ON_REPUTATION_CHANGE, !script->OnPlayerReputationChange(player, factionID, standing, incremental));

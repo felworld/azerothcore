@@ -338,6 +338,8 @@ public: /* PlayerScript */
     void OnPlayerGiveXP(Player* player, uint32& amount, Unit* victim, uint8 xpSource);
     void OnPlayerGhostSpeedRate(Player* player, float& rate);
     void OnPlayerResurrectSicknessLevel(Player* player, int32& startLevel);
+    void OnPlayerBattlegroundDeserterDebuff(Player* player, Battleground* bg, bool& castDeserter);
+    void OnPlayerDungeonDeserterDebuff(Player* player, Group* group, bool& castDeserter);
     bool OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
     void OnPlayerReputationRankChange(Player* player, uint32 factionID, ReputationRank newRank, ReputationRank oldRank, bool increased);
     void OnPlayerGiveReputation(Player* player, int32 factionID, float& amount, ReputationSource repSource);

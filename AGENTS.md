@@ -40,6 +40,16 @@ The `felworld/configs` submodule is the deployed config tree — bind-mounted in
 
 Felworld is pre-production; existing DB data is disposable. When a schema or feature replaces an old one, drop/replace directly (e.g. `DROP TABLE IF EXISTS` in module base SQL) — no migration or seeding code, no support for deprecated config options.
 
+### Human-vs-bot gameplay costs (the usual pattern)
+
+When a gameplay cost (debuff, penalty, delay, rate) should be spared for human players but kept for bots, build it as a pair:
+
+1. **Core** (`worldserver.conf`): an option that turns the cost off server-wide — reuse the upstream option if one exists (`Death.SicknessLevel`, `Battleground.CastDeserter`, `DungeonFinder.CastDeserter`), otherwise add one — plus a `PlayerScript` hook at the decision point that lets a module adjust the computed value per player (`OnPlayerResurrectSicknessLevel`, `OnPlayerGhostSpeedRate`, `OnPlayerBattlegroundDeserterDebuff` / `OnPlayerDungeonDeserterDebuff`). The core never checks `IsBot()` itself.
+2. **mod-playerbots** (`playerbots.conf`): an `AiPlayerbot.*` option that restores or replaces the cost for bot sessions (`player->GetSession()->IsBot()`) through that hook. Default = follow the server setting, so upstream behaviour is unchanged until configured.
+3. **Configs** (`env/dist/etc`): turn the cost off in `worldserver.conf`, turn the playerbots override on.
+
+Document the core side in the hub `FEATURES.md` and the override in mod-playerbots' `FEATURES.md`, cross-linked.
+
 ### Documentation upkeep
 
 READMEs are hub-and-spokes and are the onboarding surface for closed-beta invitees — keep them current:

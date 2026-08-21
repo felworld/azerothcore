@@ -223,6 +223,8 @@ enum PlayerHook
     PLAYERHOOK_ON_BEFORE_GET_LEVEL_FOR_XP_GAIN,
     PLAYERHOOK_ON_GHOST_SPEED_RATE,
     PLAYERHOOK_ON_RESURRECT_SICKNESS_LEVEL,
+    PLAYERHOOK_ON_BATTLEGROUND_DESERTER_DEBUFF,
+    PLAYERHOOK_ON_DUNGEON_DESERTER_DEBUFF,
     PLAYERHOOK_END
 };
 
@@ -302,6 +304,12 @@ public:
 
     // Called when the resurrection sickness starting level is computed, after Death.SicknessLevel is applied
     virtual void OnPlayerResurrectSicknessLevel(Player* /*player*/, int32& /*startLevel*/) { }
+
+    // Called when a player leaves a battleground in progress (already removed from bg's player list), after Battleground.CastDeserter is applied
+    virtual void OnPlayerBattlegroundDeserterDebuff(Player* /*player*/, Battleground* /*bg*/, bool& /*castDeserter*/) { }
+
+    // Called when a player leaves an LFG dungeon group early (already removed from the group), after DungeonFinder.CastDeserter is applied
+    virtual void OnPlayerDungeonDeserterDebuff(Player* /*player*/, Group* /*group*/, bool& /*castDeserter*/) { }
 
     // Called when a player's reputation changes (before it is actually changed)
     virtual bool OnPlayerReputationChange(Player* /*player*/, uint32 /*factionID*/, int32& /*standing*/, bool /*incremental*/) { return true; }

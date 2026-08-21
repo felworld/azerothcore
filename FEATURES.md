@@ -40,6 +40,14 @@ where noted:
   uses it to give bots their own threshold. Our configs disable sickness
   server-wide and restore it for bots, so humans skip the debuff while
   instant bot rezzes keep their cost.
+- Per-player deserter debuffs — module hooks to decide per player whether
+  leaving a battleground in progress or an LFG dungeon early casts
+  Deserter, on top of `Battleground.CastDeserter` /
+  `DungeonFinder.CastDeserter` —
+  [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#deserter-debuffs-for-bots)
+  uses them to keep the debuff for bots and for humans who abandon other
+  humans. Our configs disable both options server-wide and restore them
+  that way, so a human who bails on an all-bot group skips the debuff.
 
 ## Login and logout announcements
 
