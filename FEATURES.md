@@ -19,6 +19,14 @@ where noted:
   and gray-level victims give nothing.
 - `Quests.MultiDropQuestItems` — allow one mob kill to drop a quest item
   for everyone in the group who needs it.
+- `DualSpecCost` — price of Dual Talent Specialization, in copper. The
+  1000 gold price tag is stock 3.3.5a data, living in the world DB's
+  `gossip_menu_option.BoxMoney`; this option prices the purchase from config
+  instead, overriding that column both where the confirmation box is built
+  and where the money is taken, so the two can never disagree. The default
+  matches the stock data, so behaviour is unchanged until it's set; our
+  configs charge 10 gold, since a second spec is a convenience for playing
+  with bots rather than a gold sink worth a leveling career's savings.
 - `Rate.MoveSpeed.Ghost` — movement speed rate for dead player ghosts
   (corpse runs), with a module hook to adjust it per player —
   [mod-playerbots](https://github.com/felworld/mod-playerbots/blob/main/FEATURES.md#corpse-run-pacing)

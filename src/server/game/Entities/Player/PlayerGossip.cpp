@@ -202,7 +202,11 @@ void Player::PrepareGossipMenu(WorldObject* source, uint32 menuId /*= 0*/, bool 
                 }
             }
 
-            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, itr->second.BoxMoney, itr->second.BoxCoded);
+            // Dual Talent Specialization is priced by config, not by gossip_menu_option.BoxMoney
+            uint32 boxMoney = itr->second.OptionType == GOSSIP_OPTION_LEARNDUALSPEC ?
+                sWorld->getIntConfig(CONFIG_DUALSPEC_COST) : itr->second.BoxMoney;
+
+            menu->GetGossipMenu().AddMenuItem(itr->second.OptionID, itr->second.OptionIcon, strOptionText, 0, itr->second.OptionType, strBoxText, boxMoney, itr->second.BoxCoded);
             menu->GetGossipMenu().AddGossipMenuItemData(itr->second.OptionID, itr->second.ActionMenuID, itr->second.ActionPoiID);
         }
     }
@@ -292,7 +296,9 @@ void Player::OnGossipSelect(WorldObject* source, uint32 gossipListId, uint32 men
     if (!menuItemData)
         return;
 
-    int32 cost = int32(item->BoxMoney);
+    // Dual Talent Specialization is priced by config, not by gossip_menu_option.BoxMoney
+    int32 cost = gossipOptionId == GOSSIP_OPTION_LEARNDUALSPEC ?
+        int32(sWorld->getIntConfig(CONFIG_DUALSPEC_COST)) : int32(item->BoxMoney);
     if (!HasEnoughMoney(cost))
     {
         SendBuyError(BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);

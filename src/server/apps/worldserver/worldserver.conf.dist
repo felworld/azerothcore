@@ -2175,6 +2175,15 @@ MaxPlayerLevel = 80
 MinDualSpecLevel = 40
 
 #
+#    DualSpecCost
+#        Description: Cost of Dual Talent Specialization, in copper.
+#                     Overrides gossip_menu_option.BoxMoney for that option, so the
+#                     confirmation box and the amount charged always agree.
+#        Default:     10000000 (1000 gold, the stock 3.3.5a price)
+
+DualSpecCost = 10000000
+
+#
 #    WaterBreath.Timer
 #        Description: The timer for player's breath underwater in milliseconds
 #        Default:     180000 (3 minutes)

@@ -181,9 +181,10 @@ FEATURES.md:
 - **Gameplay options** (opt-in via config) — XP from profession skill-ups,
   unsplit group kill XP, XP for open-world PvP kills, multi-drop quest
   items, faster corpse runs (for humans only, if you like), gentler
-  repeat-death reclaim delays, no rez sickness for humans and no deserter
-  debuff for humans who bail on an all-bot group (bots still pay full
-  price), auction clocks that pause while the realm is offline.
+  repeat-death reclaim delays, a dual spec that costs 10 gold instead of
+  1000, no rez sickness for humans and no deserter debuff for humans who
+  bail on an all-bot group (bots still pay full price), auction clocks that
+  pause while the realm is offline.
 - **Login/logout announcements** — `ShowLoginLogoutInWorld` tells everyone
   online when a real player comes online or goes offline; bot sessions are
   never announced, so it stays a signal rather than spam.
