@@ -151,8 +151,9 @@ full in [mod-playerbots' FEATURES.md](https://github.com/felworld/mod-playerbots
 - **Social buffing**: idle bots cast their class buff on passers-by who
   lack it, buff back whoever buffs them, and thank strangers for heals.
 - **Quest-competition groups**: a bot competing with you for quest spawns
-  invites you to group, grinds alongside you as a peer, and politely
-  leaves when the shared objectives are done.
+  invites you to group, pulls in other bots working the same camp, grinds
+  alongside you as a peer, and politely leaves when the shared objectives
+  are done.
 - **World PvP excursions**: bots occasionally travel to enemy or contested
   towns (Southshore/Tarren Mill, the Crossroads, sometimes even Goldshire)
   to lurk and pick fights for a while, with goading emotes at unflagged
