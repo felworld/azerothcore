@@ -50,6 +50,19 @@ When a gameplay cost (debuff, penalty, delay, rate) should be spared for human p
 
 Document the core side in the hub `FEATURES.md` and the override in mod-playerbots' `FEATURES.md`, cross-linked.
 
+### Many bots reacting to one event (the usual pattern)
+
+When something happens that a whole group of bots notices at once — a party invite batch landing, the player leaving, a camp finishing, enemies appearing at the flag room — **never let every eligible bot act on it, and never hard-cap it at one**. All of them reacting is the tell that they aren't people; exactly one, every single time, is a quieter tell of the same kind. Ration the reaction with a **geometric falloff**:
+
+1. The first bot to reach the event **rolls the whole quota** — a `*Chance` option for whether anybody reacts at all, then a `*Falloff` option (0-100, typically ~30) rolled per additional actor, each conditional on the previous one, capped at a sane maximum.
+2. Everyone else **claims a slot** against that quota until it runs out; losers stay silent, and the quota expires after a window (~15s) so a later, unrelated event rolls fresh.
+3. State lives in a **mutex-guarded board keyed by the room** (group, attacker, zone, …) — claimants run on different map-update threads. `GroupChatterBoard` (`src/Ai/World/Group/`) and `WpvpDefenseBoard::TryClaimResponseSlot` are the reference implementations.
+4. **Stagger the winners**: slot *n* acts a beat after slot *n-1* (`GroupChatterDelayMs`), and nobody acts on the event's own tick — a second line has to read as an answer, not an echo.
+
+Roll the quota up front rather than giving each bot an independently decayed chance: a per-bot roll makes the count scale with how many bots happen to be in earshot, so the same option means something different in a party and in a raid. A rolled quota has the same distribution either way (at 85/30: 15% nobody, 60% one, 18% two, 5% three).
+
+This is the shape behind group hellos and goodbyes, battleground callouts ("one callout per team per wave"), wpvp defense response waves, and mod-llm's group greetings — mirror it in mod-llm when the LLM voices a moment playerbots rations, so llm mode doesn't reintroduce the wall.
+
 ### Documentation upkeep
 
 READMEs are hub-and-spokes and are the onboarding surface for closed-beta invitees — keep them current:
