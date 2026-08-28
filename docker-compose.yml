@@ -140,6 +140,7 @@ services:
       - AC_AI_PLAYERBOT_KEYWORD_TRADE_REPLIES
       - AC_AI_PLAYERBOT_DUEL_CHATTER
       - AC_AI_PLAYERBOT_GROUP_CHATTER
+      - AC_AI_PLAYERBOT_ENGINEERING_CHATTER
     ports:
       - ${DOCKER_WORLD_EXTERNAL_PORT:-8085}:8085
       # SOAP is loopback-only (and SOAP.Enabled=0 besides): remote admin API,
