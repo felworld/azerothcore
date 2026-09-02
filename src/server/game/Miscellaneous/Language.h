@@ -1547,6 +1547,17 @@ enum AcoreStrings
     LANG_ACCOUNT_FLAG_ADDED             = 35469,
     LANG_ACCOUNT_FLAG_REMOVED           = 35470,
 
+    // Account info command
+    LANG_ACCOUNT_INFO_JOINDATE          = 35471,
+    LANG_ACCOUNT_INFO_EXPANSION         = 35472,
+    LANG_ACCOUNT_INFO_LOCK_COUNTRY      = 35473,
+    LANG_ACCOUNT_INFO_BANNED            = 35474,
+    LANG_ACCOUNT_INFO_CHARS             = 35475,
+    LANG_ACCOUNT_INFO_CHAR_ENTRY        = 35476,
+    LANG_ACCOUNT_INFO_NO_CHARS          = 35477,
+    LANG_ACCOUNT_INFO_CURRENT_IP        = 35478,
+    LANG_ACCOUNT_INFO_CHAR_OFFLINE      = 35479,
+
     // Fork-local strings live in a reserved high range so upstream can keep
     // allocating from 35xxx without colliding
     LANG_ANNOUNCE_PLAYER_LOGIN          = 4600001,
